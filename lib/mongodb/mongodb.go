@@ -7,6 +7,7 @@ import (
 
 	"github.com/cuvva/cuvva-public-go/lib/config"
 	"github.com/cuvva/cuvva-public-go/lib/db/mongodb"
+	"github.com/wearemojo/mojo-public-go/lib/secrets"
 	"go.mongodb.org/mongo-driver/bson"
 )
 

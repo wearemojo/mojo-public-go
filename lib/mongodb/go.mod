@@ -2,8 +2,11 @@ module github.com/wearemojo/mojo-public-go/lib/mongodb
 
 go 1.17
 
+replace github.com/wearemojo/mojo-public-go => ../..
+
 require (
 	github.com/cuvva/cuvva-public-go v0.0.0-20220126153504-02340c23f19b
+	github.com/wearemojo/mojo-public-go v0.0.0-00010101000000-000000000000
 	go.mongodb.org/mongo-driver v1.8.2
 )
 
