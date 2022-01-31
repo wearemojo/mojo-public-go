@@ -8,6 +8,7 @@ import (
 	"time"
 
 	kmsapi "cloud.google.com/go/kms/apiv1"
+	"github.com/cuvva/cuvva-public-go/lib/cher"
 	jwt "github.com/golang-jwt/jwt/v4"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
 	kms "google.golang.org/genproto/googleapis/cloud/kms/v1"
@@ -118,5 +119,15 @@ func (s *Verifier) Verify(ctx context.Context, token string) (claims jwtinterfac
 
 		return s.getPublicKey(ctx, issuer, keyID)
 	})
+	if vErr, ok := err.(*jwt.ValidationError); ok {
+		switch {
+		case vErr.Errors&jwt.ValidationErrorIssuedAt != 0:
+			err = cher.New("token_used_before_issued", nil)
+		case vErr.Errors&jwt.ValidationErrorNotValidYet != 0:
+			err = cher.New("token_not_yet_valid", nil)
+		case vErr.Errors&jwt.ValidationErrorExpired != 0:
+			err = cher.New("token_expired", nil)
+		}
+	}
 	return
 }
