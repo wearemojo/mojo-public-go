@@ -31,8 +31,13 @@ func Middleware(parser Parser) func(http.Handler) http.Handler {
 
 			authState, err := parser.Check(ctx, authzHeader)
 			if err != nil {
-				clog.Get(ctx).WithError(err).Info("auth check failed")
 				jsonError(w, err)
+
+				if cerr, ok := err.(cher.E); ok && cerr.Code == cher.Unauthorized && len(cerr.Reasons) == 1 {
+					err = cerr.Reasons[0]
+				}
+				clog.Get(ctx).WithError(err).Info("auth check failed")
+
 				return
 			}
 
