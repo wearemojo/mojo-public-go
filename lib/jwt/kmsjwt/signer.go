@@ -115,7 +115,7 @@ func (s *Signer) Sign(ctx context.Context, customClaims jwtinterface.Claims) (st
 	claims := jwtinterface.Claims{
 		"iss": fmt.Sprintf("%s-%s", s.env, s.serviceName),
 		"iat": time.Now().Unix(),
-		"exp": time.Now().Add(time.Minute * 5).Unix(),
+		"exp": time.Now().Add(time.Minute * 15).Unix(),
 	}
 
 	for k, v := range customClaims {
