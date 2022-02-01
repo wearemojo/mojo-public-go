@@ -109,7 +109,7 @@ func (s *Verifier) Verify(ctx context.Context, token string) (claims jwtinterfac
 		ValidMethods:  []string{"ES256"},
 		UseJSONNumber: true,
 	}
-	_, err = parser.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
+	_, err = parser.ParseWithClaims(token, &claims, func(t *jwt.Token) (any, error) {
 		issuer, _ := claims["iss"].(string)
 		keyID, _ := t.Header["kid"].(string)
 

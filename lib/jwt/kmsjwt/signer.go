@@ -155,11 +155,11 @@ func (s jwtSigningMethodSign) Alg() string {
 	return "ES256"
 }
 
-func (s jwtSigningMethodSign) Verify(signingString, signature string, key interface{}) error {
+func (s jwtSigningMethodSign) Verify(signingString, signature string, key any) error {
 	return fmt.Errorf("not implemented")
 }
 
-func (s jwtSigningMethodSign) Sign(signingString string, key interface{}) (string, error) {
+func (s jwtSigningMethodSign) Sign(signingString string, key any) (string, error) {
 	path := fmt.Sprintf(
 		"projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s/cryptoKeyVersions/%s",
 		s.signer.projectID,
