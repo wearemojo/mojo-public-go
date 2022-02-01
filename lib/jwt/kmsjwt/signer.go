@@ -104,7 +104,7 @@ func (s *Signer) findKeyVersion(ctx context.Context) (string, error) {
 }
 
 func (s *Signer) Sign(ctx context.Context, customClaims jwtinterface.Claims) (string, error) {
-	if _, ok := customClaims["v"].(int); !ok {
+	if _, ok := customClaims["v"].(string); !ok {
 		return "", fmt.Errorf("version claim is required")
 	}
 
