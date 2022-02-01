@@ -4,28 +4,21 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/cuvva/cuvva-public-go/lib/servicecontext"
 	"github.com/wearemojo/mojo-public-go/lib/gcp"
 	"github.com/wearemojo/mojo-public-go/lib/secrets"
+	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
 	"google.golang.org/api/secretmanager/v1"
 )
-
-type cachedResult struct {
-	retrievedAt time.Time
-
-	data string
-}
 
 var _ secrets.Provider = (*GCPSecretsProvider)(nil)
 
 type GCPSecretsProvider struct {
 	projectID string
 
-	cache      map[string]cachedResult
-	cacheMutex sync.RWMutex
+	cache *ttlcache.KeyedCache[string]
 }
 
 func New(ctx context.Context) (*GCPSecretsProvider, error) {
@@ -36,47 +29,15 @@ func New(ctx context.Context) (*GCPSecretsProvider, error) {
 
 	return &GCPSecretsProvider{
 		projectID: projectID,
-		cache:     map[string]cachedResult{},
+
+		cache: ttlcache.NewKeyed[string](time.Minute),
 	}, nil
 }
 
-// TODO: Go 1.18 generics
-func (p *GCPSecretsProvider) cacheGet(key string) *cachedResult {
-	p.cacheMutex.RLock()
-	defer p.cacheMutex.RUnlock()
-
-	if result, ok := p.cache[key]; ok {
-		return &result
-	}
-
-	return nil
-}
-
-func (p *GCPSecretsProvider) cacheSet(key string, data string) {
-	p.cacheMutex.Lock()
-	defer p.cacheMutex.Unlock()
-
-	p.cache[key] = cachedResult{
-		retrievedAt: time.Now(),
-		data:        data,
-	}
-}
-
 func (p *GCPSecretsProvider) Get(ctx context.Context, secretID string) (string, error) {
-	if result := p.cacheGet(secretID); result != nil {
-		if time.Since(result.retrievedAt) < time.Minute {
-			return result.data, nil
-		}
-	}
-
-	result, err := p.load(ctx, secretID)
-	if err != nil {
-		return "", err
-	}
-
-	p.cacheSet(secretID, result)
-
-	return result, nil
+	return p.cache.GetOrDoE(secretID, func() (string, error) {
+		return p.load(ctx, secretID)
+	})
 }
 
 func (p *GCPSecretsProvider) load(ctx context.Context, secretID string) (secret string, err error) {

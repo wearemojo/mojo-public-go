@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
-	"sync"
 	"time"
 
 	kmsapi "cloud.google.com/go/kms/apiv1"
 	jwt "github.com/golang-jwt/jwt/v4"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
+	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
 	"google.golang.org/api/iterator"
 	kms "google.golang.org/genproto/googleapis/cloud/kms/v1"
 )
@@ -25,9 +25,7 @@ type Signer struct {
 	env         string
 	serviceName string
 
-	keyVersionCache      string
-	keyVersionCacheSetAt time.Time
-	keyVersionCacheLock  sync.RWMutex
+	keyVersionCache *ttlcache.SingularCache[string]
 }
 
 func NewSigner(client *kmsapi.KeyManagementClient, projectID, env, serviceName string) *Signer {
@@ -36,40 +34,15 @@ func NewSigner(client *kmsapi.KeyManagementClient, projectID, env, serviceName s
 		projectID:   projectID,
 		env:         env,
 		serviceName: serviceName,
+
+		keyVersionCache: ttlcache.NewSingular[string](time.Minute * 5),
 	}
-}
-
-// TODO: Go 1.18 generics
-func (s *Signer) keyVersionCacheGet() (string, time.Time) {
-	s.keyVersionCacheLock.RLock()
-	defer s.keyVersionCacheLock.RUnlock()
-
-	return s.keyVersionCache, s.keyVersionCacheSetAt
-}
-
-func (s *Signer) keyVersionCacheSet(keyVersion string) {
-	s.keyVersionCacheLock.Lock()
-	defer s.keyVersionCacheLock.Unlock()
-
-	s.keyVersionCache = keyVersion
-	s.keyVersionCacheSetAt = time.Now()
 }
 
 func (s *Signer) getKeyVersion(ctx context.Context) (string, error) {
-	if cache, setAt := s.keyVersionCacheGet(); cache != "" {
-		if time.Since(setAt) < time.Minute*5 {
-			return cache, nil
-		}
-	}
-
-	res, err := s.findKeyVersion(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	s.keyVersionCacheSet(res)
-
-	return res, nil
+	return s.keyVersionCache.GetOrDoE(func() (string, error) {
+		return s.findKeyVersion(ctx)
+	})
 }
 
 func (s *Signer) findKeyVersion(ctx context.Context) (string, error) {

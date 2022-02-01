@@ -4,21 +4,15 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"fmt"
-	"sync"
 	"time"
 
 	kmsapi "cloud.google.com/go/kms/apiv1"
 	"github.com/cuvva/cuvva-public-go/lib/cher"
 	jwt "github.com/golang-jwt/jwt/v4"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
+	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
 	kms "google.golang.org/genproto/googleapis/cloud/kms/v1"
 )
-
-type cachedPublicKey struct {
-	retrievedAt time.Time
-
-	data *ecdsa.PublicKey
-}
 
 var _ jwtinterface.Verifier = (*Verifier)(nil)
 
@@ -26,8 +20,7 @@ type Verifier struct {
 	client    *kmsapi.KeyManagementClient
 	projectID string
 
-	publicKeyCache     map[string]cachedPublicKey
-	publicKeyCacheLock sync.RWMutex
+	publicKeyCache *ttlcache.KeyedCache[*ecdsa.PublicKey]
 }
 
 func NewVerifier(client *kmsapi.KeyManagementClient, projectID string) *Verifier {
@@ -35,49 +28,16 @@ func NewVerifier(client *kmsapi.KeyManagementClient, projectID string) *Verifier
 		client:    client,
 		projectID: projectID,
 
-		publicKeyCache: map[string]cachedPublicKey{},
-	}
-}
-
-// TODO: Go 1.18 generics
-func (v *Verifier) publicKeyCacheGet(key string) *cachedPublicKey {
-	v.publicKeyCacheLock.RLock()
-	defer v.publicKeyCacheLock.RUnlock()
-
-	if result, ok := v.publicKeyCache[key]; ok {
-		return &result
-	}
-
-	return nil
-}
-
-func (v *Verifier) publicKeyCacheSet(key string, data *ecdsa.PublicKey) {
-	v.publicKeyCacheLock.Lock()
-	defer v.publicKeyCacheLock.Unlock()
-
-	v.publicKeyCache[key] = cachedPublicKey{
-		retrievedAt: time.Now(),
-		data:        data,
+		publicKeyCache: ttlcache.NewKeyed[*ecdsa.PublicKey](time.Minute * 5),
 	}
 }
 
 func (s *Verifier) getPublicKey(ctx context.Context, issuer, keyID string) (*ecdsa.PublicKey, error) {
 	cacheKey := issuer + "/" + keyID
 
-	if cache := s.publicKeyCacheGet(cacheKey); cache != nil {
-		if time.Since(cache.retrievedAt) < time.Minute*5 {
-			return cache.data, nil
-		}
-	}
-
-	res, err := s.findPublicKey(ctx, issuer, keyID)
-	if err != nil {
-		return nil, err
-	}
-
-	s.publicKeyCacheSet(cacheKey, res)
-
-	return res, nil
+	return s.publicKeyCache.GetOrDoE(cacheKey, func() (*ecdsa.PublicKey, error) {
+		return s.findPublicKey(ctx, issuer, keyID)
+	})
 }
 
 func (s *Verifier) findPublicKey(ctx context.Context, issuer, keyID string) (*ecdsa.PublicKey, error) {
