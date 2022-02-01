@@ -13,13 +13,13 @@ type contextKey string
 
 const providerKey contextKey = "provider"
 
-func getProvider(ctx context.Context) (v Provider) {
-	v, _ = ctx.Value(providerKey).(Provider)
+func getProvider(ctx context.Context) (val Provider) {
+	val, _ = ctx.Value(providerKey).(Provider)
 	return
 }
 
-func ContextWithProvider(ctx context.Context, v Provider) context.Context {
-	return context.WithValue(ctx, providerKey, v)
+func ContextWithProvider(ctx context.Context, val Provider) context.Context {
+	return context.WithValue(ctx, providerKey, val)
 }
 
 func Get(ctx context.Context, secretID string) (string, error) {
