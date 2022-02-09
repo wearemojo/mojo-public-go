@@ -9,14 +9,14 @@ require (
 	github.com/matryer/is v1.4.0
 	go.mongodb.org/mongo-driver v1.8.3
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
-	google.golang.org/api v0.67.0
+	google.golang.org/api v0.68.0
 	google.golang.org/genproto v0.0.0-20220204002441-d6cc3cc0770e
 	gopkg.in/ini.v1 v1.66.3
 )
 
 require (
 	cloud.google.com/go v0.100.2 // indirect
-	cloud.google.com/go/compute v1.1.0 // indirect
+	cloud.google.com/go/compute v1.2.0 // indirect
 	cloud.google.com/go/iam v0.1.1 // indirect
 	github.com/aws/aws-sdk-go v1.42.44 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -50,7 +50,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220128200615-198e4374d7ed // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220128215802-99c3d69c2c27 // indirect
+	golang.org/x/sys v0.0.0-20220204135822-1c1b9b1eba6a // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/grpc v1.44.0 // indirect
