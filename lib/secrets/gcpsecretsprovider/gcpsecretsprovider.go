@@ -46,7 +46,7 @@ func (p *GCPSecretsProvider) load(ctx context.Context, secretID string) (secret 
 		return
 	}
 
-	env := servicecontext.Get().Environment
+	env := servicecontext.GetContext(ctx).Environment
 	path := fmt.Sprintf("projects/%s/secrets/%s-%s/versions/latest", p.projectID, env, secretID)
 	s, err := sm.Projects.Secrets.Versions.Access(path).Context(ctx).Do()
 	if err != nil {
