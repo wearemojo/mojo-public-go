@@ -27,19 +27,17 @@ func TestNew(t *testing.T) {
 func TestNewInvalidLength(t *testing.T) {
 	is := is.New(t)
 
-	hmac, err := New(ctx, "invalid_length")
+	_, err := New(ctx, "invalid_length")
 
 	is.True(err != nil)
-	is.Equal(hmac, nil)
 }
 
 func TestNewInvalidFormat(t *testing.T) {
 	is := is.New(t)
 
-	hmac, err := New(ctx, "invalid_format")
+	_, err := New(ctx, "invalid_format")
 
 	is.True(err != nil)
-	is.Equal(hmac, nil)
 }
 
 func TestGenerate(t *testing.T) {
