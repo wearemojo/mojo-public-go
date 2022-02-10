@@ -49,21 +49,21 @@ func FilterE[T any](slice []T, fn func(T) (bool, error)) (res []T, err error) {
 	return
 }
 
-func Reduce[T1, T2 any](slice []T1, fn func(item T1, acc T2) T2, initial T2) T2 {
+func Reduce[T1, T2 any](slice []T1, fn func(acc T2, item T1) T2, initial T2) T2 {
 	acc := initial
 
 	for _, v := range slice {
-		acc = fn(v, acc)
+		acc = fn(acc, v)
 	}
 
 	return acc
 }
 
-func ReduceE[T1, T2 any](slice []T1, fn func(item T1, acc T2) (T2, error), initial T2) (acc T2, err error) {
+func ReduceE[T1, T2 any](slice []T1, fn func(acc T2, item T1) (T2, error), initial T2) (acc T2, err error) {
 	acc = initial
 
 	for _, v := range slice {
-		acc, err = fn(v, acc)
+		acc, err = fn(acc, v)
 		if err != nil {
 			return
 		}
