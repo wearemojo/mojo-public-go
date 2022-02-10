@@ -1,4 +1,4 @@
-package gcpsecretsprovider
+package gcpsecretprovider
 
 import (
 	"context"
@@ -8,39 +8,39 @@ import (
 
 	"github.com/cuvva/cuvva-public-go/lib/servicecontext"
 	"github.com/wearemojo/mojo-public-go/lib/gcp"
-	"github.com/wearemojo/mojo-public-go/lib/secrets"
+	"github.com/wearemojo/mojo-public-go/lib/secret"
 	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
 	"google.golang.org/api/secretmanager/v1"
 )
 
-var _ secrets.Provider = (*GCPSecretsProvider)(nil)
+var _ secret.Provider = (*GCPSecretProvider)(nil)
 
-type GCPSecretsProvider struct {
+type GCPSecretProvider struct {
 	projectID string
 
 	cache *ttlcache.KeyedCache[string]
 }
 
-func New(ctx context.Context) (*GCPSecretsProvider, error) {
+func New(ctx context.Context) (*GCPSecretProvider, error) {
 	projectID, err := gcp.GetProjectID(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &GCPSecretsProvider{
+	return &GCPSecretProvider{
 		projectID: projectID,
 
 		cache: ttlcache.NewKeyed[string](time.Minute),
 	}, nil
 }
 
-func (p *GCPSecretsProvider) Get(ctx context.Context, secretID string) (string, error) {
+func (p *GCPSecretProvider) Get(ctx context.Context, secretID string) (string, error) {
 	return p.cache.GetOrDoE(secretID, func() (string, error) {
 		return p.load(ctx, secretID)
 	})
 }
 
-func (p *GCPSecretsProvider) load(ctx context.Context, secretID string) (secret string, err error) {
+func (p *GCPSecretProvider) load(ctx context.Context, secretID string) (secret string, err error) {
 	sm, err := secretmanager.NewService(ctx)
 	if err != nil {
 		return

@@ -1,4 +1,4 @@
-package secrets
+package secret
 
 import (
 	"context"
@@ -25,7 +25,7 @@ func ContextWithProvider(ctx context.Context, val Provider) context.Context {
 func Get(ctx context.Context, secretID string) (string, error) {
 	p := getProvider(ctx)
 	if p == nil {
-		return "", fmt.Errorf("secrets provider not set")
+		return "", fmt.Errorf("secret provider not set")
 	}
 
 	return p.Get(ctx, secretID)

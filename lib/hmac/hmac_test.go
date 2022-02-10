@@ -5,11 +5,11 @@ import (
 	"testing"
 
 	"github.com/matryer/is"
-	"github.com/wearemojo/mojo-public-go/lib/secrets"
-	"github.com/wearemojo/mojo-public-go/lib/secrets/mocksecretsprovider"
+	"github.com/wearemojo/mojo-public-go/lib/secret"
+	"github.com/wearemojo/mojo-public-go/lib/secret/mocksecretprovider"
 )
 
-var ctx = secrets.ContextWithProvider(context.Background(), mocksecretsprovider.New(map[string]string{
+var ctx = secret.ContextWithProvider(context.Background(), mocksecretprovider.New(map[string]string{
 	"valid":          "d182058da62f51e05a725774030d6e182f9cd1da05f0d67b00a806e5ae40102d",
 	"invalid_length": "d182058da62f51e05a725774030d6e182f9cd1da05f0d67b00a806e5ae40102d00",
 	"invalid_format": "zxcvbn",

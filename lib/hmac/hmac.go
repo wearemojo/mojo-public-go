@@ -7,7 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/wearemojo/mojo-public-go/lib/secrets"
+	"github.com/wearemojo/mojo-public-go/lib/secret"
 )
 
 const keyLength = 32
@@ -23,7 +23,7 @@ func New(ctx context.Context, secretID string) (hmac *HMAC, err error) {
 }
 
 func (h HMAC) getSecret(ctx context.Context) ([]byte, error) {
-	keyHex, err := secrets.Get(ctx, h.secretID)
+	keyHex, err := secret.Get(ctx, h.secretID)
 	if err != nil {
 		return nil, err
 	}

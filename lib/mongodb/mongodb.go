@@ -7,7 +7,7 @@ import (
 
 	"github.com/cuvva/cuvva-public-go/lib/config"
 	"github.com/cuvva/cuvva-public-go/lib/db/mongodb"
-	"github.com/wearemojo/mojo-public-go/lib/secrets"
+	"github.com/wearemojo/mojo-public-go/lib/secret"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -20,7 +20,7 @@ func New(uriSecretID string) *MongoDB {
 }
 
 func (m *MongoDB) Connect(ctx context.Context, schemaFS fs.FS, collectionNames []string) (*mongodb.Database, error) {
-	uri, err := secrets.Get(ctx, m.uriSecretID)
+	uri, err := secret.Get(ctx, m.uriSecretID)
 	if err != nil {
 		return nil, err
 	}
