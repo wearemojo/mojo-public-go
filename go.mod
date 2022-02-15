@@ -3,14 +3,14 @@ module github.com/wearemojo/mojo-public-go
 go 1.18
 
 require (
-	cloud.google.com/go/kms v1.2.0
+	cloud.google.com/go/kms v1.3.0
 	github.com/cuvva/cuvva-public-go v0.0.0-20220209135632-0e2ddcfa749d
 	github.com/golang-jwt/jwt/v4 v4.3.0
 	github.com/matryer/is v1.4.0
 	go.mongodb.org/mongo-driver v1.8.3
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	google.golang.org/api v0.68.0
-	google.golang.org/genproto v0.0.0-20220204002441-d6cc3cc0770e
+	google.golang.org/genproto v0.0.0-20220207164111-0872dc986b00
 	gopkg.in/ini.v1 v1.66.4
 )
 
