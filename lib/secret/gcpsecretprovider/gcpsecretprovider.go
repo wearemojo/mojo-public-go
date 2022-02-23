@@ -18,7 +18,7 @@ var _ secret.Provider = (*GCPSecretProvider)(nil)
 type GCPSecretProvider struct {
 	projectID string
 
-	cache *ttlcache.KeyedCache[string]
+	cache *ttlcache.KeyedCache[string, string]
 }
 
 func New(ctx context.Context) (*GCPSecretProvider, error) {
@@ -30,7 +30,7 @@ func New(ctx context.Context) (*GCPSecretProvider, error) {
 	return &GCPSecretProvider{
 		projectID: projectID,
 
-		cache: ttlcache.NewKeyed[string](time.Minute),
+		cache: ttlcache.NewKeyed[string, string](time.Minute),
 	}, nil
 }
 

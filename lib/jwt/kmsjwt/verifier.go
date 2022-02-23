@@ -16,11 +16,15 @@ import (
 
 var _ jwtinterface.Verifier = (*Verifier)(nil)
 
+type cacheKey struct {
+	issuer, keyID string
+}
+
 type Verifier struct {
 	client    *kmsapi.KeyManagementClient
 	projectID string
 
-	publicKeyCache *ttlcache.KeyedCache[*ecdsa.PublicKey]
+	publicKeyCache *ttlcache.KeyedCache[cacheKey, *ecdsa.PublicKey]
 }
 
 func NewVerifier(client *kmsapi.KeyManagementClient, projectID string) *Verifier {
@@ -28,14 +32,14 @@ func NewVerifier(client *kmsapi.KeyManagementClient, projectID string) *Verifier
 		client:    client,
 		projectID: projectID,
 
-		publicKeyCache: ttlcache.NewKeyed[*ecdsa.PublicKey](time.Minute * 5),
+		publicKeyCache: ttlcache.NewKeyed[cacheKey, *ecdsa.PublicKey](time.Minute * 5),
 	}
 }
 
 func (s *Verifier) getPublicKey(ctx context.Context, issuer, keyID string) (*ecdsa.PublicKey, error) {
-	cacheKey := issuer + "/" + keyID
+	k := cacheKey{issuer, keyID}
 
-	return s.publicKeyCache.GetOrDoE(cacheKey, func() (*ecdsa.PublicKey, error) {
+	return s.publicKeyCache.GetOrDoE(k, func() (*ecdsa.PublicKey, error) {
 		return s.findPublicKey(ctx, issuer, keyID)
 	})
 }
