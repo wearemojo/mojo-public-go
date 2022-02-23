@@ -4,15 +4,15 @@ import (
 	"time"
 )
 
-var singularCacheKey = "item"
+var singularCacheKey = struct{}{}
 
 type SingularCache[T any] struct {
-	cache *KeyedCache[string, T]
+	cache *KeyedCache[struct{}, T]
 }
 
 func NewSingular[T any](ttl time.Duration) *SingularCache[T] {
 	return &SingularCache[T]{
-		cache: NewKeyed[string, T](ttl),
+		cache: NewKeyed[struct{}, T](ttl),
 	}
 }
 
