@@ -10,22 +10,22 @@ type CachedItem[T any] struct {
 	SetAt time.Time
 }
 
-type KeyedCache[T any] struct {
+type KeyedCache[TKey comparable, TVal any] struct {
 	ttl time.Duration
 
-	items map[string]CachedItem[T]
+	items map[TKey]CachedItem[TVal]
 	lock  sync.RWMutex
 }
 
-func NewKeyed[T any](ttl time.Duration) *KeyedCache[T] {
-	return &KeyedCache[T]{
+func NewKeyed[TKey comparable, TVal any](ttl time.Duration) *KeyedCache[TKey, TVal] {
+	return &KeyedCache[TKey, TVal]{
 		ttl: ttl,
 
-		items: map[string]CachedItem[T]{},
+		items: map[TKey]CachedItem[TVal]{},
 	}
 }
 
-func (c *KeyedCache[T]) Get(key string) (item CachedItem[T], ok bool) {
+func (c *KeyedCache[TKey, TVal]) Get(key TKey) (item CachedItem[TVal], ok bool) {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
 
@@ -33,17 +33,17 @@ func (c *KeyedCache[T]) Get(key string) (item CachedItem[T], ok bool) {
 	return
 }
 
-func (c *KeyedCache[T]) Set(key string, value T) {
+func (c *KeyedCache[TKey, TVal]) Set(key TKey, value TVal) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	c.items[key] = CachedItem[T]{
+	c.items[key] = CachedItem[TVal]{
 		Value: value,
 		SetAt: time.Now(),
 	}
 }
 
-func (c *KeyedCache[T]) GetOrDo(key string, fn func() T) T {
+func (c *KeyedCache[TKey, TVal]) GetOrDo(key TKey, fn func() TVal) TVal {
 	if item, ok := c.Get(key); ok {
 		if time.Since(item.SetAt) < c.ttl {
 			return item.Value
@@ -57,7 +57,7 @@ func (c *KeyedCache[T]) GetOrDo(key string, fn func() T) T {
 	return value
 }
 
-func (c *KeyedCache[T]) GetOrDoE(key string, fn func() (T, error)) (T, error) {
+func (c *KeyedCache[TKey, TVal]) GetOrDoE(key TKey, fn func() (TVal, error)) (TVal, error) {
 	if item, ok := c.Get(key); ok {
 		if time.Since(item.SetAt) < c.ttl {
 			return item.Value, nil
