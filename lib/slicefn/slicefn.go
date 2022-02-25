@@ -180,6 +180,26 @@ func FindE[T any](slice []T, fn func(T) (bool, error)) (res T, ok bool, err erro
 	return
 }
 
+func FindPtr[T any](slice []T, fn func(T) bool) *T {
+	i := FindIndex(slice, fn)
+	if i >= 0 {
+		return &slice[i]
+	}
+
+	return nil
+}
+
+func FindPtrE[T any](slice []T, fn func(T) (bool, error)) (*T, error) {
+	i, err := FindIndexE(slice, fn)
+	if err != nil {
+		return nil, err
+	} else if i >= 0 {
+		return &slice[i], nil
+	}
+
+	return nil, nil
+}
+
 func FindLast[T any](slice []T, fn func(T) bool) (res T, ok bool) {
 	i := FindLastIndex(slice, fn)
 	if i >= 0 {
@@ -198,4 +218,24 @@ func FindLastE[T any](slice []T, fn func(T) (bool, error)) (res T, ok bool, err 
 	}
 
 	return
+}
+
+func FindLastPtr[T any](slice []T, fn func(T) bool) *T {
+	i := FindLastIndex(slice, fn)
+	if i >= 0 {
+		return &slice[i]
+	}
+
+	return nil
+}
+
+func FindLastPtrE[T any](slice []T, fn func(T) (bool, error)) (*T, error) {
+	i, err := FindLastIndexE(slice, fn)
+	if err != nil {
+		return nil, err
+	} else if i >= 0 {
+		return &slice[i], nil
+	}
+
+	return nil, nil
 }
