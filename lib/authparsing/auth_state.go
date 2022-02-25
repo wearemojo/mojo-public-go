@@ -1,5 +1,9 @@
 package authparsing
 
+import (
+	"github.com/cuvva/cuvva-public-go/lib/ksuid"
+)
+
 type AuthStateType string
 
 const (
@@ -14,5 +18,5 @@ type AuthState struct {
 	Type AuthStateType
 
 	// UserID is only set for AuthStateTypeU2S
-	UserID string
+	UserID ksuid.ID
 }
