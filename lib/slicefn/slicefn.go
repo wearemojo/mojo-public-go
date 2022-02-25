@@ -138,6 +138,28 @@ func FindIndexE[T any](slice []T, fn func(T) (bool, error)) (int, error) {
 	return -1, nil
 }
 
+func FindLastIndex[T any](slice []T, fn func(T) bool) int {
+	for i := len(slice) - 1; i >= 0; i-- {
+		if fn(slice[i]) {
+			return i
+		}
+	}
+
+	return -1
+}
+
+func FindLastIndexE[T any](slice []T, fn func(T) (bool, error)) (int, error) {
+	for i := len(slice) - 1; i >= 0; i-- {
+		if ok, err := fn(slice[i]); err != nil {
+			return -1, err
+		} else if ok {
+			return i, nil
+		}
+	}
+
+	return -1, nil
+}
+
 func Find[T any](slice []T, fn func(T) bool) (res T, ok bool) {
 	i := FindIndex(slice, fn)
 	if i >= 0 {
@@ -149,6 +171,26 @@ func Find[T any](slice []T, fn func(T) bool) (res T, ok bool) {
 
 func FindE[T any](slice []T, fn func(T) (bool, error)) (res T, ok bool, err error) {
 	i, err := FindIndexE(slice, fn)
+	if err != nil {
+		return
+	} else if i >= 0 {
+		return slice[i], true, nil
+	}
+
+	return
+}
+
+func FindLast[T any](slice []T, fn func(T) bool) (res T, ok bool) {
+	i := FindLastIndex(slice, fn)
+	if i >= 0 {
+		return slice[i], true
+	}
+
+	return
+}
+
+func FindLastE[T any](slice []T, fn func(T) (bool, error)) (res T, ok bool, err error) {
+	i, err := FindLastIndexE(slice, fn)
 	if err != nil {
 		return
 	} else if i >= 0 {
