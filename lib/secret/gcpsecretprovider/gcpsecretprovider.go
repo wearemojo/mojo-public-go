@@ -2,15 +2,15 @@ package gcpsecretprovider
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"time"
 
+	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"github.com/cuvva/cuvva-public-go/lib/servicecontext"
 	"github.com/wearemojo/mojo-public-go/lib/gcp"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
 	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
-	"google.golang.org/api/secretmanager/v1"
+	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
 )
 
 var _ secret.Provider = (*GCPSecretProvider)(nil)
@@ -41,22 +41,18 @@ func (p *GCPSecretProvider) Get(ctx context.Context, secretID string) (string, e
 }
 
 func (p *GCPSecretProvider) load(ctx context.Context, secretID string) (secret string, err error) {
-	sm, err := secretmanager.NewService(ctx)
+	sm, err := secretmanager.NewClient(ctx)
 	if err != nil {
 		return
 	}
 
 	env := servicecontext.GetContext(ctx).Environment
-	path := fmt.Sprintf("projects/%s/secrets/%s-%s/versions/latest", p.projectID, env, secretID)
-	s, err := sm.Projects.Secrets.Versions.Access(path).Context(ctx).Do()
+	res, err := sm.AccessSecretVersion(ctx, &secretmanagerpb.AccessSecretVersionRequest{
+		Name: fmt.Sprintf("projects/%s/secrets/%s-%s/versions/latest", p.projectID, env, secretID),
+	})
 	if err != nil {
 		return
 	}
 
-	data, err := base64.StdEncoding.DecodeString(s.Payload.Data)
-	if err != nil {
-		return
-	}
-
-	return string(data), nil
+	return string(res.Payload.Data), nil
 }
