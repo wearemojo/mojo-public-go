@@ -9,10 +9,10 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.3.0
 	github.com/matryer/is v1.4.0
 	go.mongodb.org/mongo-driver v1.8.4
-	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
+	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	google.golang.org/api v0.71.0
-	google.golang.org/genproto v0.0.0-20220304144024-325a89244dc8
+	google.golang.org/api v0.72.0
+	google.golang.org/genproto v0.0.0-20220310185008-1973136f34c6
 	gopkg.in/ini.v1 v1.66.4
 )
 
@@ -51,9 +51,9 @@ require (
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/crypto v0.0.0-20220128200615-198e4374d7ed // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
-	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
+	golang.org/x/sys v0.0.0-20220310020820-b874c991c1a5 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/grpc v1.44.0 // indirect
+	google.golang.org/grpc v1.45.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 )
