@@ -6,13 +6,13 @@ import (
 
 type contextKey string
 
-const authStateKey contextKey = "auth_state"
+const contextKeyAuthState contextKey = "auth_state"
 
 func GetAuthState(ctx context.Context) (val *AuthState) {
-	val, _ = ctx.Value(authStateKey).(*AuthState)
+	val, _ = ctx.Value(contextKeyAuthState).(*AuthState)
 	return
 }
 
 func SetAuthState(ctx context.Context, val *AuthState) context.Context {
-	return context.WithValue(ctx, authStateKey, val)
+	return context.WithValue(ctx, contextKeyAuthState, val)
 }
