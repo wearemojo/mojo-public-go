@@ -8,7 +8,7 @@ require (
 	github.com/cuvva/cuvva-public-go v0.0.0-20220316143253-c8e125386bcc
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/matryer/is v1.4.0
-	go.mongodb.org/mongo-driver v1.8.4
+	go.mongodb.org/mongo-driver v1.9.0
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	google.golang.org/api v0.74.0
