@@ -6,6 +6,10 @@ import (
 	mathrand "math/rand"
 )
 
+func New() *mathrand.Rand {
+	return mathrand.New(NewSource())
+}
+
 type source struct{}
 
 func NewSource() mathrand.Source {
