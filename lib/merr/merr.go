@@ -20,19 +20,19 @@ type E struct {
 
 type M map[string]any
 
-func New(code Code, meta M) *E {
-	return &E{
+func New(code Code, meta M) E {
+	return E{
 		Code: code,
 		Meta: meta,
 	}
 }
 
-func Wrap(reason error, code Code, meta M) *E {
+func Wrap(reason error, code Code, meta M) error {
 	if reason == nil {
 		return nil
 	}
 
-	return &E{
+	return E{
 		Code: code,
 		Meta: meta,
 
