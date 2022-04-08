@@ -2,8 +2,8 @@ package mocksecretprovider
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
 )
 
@@ -24,5 +24,5 @@ func (p MockSecretProvider) Get(ctx context.Context, secretID string) (string, e
 		return value, nil
 	}
 
-	return "", fmt.Errorf("secret_not_found")
+	return "", merr.New(secret.ErrSecretNotFound, merr.M{"secret_id": secretID})
 }

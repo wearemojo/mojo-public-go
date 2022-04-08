@@ -5,8 +5,10 @@ import (
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
 )
 
-var _ jwtinterface.Signer = (*KMSJWT)(nil)
-var _ jwtinterface.Verifier = (*KMSJWT)(nil)
+var (
+	_ jwtinterface.Signer   = (*KMSJWT)(nil)
+	_ jwtinterface.Verifier = (*KMSJWT)(nil)
+)
 
 type KMSJWT struct {
 	*Signer

@@ -8,9 +8,12 @@ import (
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"github.com/cuvva/cuvva-public-go/lib/servicecontext"
 	"github.com/wearemojo/mojo-public-go/lib/gcp"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
 	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
 	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var _ secret.Provider = (*GCPSecretProvider)(nil)
@@ -40,17 +43,20 @@ func (p *GCPSecretProvider) Get(ctx context.Context, secretID string) (string, e
 	})
 }
 
-func (p *GCPSecretProvider) load(ctx context.Context, secretID string) (secret string, err error) {
-	sm, err := secretmanager.NewClient(ctx)
+func (p *GCPSecretProvider) load(ctx context.Context, secretID string) (_ string, err error) {
+	smClient, err := secretmanager.NewClient(ctx)
 	if err != nil {
 		return
 	}
 
 	env := servicecontext.GetContext(ctx).Environment
-	res, err := sm.AccessSecretVersion(ctx, &secretmanagerpb.AccessSecretVersionRequest{
+	res, err := smClient.AccessSecretVersion(ctx, &secretmanagerpb.AccessSecretVersionRequest{
 		Name: fmt.Sprintf("projects/%s/secrets/%s-%s/versions/latest", p.projectID, env, secretID),
 	})
-	if err != nil {
+	if status.Code(err) == codes.NotFound {
+		err = merr.New(secret.ErrSecretNotFound, merr.M{"secret_id": secretID})
+		return
+	} else if err != nil {
 		return
 	}
 

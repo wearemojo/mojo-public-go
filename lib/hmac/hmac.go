@@ -5,8 +5,8 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
 )
 
@@ -34,7 +34,7 @@ func (h HMAC) getSecret(ctx context.Context) ([]byte, error) {
 	}
 
 	if len(key) != keyLength {
-		return nil, fmt.Errorf("invalid hmac key")
+		return nil, merr.New("invalid_hmac_key", merr.M{"key_length": len(key)})
 	}
 
 	return key, nil

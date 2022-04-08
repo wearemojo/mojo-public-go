@@ -6,15 +6,15 @@ import (
 
 func Middleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := r.Context()
+		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			ctx := req.Context()
 
-			ipCountry := r.Header.Get("mojo-ip-country")
+			ipCountry := req.Header.Get("mojo-ip-country")
 
 			ctx = SetIPCountry(ctx, ipCountry)
-			r = r.WithContext(ctx)
+			req = req.WithContext(ctx)
 
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(res, req)
 		})
 	}
 }

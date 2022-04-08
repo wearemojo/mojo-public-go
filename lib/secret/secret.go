@@ -2,8 +2,11 @@ package secret
 
 import (
 	"context"
-	"fmt"
+
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
+
+const ErrSecretNotFound = merr.Code("secret_not_found")
 
 type Provider interface {
 	Get(ctx context.Context, secretID string) (string, error)
@@ -25,7 +28,7 @@ func ContextWithProvider(ctx context.Context, val Provider) context.Context {
 func Get(ctx context.Context, secretID string) (string, error) {
 	p := getProvider(ctx)
 	if p == nil {
-		return "", fmt.Errorf("secret provider not set")
+		return "", merr.New("unset_secret_provider", nil)
 	}
 
 	return p.Get(ctx, secretID)

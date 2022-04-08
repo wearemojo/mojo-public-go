@@ -6,13 +6,13 @@ import (
 
 func Middleware() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			header := w.Header()
+		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+			header := res.Header()
 
 			header.Add("Vary", "Origin")
 
-			if r.Header.Get("Origin") == "" {
-				next.ServeHTTP(w, r)
+			if req.Header.Get("Origin") == "" {
+				next.ServeHTTP(res, req)
 				return
 			}
 
@@ -22,12 +22,12 @@ func Middleware() func(next http.Handler) http.Handler {
 			header.Set("Access-Control-Expose-Headers", "request-id")
 			header.Set("Access-Control-Max-Age", "86400")
 
-			if r.Method == http.MethodOptions {
-				w.WriteHeader(http.StatusNoContent)
+			if req.Method == http.MethodOptions {
+				res.WriteHeader(http.StatusNoContent)
 				return
 			}
 
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(res, req)
 		})
 	}
 }

@@ -6,7 +6,7 @@ import (
 
 var _ error = Code("")
 
-type Code string
+type Code string // nolint:errname
 
 func (c Code) Error() string {
 	return string(c)

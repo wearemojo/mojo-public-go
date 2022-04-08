@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/asn1"
+	"errors"
 	"fmt"
 	"math/big"
 	"strings"
@@ -12,6 +13,7 @@ import (
 	kmsapi "cloud.google.com/go/kms/apiv1"
 	jwt "github.com/golang-jwt/jwt/v4"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
 	"google.golang.org/api/iterator"
 	kms "google.golang.org/genproto/googleapis/cloud/kms/v1"
@@ -60,14 +62,14 @@ func (s *Signer) findKeyVersion(ctx context.Context) (string, error) {
 		Filter:   "state=ENABLED",
 		OrderBy:  "name desc",
 	}).Next()
-	if err == iterator.Done {
-		return "", fmt.Errorf("no crypto key versions found")
+	if errors.Is(err, iterator.Done) {
+		return "", merr.New("missing_crypto_key_version", merr.M{"path": path})
 	} else if err != nil {
 		return "", err
 	}
 
 	if res.Algorithm != kms.CryptoKeyVersion_EC_SIGN_P256_SHA256 {
-		return "", fmt.Errorf("unexpected algorithm: %s", res.Algorithm)
+		return "", merr.New("unexpected_crypto_key_algorithm", merr.M{"algorithm": res.Algorithm})
 	}
 
 	i := strings.LastIndex(res.Name, "/")
@@ -78,11 +80,11 @@ func (s *Signer) findKeyVersion(ctx context.Context) (string, error) {
 
 func (s *Signer) Sign(ctx context.Context, customClaims jwtinterface.Claims) (string, error) {
 	if _, ok := customClaims["v"].(string); !ok {
-		return "", fmt.Errorf("version claim is required")
+		return "", merr.New("required_claim_missing", merr.M{"claim": "v"})
 	}
 
 	if _, ok := customClaims["t"].(string); !ok {
-		return "", fmt.Errorf("type claim is required")
+		return "", merr.New("required_claim_missing", merr.M{"claim": "t"})
 	}
 
 	claims := jwtinterface.Claims{
@@ -93,7 +95,7 @@ func (s *Signer) Sign(ctx context.Context, customClaims jwtinterface.Claims) (st
 
 	for k, v := range customClaims {
 		if _, ok := claims[k]; ok {
-			return "", fmt.Errorf("claim %s cannot be overridden", k)
+			return "", merr.New("claim_unoverridable", merr.M{"claim": k})
 		}
 
 		claims[k] = v
@@ -104,13 +106,13 @@ func (s *Signer) Sign(ctx context.Context, customClaims jwtinterface.Claims) (st
 		return "", err
 	}
 
-	sm := jwtSigningMethodSign{
+	signingMethod := jwtSigningMethodSign{
 		ctx:        ctx,
 		signer:     s,
 		keyVersion: keyVersion,
 	}
 
-	token := jwt.NewWithClaims(sm, claims)
+	token := jwt.NewWithClaims(signingMethod, claims)
 	token.Header["kid"] = keyVersion
 
 	return token.SignedString(ctx)
@@ -119,7 +121,7 @@ func (s *Signer) Sign(ctx context.Context, customClaims jwtinterface.Claims) (st
 var _ jwt.SigningMethod = (*jwtSigningMethodSign)(nil)
 
 type jwtSigningMethodSign struct {
-	ctx        context.Context
+	ctx        context.Context // nolint:containedctx
 	signer     *Signer
 	keyVersion string
 }
@@ -129,7 +131,7 @@ func (s jwtSigningMethodSign) Alg() string {
 }
 
 func (s jwtSigningMethodSign) Verify(signingString, signature string, key any) error {
-	return fmt.Errorf("not implemented")
+	return merr.New("not_implemented", nil)
 }
 
 func (s jwtSigningMethodSign) Sign(signingString string, key any) (string, error) {
@@ -186,5 +188,5 @@ func reencodeSignature(sig []byte, method *jwt.SigningMethodECDSA) ([]byte, erro
 	sBytesPadded := make([]byte, keyBytes)
 	copy(sBytesPadded[keyBytes-len(sBytes):], sBytes)
 
-	return append(rBytesPadded, sBytesPadded...), nil
+	return append(rBytesPadded, sBytesPadded...), nil // nolint:makezero
 }

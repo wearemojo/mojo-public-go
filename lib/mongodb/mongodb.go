@@ -2,11 +2,11 @@ package mongodb
 
 import (
 	"context"
-	"fmt"
 	"io/fs"
 
 	"github.com/cuvva/cuvva-public-go/lib/config"
 	"github.com/cuvva/cuvva-public-go/lib/db/mongodb"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -39,7 +39,7 @@ func (m *MongoDB) Connect(ctx context.Context, schemaFS fs.FS, collectionNames [
 
 	err = db.SetupSchemas(ctx, schemaFS, collectionNames)
 	if err != nil {
-		return nil, fmt.Errorf("schemas: %w", err)
+		return nil, merr.Wrap(err, "schema_setup_failed", merr.M{"collection_names": collectionNames})
 	}
 
 	return db, nil

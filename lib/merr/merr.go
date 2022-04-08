@@ -66,17 +66,17 @@ func (e E) String() string {
 //
 // No compatibility guarantees are made with its output - it may change at any time
 func (e E) Error() string {
-	s := string(e.Code)
+	str := string(e.Code)
 
 	if len(e.Meta) > 0 {
-		s += fmt.Sprintf(" (%v)", e.Meta)
+		str += fmt.Sprintf(" (%v)", e.Meta)
 	}
 
 	if e.Reason != nil {
-		s += fmt.Sprintf(": %v", e.Reason)
+		str += fmt.Sprintf(": %v", e.Reason)
 	}
 
-	return s
+	return str
 }
 
 // Is enables the use of `errors.Is`
@@ -86,7 +86,7 @@ func (e E) Is(err error) bool {
 	}
 
 	// needed because E is not comparable
-	if merr, ok := err.(E); ok {
+	if merr, ok := err.(E); ok { // nolint:errorlint
 		return e.Equal(merr)
 	}
 

@@ -9,7 +9,9 @@ import (
 	kmsapi "cloud.google.com/go/kms/apiv1"
 	"github.com/cuvva/cuvva-public-go/lib/cher"
 	jwt "github.com/golang-jwt/jwt/v4"
+	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
 	kms "google.golang.org/genproto/googleapis/cloud/kms/v1"
 )
@@ -62,7 +64,7 @@ func (s *Verifier) findPublicKey(ctx context.Context, issuer, keyID string) (*ec
 	}
 
 	if res.Algorithm != kms.CryptoKeyVersion_EC_SIGN_P256_SHA256 {
-		return nil, fmt.Errorf("unexpected algorithm: %s", res.Algorithm)
+		return nil, merr.New("unexpected_crypto_key_algorithm", merr.M{"algorithm": res.Algorithm})
 	}
 
 	return jwt.ParseECPublicKeyFromPEM([]byte(res.Pem))
@@ -78,12 +80,12 @@ func (s *Verifier) Verify(ctx context.Context, token string) (claims jwtinterfac
 		keyID, _ := t.Header["kid"].(string)
 
 		if issuer == "" || keyID == "" {
-			return nil, fmt.Errorf("missing issuer or key ID")
+			return nil, merr.New("missing_fields", merr.M{"iss": issuer, "kid": keyID})
 		}
 
 		return s.getPublicKey(ctx, issuer, keyID)
 	})
-	if vErr, ok := err.(*jwt.ValidationError); ok {
+	if vErr, ok := gerrors.As[*jwt.ValidationError](err); ok {
 		switch {
 		case vErr.Errors&jwt.ValidationErrorIssuedAt != 0:
 			err = cher.New("token_used_before_issued", nil)

@@ -5,7 +5,10 @@ import (
 	"strings"
 
 	"github.com/cuvva/cuvva-public-go/lib/cher"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
+
+const ErrNoAuthorization = merr.Code("no_authorization")
 
 type Handler func(context.Context, string) (*AuthState, error)
 
@@ -16,7 +19,7 @@ type Parser struct {
 
 func (a Parser) Check(ctx context.Context, authorizationHeader string) (*AuthState, error) {
 	if authorizationHeader == "" {
-		return nil, nil
+		return nil, ErrNoAuthorization
 	}
 
 	parts := strings.SplitN(authorizationHeader, " ", 2)

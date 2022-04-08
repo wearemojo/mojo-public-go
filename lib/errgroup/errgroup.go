@@ -8,7 +8,7 @@ import (
 
 type Group struct {
 	g    *realerrgroup.Group
-	gctx context.Context
+	gctx context.Context // nolint:containedctx
 }
 
 func WithContext(ctx context.Context) *Group {

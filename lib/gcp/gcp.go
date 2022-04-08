@@ -2,11 +2,11 @@ package gcp
 
 import (
 	"context"
-	"fmt"
 	"os/user"
 	"path/filepath"
 
 	"github.com/cuvva/cuvva-public-go/lib/clog"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"golang.org/x/oauth2/google"
 	compute "google.golang.org/api/compute/v1"
 	ini "gopkg.in/ini.v1"
@@ -39,7 +39,7 @@ func GetProjectID(ctx context.Context) (string, error) {
 	projectID := cfg.Section("core").Key("project").String()
 
 	if projectID == "" {
-		return "", fmt.Errorf("no project id found in %s", path)
+		return "", merr.New("gcp_project_id_missing", merr.M{"path": path})
 	}
 
 	return projectID, nil

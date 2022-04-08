@@ -1,0 +1,49 @@
+run:
+  timeout: 5m
+
+linters:
+  enable-all: true
+
+  disable:
+  - exhaustivestruct # disagree - also not the intended use
+  - gochecknoglobals # impractical
+  - godot # disagree
+  - godox # disagree
+  - golint # deprecated: replaced by revive
+  - gomnd # disagree
+  - ireturn # disagree
+  - nlreturn # disagree
+  - paralleltest # impractical
+  - testpackage # disagree
+  - wrapcheck # disagree
+  - wsl # disagree
+
+severity:
+  default-severity: error
+
+linters-settings:
+  forbidigo:
+    forbid:
+    - 'errors\.New'
+    - 'fmt\.Error.*'
+    - 'fmt\.Print.*'
+    - 'pretty\.Print.*'
+
+  govet:
+    enable-all: true
+    disable:
+    - fieldalignment # impractical
+
+  tagliatelle:
+    case:
+      rules:
+        json: snake
+
+  varnamelen:
+    ignore-names:
+    - db
+    - fn
+    - id
+    ignore-decls:
+    - is *is.I
+    - sb strings.Builder

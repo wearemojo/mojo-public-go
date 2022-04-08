@@ -1,5 +1,11 @@
 package slicefn
 
+import (
+	"github.com/wearemojo/mojo-public-go/lib/merr"
+)
+
+const ErrNotFound = merr.Code("not_found")
+
 func Map[T1, T2 any](slice []T1, fn func(T1) T2) []T2 {
 	res := make([]T2, len(slice))
 
@@ -161,8 +167,7 @@ func FindLastIndexE[T any](slice []T, fn func(T) (bool, error)) (int, error) {
 }
 
 func Find[T any](slice []T, fn func(T) bool) (res T, ok bool) {
-	i := FindIndex(slice, fn)
-	if i >= 0 {
+	if i := FindIndex(slice, fn); i >= 0 {
 		return slice[i], true
 	}
 
@@ -181,8 +186,7 @@ func FindE[T any](slice []T, fn func(T) (bool, error)) (res T, ok bool, err erro
 }
 
 func FindPtr[T any](slice []T, fn func(T) bool) *T {
-	i := FindIndex(slice, fn)
-	if i >= 0 {
+	if i := FindIndex(slice, fn); i >= 0 {
 		return &slice[i]
 	}
 
@@ -197,12 +201,11 @@ func FindPtrE[T any](slice []T, fn func(T) (bool, error)) (*T, error) {
 		return &slice[i], nil
 	}
 
-	return nil, nil
+	return nil, ErrNotFound
 }
 
 func FindLast[T any](slice []T, fn func(T) bool) (res T, ok bool) {
-	i := FindLastIndex(slice, fn)
-	if i >= 0 {
+	if i := FindLastIndex(slice, fn); i >= 0 {
 		return slice[i], true
 	}
 
@@ -221,8 +224,7 @@ func FindLastE[T any](slice []T, fn func(T) (bool, error)) (res T, ok bool, err 
 }
 
 func FindLastPtr[T any](slice []T, fn func(T) bool) *T {
-	i := FindLastIndex(slice, fn)
-	if i >= 0 {
+	if i := FindLastIndex(slice, fn); i >= 0 {
 		return &slice[i]
 	}
 
@@ -237,5 +239,5 @@ func FindLastPtrE[T any](slice []T, fn func(T) (bool, error)) (*T, error) {
 		return &slice[i], nil
 	}
 
-	return nil, nil
+	return nil, ErrNotFound
 }
