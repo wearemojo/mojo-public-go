@@ -12,7 +12,11 @@ func (c Code) Error() string {
 	return string(c)
 }
 
-// IsCode is a convenience wrapper for `errors.Is` - as it works when called with strings directly
+// IsCode is a convenience wrapper for `errors.Is`
+//
+// `errors.Is(err, "foo")` does not work
+//
+// `IsCode(err, "foo")` does - as the string is automatically converted
 func IsCode(err error, code Code) bool {
 	return errors.Is(err, code)
 }
