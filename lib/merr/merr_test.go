@@ -2,6 +2,7 @@ package merr
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/matryer/is"
@@ -13,9 +14,10 @@ func TestNew(t *testing.T) {
 
 	err := New("foo", nil)
 
-	is.Equal(err, E{
-		Code: Code("foo"),
-	})
+	is.Equal(err.Code, Code("foo"))
+	is.Equal(err.Meta, nil)
+	is.True(strings.HasSuffix(err.Stack[0].File, "/lib/merr/merr_test.go"))
+	is.Equal(err.Reason, nil)
 }
 
 func TestNewMeta(t *testing.T) {
@@ -23,10 +25,10 @@ func TestNewMeta(t *testing.T) {
 
 	err := New("foo", M{"a": "b"})
 
-	is.Equal(err, E{
-		Code: Code("foo"),
-		Meta: M{"a": "b"},
-	})
+	is.Equal(err.Code, Code("foo"))
+	is.Equal(err.Meta, M{"a": "b"})
+	is.True(strings.HasSuffix(err.Stack[0].File, "/lib/merr/merr_test.go"))
+	is.Equal(err.Reason, nil)
 }
 
 func TestWrap(t *testing.T) {
@@ -35,10 +37,13 @@ func TestWrap(t *testing.T) {
 	err1 := errors.New("underlying error")
 	err2 := Wrap(err1, "foo", nil)
 
-	is.Equal(err2, E{
-		Code:   Code("foo"),
-		Reason: errors.New("underlying error"),
-	})
+	err, ok := gerrors.As[E](err2)
+
+	is.True(ok)
+	is.Equal(err.Code, Code("foo"))
+	is.Equal(err.Meta, nil)
+	is.True(strings.HasSuffix(err.Stack[0].File, "/lib/merr/merr_test.go"))
+	is.Equal(err.Reason, errors.New("underlying error"))
 }
 
 func TestWrapMeta(t *testing.T) {
@@ -47,12 +52,13 @@ func TestWrapMeta(t *testing.T) {
 	err1 := errors.New("underlying error")
 	err2 := Wrap(err1, "foo", M{"a": "b"})
 
-	is.Equal(err2, E{
-		Code: Code("foo"),
-		Meta: M{"a": "b"},
+	err, ok := gerrors.As[E](err2)
 
-		Reason: errors.New("underlying error"),
-	})
+	is.True(ok)
+	is.Equal(err.Code, Code("foo"))
+	is.Equal(err.Meta, M{"a": "b"})
+	is.True(strings.HasSuffix(err.Stack[0].File, "/lib/merr/merr_test.go"))
+	is.Equal(err.Reason, errors.New("underlying error"))
 }
 
 func TestWrapNil(t *testing.T) {
@@ -66,12 +72,8 @@ func TestWrapNil(t *testing.T) {
 func TestEqual(t *testing.T) {
 	is := is.New(t)
 
-	err1 := New("foo", M{"a": "b"})
-	err2 := New("foo", M{"a": "b"})
-	err3 := New("foo", M{"a": "c"})
-	err4 := New("bar", M{"a": "b"})
-	err5 := New("foo", nil)
-	err6 := New("foo", M{"a": "b"})
+	// same line to ensure same stack trace 😅
+	err1, err2, err3, err4, err5, err6 := New("foo", M{"a": "b"}), New("foo", M{"a": "b"}), New("foo", M{"a": "c"}), New("bar", M{"a": "b"}), New("foo", nil), New("foo", M{"a": "b"})
 	err6.Reason = errors.New("foo")
 
 	is.True(err1.Equal(err2))

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/wearemojo/mojo-public-go/lib/stacktrace"
 )
 
 var _ interface {
@@ -17,6 +18,8 @@ type E struct {
 	Code Code `json:"code"`
 	Meta M    `json:"meta"`
 
+	Stack []stacktrace.Frame `json:"stack"`
+
 	Reason error `json:"reason"`
 }
 
@@ -26,6 +29,8 @@ func New(code Code, meta M) E {
 	return E{
 		Code: code,
 		Meta: meta,
+
+		Stack: stacktrace.GetCallerFrames(2),
 	}
 }
 
@@ -38,6 +43,8 @@ func Wrap(reason error, code Code, meta M) error {
 		Code: code,
 		Meta: meta,
 
+		Stack: stacktrace.GetCallerFrames(2),
+
 		Reason: reason,
 	}
 }
@@ -45,6 +52,7 @@ func Wrap(reason error, code Code, meta M) error {
 func (e E) Equal(e2 E) bool {
 	return e.Code == e2.Code &&
 		cmp.Equal(e.Meta, e2.Meta) &&
+		cmp.Equal(e.Stack, e2.Stack) &&
 		cmp.Equal(e.Reason, e2.Reason)
 }
 
