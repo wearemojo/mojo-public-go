@@ -28,6 +28,10 @@ func New(code Code, meta M) *E {
 }
 
 func Wrap(reason error, code Code, meta M) *E {
+	if reason == nil {
+		return nil
+	}
+
 	return &E{
 		Code: code,
 		Meta: meta,
