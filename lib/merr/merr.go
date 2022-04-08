@@ -36,6 +36,11 @@ func Wrap(reason error, code Code, meta M) *E {
 	}
 }
 
+// Error implements the error interface
+//
+// Provides a simple string representation of the error, but lacks some detail
+//
+// No compatibility guarantees are made with its output - it may change at any time
 func (e E) Error() string {
 	s := e.Code.Error()
 
@@ -50,6 +55,9 @@ func (e E) Error() string {
 	return s
 }
 
+// Is enables the use of `errors.Is`
+//
+// Should not be called directly, because direct comparison and unwrapping is left to the caller
 func (e E) Is(err error) bool {
 	return errors.Is(e.Code, err)
 }
