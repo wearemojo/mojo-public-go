@@ -54,7 +54,7 @@ func (e E) Equal(e2 E) bool {
 //
 // No compatibility guarantees are made with its output - it may change at any time
 func (e E) Error() string {
-	s := e.Code.Error()
+	s := string(e.Code)
 
 	if len(e.Meta) > 0 {
 		s += fmt.Sprintf(" (%v)", e.Meta)
