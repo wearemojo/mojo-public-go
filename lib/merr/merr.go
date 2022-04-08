@@ -3,6 +3,8 @@ package merr
 import (
 	"errors"
 	"fmt"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 var _ interface {
@@ -40,6 +42,12 @@ func Wrap(reason error, code Code, meta M) error {
 	}
 }
 
+func (e E) Equal(e2 E) bool {
+	return e.Code == e2.Code &&
+		e.Reason == e2.Reason &&
+		cmp.Equal(e.Meta, e2.Meta)
+}
+
 // Error implements the error interface
 //
 // Provides a simple string representation of the error, but lacks some detail
@@ -60,10 +68,17 @@ func (e E) Error() string {
 }
 
 // Is enables the use of `errors.Is`
-//
-// Should not be called directly, because direct comparison and unwrapping is left to the caller
 func (e E) Is(err error) bool {
-	return errors.Is(e.Code, err)
+	if errors.Is(e.Code, err) {
+		return true
+	}
+
+	// needed because E is not comparable
+	if merr, ok := err.(E); ok {
+		return e.Equal(merr)
+	}
+
+	return false
 }
 
 // Unwrap enables the use of `errors.Unwrap`
