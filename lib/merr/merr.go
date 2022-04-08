@@ -66,6 +66,7 @@ func (e E) Is(err error) bool {
 	return errors.Is(e.Code, err)
 }
 
+// Unwrap enables the use of `errors.Unwrap`
 func (e E) Unwrap() error {
 	return e.Reason
 }
