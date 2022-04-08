@@ -44,8 +44,8 @@ func Wrap(reason error, code Code, meta M) error {
 
 func (e E) Equal(e2 E) bool {
 	return e.Code == e2.Code &&
-		e.Reason == e2.Reason &&
-		cmp.Equal(e.Meta, e2.Meta)
+		cmp.Equal(e.Meta, e2.Meta) &&
+		cmp.Equal(e.Reason, e2.Reason)
 }
 
 // Error implements the error interface
