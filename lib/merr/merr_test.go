@@ -7,6 +7,7 @@ import (
 
 	"github.com/matryer/is"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
+	"github.com/wearemojo/mojo-public-go/lib/stacktrace"
 )
 
 func TestNew(t *testing.T) {
@@ -81,6 +82,35 @@ func TestEqual(t *testing.T) {
 	is.True(!err1.Equal(err4))
 	is.True(!err1.Equal(err5))
 	is.True(!err1.Equal(err6))
+}
+
+func TestString(t *testing.T) {
+	is := is.New(t)
+
+	err := New("foo", M{"a": "b"})
+
+	err.Stack = []stacktrace.Frame{
+		{
+			File:     "/lib/foo/foo.go",
+			Line:     123,
+			Function: "github.com/wearemojo/mojo-public-go/lib/foo.doFoo",
+		},
+		{
+			File:     "/lib/foo/bar.go",
+			Line:     456,
+			Function: "github.com/wearemojo/mojo-public-go/lib/foo.barThing",
+		},
+	}
+
+	expected := `foo (map[a:b])
+
+github.com/wearemojo/mojo-public-go/lib/foo.doFoo
+	/lib/foo/foo.go:123
+github.com/wearemojo/mojo-public-go/lib/foo.barThing
+	/lib/foo/bar.go:456
+`
+
+	is.Equal(err.String(), expected)
 }
 
 func TestEError(t *testing.T) {

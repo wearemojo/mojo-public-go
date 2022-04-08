@@ -56,6 +56,10 @@ func (e E) Equal(e2 E) bool {
 		cmp.Equal(e.Reason, e2.Reason)
 }
 
+func (e E) String() string {
+	return e.Error() + "\n\n" + stacktrace.FormatFrames(e.Stack)
+}
+
 // Error implements the error interface
 //
 // Provides a simple string representation of the error, but lacks some detail
