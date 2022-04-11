@@ -32,13 +32,19 @@ type E struct {
 
 type M map[string]any
 
-func New(code Code, meta M) E {
+func newE(reason error, code Code, meta M) E {
 	return E{
 		Code: code,
 		Meta: meta,
 
-		Stack: stacktrace.GetCallerFrames(2),
+		Stack: stacktrace.GetCallerFrames(3),
+
+		Reason: reason,
 	}
+}
+
+func New(code Code, meta M) E {
+	return newE(nil, code, meta)
 }
 
 func Wrap(reason error, code Code, meta M) EInterface {
@@ -46,14 +52,7 @@ func Wrap(reason error, code Code, meta M) EInterface {
 		return nil
 	}
 
-	return E{
-		Code: code,
-		Meta: meta,
-
-		Stack: stacktrace.GetCallerFrames(2),
-
-		Reason: reason,
-	}
+	return newE(reason, code, meta)
 }
 
 func (e E) GetConcrete() E {
