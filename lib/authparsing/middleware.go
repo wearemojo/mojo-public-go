@@ -7,8 +7,9 @@ import (
 	"net/http"
 
 	"github.com/cuvva/cuvva-public-go/lib/cher"
-	"github.com/cuvva/cuvva-public-go/lib/clog"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
+	"github.com/wearemojo/mojo-public-go/lib/merrclog"
 )
 
 func jsonError(ctx context.Context, res http.ResponseWriter, err error) {
@@ -26,7 +27,7 @@ func jsonError(ctx context.Context, res http.ResponseWriter, err error) {
 	}
 
 	if encErr != nil {
-		clog.Get(ctx).WithError(encErr).Error("failed to encode error")
+		merrclog.Error(ctx, merr.Wrap(encErr, "error_encode_failed", nil))
 	}
 }
 
@@ -44,7 +45,7 @@ func Middleware(parser Parser) func(http.Handler) http.Handler {
 				if cerr, ok := gerrors.As[cher.E](err); ok && cerr.Code == cher.Unauthorized && len(cerr.Reasons) == 1 {
 					err = cerr.Reasons[0]
 				}
-				clog.Get(ctx).WithError(err).Info("auth check failed")
+				merrclog.Info(ctx, merr.Wrap(err, "auth_check_failed", nil))
 
 				return
 			}
