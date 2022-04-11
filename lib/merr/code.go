@@ -12,6 +12,10 @@ func (c Code) Error() string {
 	return string(c)
 }
 
+func (c Code) String() string {
+	return string(c)
+}
+
 // IsCode is a convenience wrapper for `errors.Is`
 //
 // `errors.Is(err, "foo")` does not work
