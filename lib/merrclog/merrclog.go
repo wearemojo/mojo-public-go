@@ -32,6 +32,6 @@ func log(ctx context.Context, level logrus.Level, err merr.EInterface) {
 	fields := merr.Fields()
 
 	clog.Get(ctx).
-		WithField(logrus.ErrorKey, fields).
+		WithField("merr", fields).
 		Log(level, merr.Code)
 }
