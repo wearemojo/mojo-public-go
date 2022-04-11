@@ -8,14 +8,27 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
+// Info is for informational messages which are not errors
+//
+// e.g. a system is starting up
 func Info(ctx context.Context, err merr.EInterface) {
 	log(ctx, logrus.InfoLevel, err)
 }
 
+// Warn covers issues which were handled and do not require specific action
+// from an engineer, but which should be fixed at some point
+//
+// Only for issues which could occur indefinitely without serious consequences
+//
+// e.g. a system was unavailable, but failed gracefully
 func Warn(ctx context.Context, err merr.EInterface) {
 	log(ctx, logrus.WarnLevel, err)
 }
 
+// Error represents an issue which requires prompt and individual action from
+// an engineer to resolve
+//
+// e.g. a data integrity issue has been identified which needs to be fixed
 func Error(ctx context.Context, err merr.EInterface) {
 	log(ctx, logrus.ErrorLevel, err)
 }
