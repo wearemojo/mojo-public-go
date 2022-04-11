@@ -11,14 +11,14 @@ import (
 // Debug is to help with tracing the system's behavior
 //
 // e.g. logic has been evaluated to determine some action
-func Debug(ctx context.Context, err merr.EInterface) {
+func Debug(ctx context.Context, err merr.Merrer) {
 	log(ctx, logrus.DebugLevel, err)
 }
 
 // Info is for informational messages which are not errors
 //
 // e.g. a system is starting up
-func Info(ctx context.Context, err merr.EInterface) {
+func Info(ctx context.Context, err merr.Merrer) {
 	log(ctx, logrus.InfoLevel, err)
 }
 
@@ -28,7 +28,7 @@ func Info(ctx context.Context, err merr.EInterface) {
 // Only for issues which could occur indefinitely without serious consequences
 //
 // e.g. a system was unavailable, but failed gracefully
-func Warn(ctx context.Context, err merr.EInterface) {
+func Warn(ctx context.Context, err merr.Merrer) {
 	log(ctx, logrus.WarnLevel, err)
 }
 
@@ -36,16 +36,16 @@ func Warn(ctx context.Context, err merr.EInterface) {
 // an engineer to resolve
 //
 // e.g. a data integrity issue has been identified which needs to be fixed
-func Error(ctx context.Context, err merr.EInterface) {
+func Error(ctx context.Context, err merr.Merrer) {
 	log(ctx, logrus.ErrorLevel, err)
 }
 
-func log(ctx context.Context, level logrus.Level, err merr.EInterface) {
+func log(ctx context.Context, level logrus.Level, err merr.Merrer) {
 	if err == nil {
 		return
 	}
 
-	merr := err.GetConcrete()
+	merr := err.Merr()
 
 	// logrus runs `.String()` on anything implementing `error`
 	// so to get proper JSON, we need to copy the fields instead

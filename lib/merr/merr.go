@@ -14,11 +14,13 @@ var _ interface {
 	Unwrap() error
 } = E{}
 
-// EInterface exists to allow `Wrap` to return nil
-// without forcing us to use pointers for `E`
-type EInterface interface {
+// Merrer (merr-er) represents a merr-compatible error
+//
+// It primarily exists to allow `Wrap` to return nil without forcing us to use
+// pointers for `E`, but also allows other structs to offer a merr.E option
+type Merrer interface {
 	error
-	GetConcrete() E
+	Merr() E
 }
 
 type E struct {
@@ -47,7 +49,7 @@ func New(code Code, meta M) E {
 	return newE(nil, code, meta)
 }
 
-func Wrap(reason error, code Code, meta M) EInterface {
+func Wrap(reason error, code Code, meta M) Merrer {
 	if reason == nil {
 		return nil
 	}
@@ -55,7 +57,7 @@ func Wrap(reason error, code Code, meta M) EInterface {
 	return newE(reason, code, meta)
 }
 
-func (e E) GetConcrete() E {
+func (e E) Merr() E {
 	return e
 }
 
