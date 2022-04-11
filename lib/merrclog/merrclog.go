@@ -1,4 +1,4 @@
-package merrlog
+package merrclog
 
 import (
 	"context"
