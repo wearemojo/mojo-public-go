@@ -59,6 +59,15 @@ func (e E) GetConcrete() E {
 	return e
 }
 
+func (e E) Fields() map[string]any {
+	return map[string]any{
+		"code":   e.Code,
+		"meta":   e.Meta,
+		"stack":  e.Stack,
+		"reason": e.Reason,
+	}
+}
+
 func (e E) Equal(e2 E) bool {
 	return e.Code == e2.Code &&
 		cmp.Equal(e.Meta, e2.Meta) &&
