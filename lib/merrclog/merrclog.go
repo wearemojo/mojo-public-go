@@ -8,6 +8,13 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
+// Debug is to help with tracing the system's behavior
+//
+// e.g. logic has been evaluated to determine some action
+func Debug(ctx context.Context, err merr.EInterface) {
+	log(ctx, logrus.DebugLevel, err)
+}
+
 // Info is for informational messages which are not errors
 //
 // e.g. a system is starting up
