@@ -21,9 +21,9 @@ type Frame struct {
 //
 // No more than 100 frames will be collected
 func GetCallerFrames(skip int) []Frame {
-	stackBuf := make([]uintptr, 100)
-	length := runtime.Callers(skip+1, stackBuf[:]) //nolint:gocritic // required to use as a buffer
-	stack := stackBuf[:length]
+	stack := make([]uintptr, 100)
+	length := runtime.Callers(skip+1, stack)
+	stack = stack[:length]
 
 	framesIter := runtime.CallersFrames(stack)
 	frames := make([]Frame, 0, length)
