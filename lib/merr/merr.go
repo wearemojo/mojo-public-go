@@ -14,6 +14,13 @@ var _ interface {
 	Unwrap() error
 } = E{}
 
+// EInterface exists to allow `Wrap` to return nil
+// without forcing us to use pointers for `E`
+type EInterface interface {
+	error
+	GetConcrete() E
+}
+
 type E struct {
 	Code Code `json:"code"`
 	Meta M    `json:"meta"`
@@ -34,7 +41,7 @@ func New(code Code, meta M) E {
 	}
 }
 
-func Wrap(reason error, code Code, meta M) error {
+func Wrap(reason error, code Code, meta M) EInterface {
 	if reason == nil {
 		return nil
 	}
@@ -47,6 +54,10 @@ func Wrap(reason error, code Code, meta M) error {
 
 		Reason: reason,
 	}
+}
+
+func (e E) GetConcrete() E {
+	return e
 }
 
 func (e E) Equal(e2 E) bool {
