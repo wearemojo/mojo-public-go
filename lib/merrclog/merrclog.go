@@ -31,6 +31,10 @@ func log(ctx context.Context, level logrus.Level, err merr.EInterface) {
 	// so to get proper JSON, we need to copy the fields instead
 	fields := merr.Fields()
 
+	if level == logrus.InfoLevel {
+		fields["stack"] = nil
+	}
+
 	clog.Get(ctx).
 		WithField("merr", fields).
 		Log(level, merr.Code)
