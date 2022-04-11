@@ -46,11 +46,16 @@ func GetCallerFrames(skip int) []Frame {
 	return frames
 }
 
+func (f Frame) String() string {
+	return fmt.Sprintf("%s\n\t%s:%d", f.Function, f.File, f.Line)
+}
+
 func FormatFrames(frames []Frame) string {
 	var sb strings.Builder
 
 	for _, frame := range frames {
-		sb.WriteString(fmt.Sprintf("%s\n\t%s:%d\n", frame.Function, frame.File, frame.Line))
+		sb.WriteString(frame.String())
+		sb.WriteString("\n")
 	}
 
 	return sb.String()
