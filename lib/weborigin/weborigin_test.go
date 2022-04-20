@@ -58,7 +58,7 @@ var tests = []struct {
 	},
 }
 
-func TestParseWebOrigin(t *testing.T) {
+func TestGetWebOrigin(t *testing.T) {
 	for _, test := range tests {
 		test := test
 
@@ -68,7 +68,7 @@ func TestParseWebOrigin(t *testing.T) {
 				t.Errorf("unexpected error: %s", err)
 			}
 
-			actual, err := ParseWebOrigin(url)
+			actual, err := GetWebOrigin(url)
 			if err != nil && test.Err != "" {
 				if merr.IsCode(err, test.Err) {
 					return
