@@ -19,9 +19,9 @@ func ParseWebOrigin(url *url.URL) (string, error) {
 		return "", merr.New("invalid_hostname", nil)
 	}
 
-	baseURL := fmt.Sprintf("%s://%s", url.Scheme, url.Hostname())
+	webOrigin := fmt.Sprintf("%s://%s", url.Scheme, url.Hostname())
 
-	return baseURL, nil
+	return webOrigin, nil
 }
 
 func MustParseWebOrigin(in *url.URL) string {
