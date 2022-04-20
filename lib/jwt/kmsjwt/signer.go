@@ -14,6 +14,7 @@ import (
 	jwt "github.com/golang-jwt/jwt/v4"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
+	"github.com/wearemojo/mojo-public-go/lib/ptr"
 	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
 	"google.golang.org/api/iterator"
 	kms "google.golang.org/genproto/googleapis/cloud/kms/v1"
@@ -78,7 +79,7 @@ func (s *Signer) findKeyVersion(ctx context.Context) (string, error) {
 	return displayName, nil
 }
 
-func (s *Signer) Sign(ctx context.Context, customClaims jwtinterface.Claims) (string, error) {
+func (s *Signer) Sign(ctx context.Context, expiresAt *time.Time, customClaims jwtinterface.Claims) (string, error) {
 	if _, ok := customClaims["v"].(string); !ok {
 		return "", merr.New("required_claim_missing", merr.M{"claim": "v"})
 	}
@@ -87,10 +88,14 @@ func (s *Signer) Sign(ctx context.Context, customClaims jwtinterface.Claims) (st
 		return "", merr.New("required_claim_missing", merr.M{"claim": "t"})
 	}
 
+	if expiresAt == nil {
+		expiresAt = ptr.P(time.Now().Add(time.Minute * 15))
+	}
+
 	claims := jwtinterface.Claims{
 		"iss": fmt.Sprintf("%s-%s", s.env, s.serviceName),
 		"iat": time.Now().Unix(),
-		"exp": time.Now().Add(time.Minute * 15).Unix(),
+		"exp": expiresAt.Unix(),
 	}
 
 	for k, v := range customClaims {

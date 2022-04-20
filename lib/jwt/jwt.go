@@ -2,12 +2,13 @@ package jwt
 
 import (
 	"context"
+	"time"
 )
 
 type Signer interface {
-	Sign(context.Context, Claims) (string, error)
+	Sign(ctx context.Context, expiresAt *time.Time, customClaims Claims) (token string, err error)
 }
 
 type Verifier interface {
-	Verify(context.Context, string) (Claims, error)
+	Verify(ctx context.Context, token string) (claims Claims, err error)
 }
