@@ -1,12 +1,13 @@
-package baseurl
+package weborigin
 
 import (
+	"net/url"
 	"testing"
 
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
-func TestParseBaseURL(t *testing.T) {
+func TestParseWebOrigin(t *testing.T) {
 	tests := []struct {
 		Name     string
 		URL      string
@@ -42,19 +43,19 @@ func TestParseBaseURL(t *testing.T) {
 			Name:     "gibberish",
 			URL:      "alskdjsdkghkjdfg",
 			Expected: "",
-			Err:      merr.Code("invalid_url"),
+			Err:      merr.Code("invalid_scheme"),
 		},
 		{
 			Name:     "missing scheme",
 			URL:      "google.com",
 			Expected: "",
-			Err:      merr.Code("invalid_url"),
+			Err:      merr.Code("invalid_scheme"),
 		},
 		{
 			Name:     "missing hostname",
 			URL:      "https://",
 			Expected: "",
-			Err:      merr.Code("invalid_url"),
+			Err:      merr.Code("invalid_hostname"),
 		},
 	}
 
@@ -62,7 +63,12 @@ func TestParseBaseURL(t *testing.T) {
 		test := test
 
 		t.Run(test.Name, func(t *testing.T) {
-			actual, err := ParseBaseURL(test.URL)
+			url, err := url.Parse(test.URL)
+			if err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			actual, err := ParseWebOrigin(url)
 			if err != nil && test.Err != "" {
 				if merr.IsCode(err, test.Err) {
 					return
