@@ -8,11 +8,11 @@ type contextKey string
 
 const contextKeyAuthState contextKey = "auth_state"
 
-func GetAuthState(ctx context.Context) (val *AuthState) {
-	val, _ = ctx.Value(contextKeyAuthState).(*AuthState)
+func GetAuthState(ctx context.Context) (val any) {
+	val = ctx.Value(contextKeyAuthState)
 	return
 }
 
-func SetAuthState(ctx context.Context, val *AuthState) context.Context {
+func SetAuthState(ctx context.Context, val any) context.Context {
 	return context.WithValue(ctx, contextKeyAuthState, val)
 }

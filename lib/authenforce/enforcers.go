@@ -1,31 +1,27 @@
 package authenforce
 
 import (
+	"context"
+
 	"github.com/cuvva/cuvva-public-go/lib/cher"
-	"github.com/wearemojo/mojo-public-go/lib/authparsing"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
-type Enforcer func(*authparsing.AuthState) error
+type (
+	MapRequest map[string]any
+	Enforcer   func(context.Context, any, MapRequest) error
+	Enforcers  []Enforcer
+)
 
-func UnsafeNoAuthentication(*authparsing.AuthState) error {
+var ErrNotHandled = merr.New("auth_not_handled", nil)
+
+func UnsafeNoAuthentication(_ context.Context, _ any, _ MapRequest) error {
 	return nil
 }
 
-func AllowAny(state *authparsing.AuthState) error {
+func AllowAny(_ context.Context, state any, _ MapRequest) error {
 	if state == nil {
 		return cher.New(cher.Unauthorized, nil)
-	}
-
-	return nil
-}
-
-func RequireS2S(state *authparsing.AuthState) error {
-	if state == nil {
-		return cher.New(cher.Unauthorized, nil)
-	}
-
-	if state.Type != authparsing.S2S {
-		return cher.New(cher.AccessDenied, nil)
 	}
 
 	return nil

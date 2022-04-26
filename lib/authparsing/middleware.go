@@ -38,7 +38,7 @@ func Middleware(parser Parser) func(http.Handler) http.Handler {
 
 			authzHeader := req.Header.Get("Authorization")
 
-			authState, err := parser.Check(ctx, authzHeader)
+			newCtx, err := parser.Check(ctx, authzHeader)
 			if err != nil && !errors.Is(err, ErrNoAuthorization) {
 				jsonError(ctx, res, err)
 
@@ -50,8 +50,9 @@ func Middleware(parser Parser) func(http.Handler) http.Handler {
 				return
 			}
 
-			ctx = SetAuthState(ctx, authState)
-			req = req.WithContext(ctx)
+			if newCtx != nil {
+				req = req.WithContext(newCtx)
+			}
 
 			next.ServeHTTP(res, req)
 		})
