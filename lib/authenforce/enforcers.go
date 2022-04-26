@@ -8,18 +8,17 @@ import (
 )
 
 type (
-	MapRequest map[string]any
-	Enforcer   func(context.Context, any, MapRequest) error
-	Enforcers  []Enforcer
+	Enforcer  func(context.Context, any, map[string]any) error
+	Enforcers []Enforcer
 )
 
-var ErrNotHandled = merr.New("auth_not_handled", nil)
+const ErrNotHandled = merr.Code("auth_not_handled")
 
-func UnsafeNoAuthentication(_ context.Context, _ any, _ MapRequest) error {
+func UnsafeNoAuthentication(_ context.Context, _ any, _ map[string]any) error {
 	return nil
 }
 
-func AllowAny(_ context.Context, state any, _ MapRequest) error {
+func AllowAny(_ context.Context, state any, _ map[string]any) error {
 	if state == nil {
 		return cher.New(cher.Unauthorized, nil)
 	}

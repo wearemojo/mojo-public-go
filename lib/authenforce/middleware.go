@@ -21,7 +21,7 @@ func (e Enforcers) CRPCMiddleware() crpc.MiddlewareFunc {
 		return func(res http.ResponseWriter, req *crpc.Request) error {
 			ctx := req.Context()
 			authState := authparsing.GetAuthState(ctx)
-			mapReq := MapRequest{}
+			mapReq := map[string]any{}
 
 			body, err := ioutil.ReadAll(req.Body)
 			if err != nil {
