@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/cuvva/cuvva-public-go/lib/cher"
-	"github.com/wearemojo/mojo-public-go/lib/authparsing"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog"
@@ -51,7 +50,7 @@ func Middleware(parser Parser) func(http.Handler) http.Handler {
 				return
 			}
 
-			ctx = authparsing.SetAuthState(ctx, authState)
+			ctx = SetAuthState(ctx, authState)
 			req = req.WithContext(ctx)
 
 			next.ServeHTTP(res, req)

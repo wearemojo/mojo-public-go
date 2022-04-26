@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"sync/atomic"
@@ -23,7 +24,7 @@ func (e Enforcers) CRPCMiddleware() crpc.MiddlewareFunc {
 			authState := authparsing.GetAuthState(ctx)
 			mapReq := map[string]any{}
 
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				return merr.Wrap(err, "cannot_read_body", nil)
 			}
