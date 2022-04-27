@@ -5,6 +5,7 @@ linters:
   enable-all: true
 
   disable:
+  - cyclop # disagree
   - exhaustivestruct # disagree - also not the intended use
   - gochecknoglobals # impractical
   - godot # disagree
