@@ -1,12 +1,9 @@
 package authenforce
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"sync/atomic"
 
@@ -14,45 +11,39 @@ import (
 	"github.com/cuvva/cuvva-public-go/lib/crpc"
 	"github.com/wearemojo/mojo-public-go/lib/authparsing"
 	"github.com/wearemojo/mojo-public-go/lib/errgroup"
-	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
-func (e Enforcers) CRPCMiddleware() crpc.MiddlewareFunc {
+func CRPCMiddleware(enforcers []Enforcer) crpc.MiddlewareFunc {
 	return func(next crpc.HandlerFunc) crpc.HandlerFunc {
 		return func(res http.ResponseWriter, req *crpc.Request) error {
 			ctx := req.Context()
 			authState := authparsing.GetAuthState(ctx)
-			mapReq := map[string]any{}
+			var mapReq map[string]any
 
-			body, err := io.ReadAll(req.Body)
-			if err != nil {
-				return merr.Wrap(err, "cannot_read_body", nil)
+			pr, pw := io.Pipe()
+			tr := io.TeeReader(req.Body, pw)
+
+			if err := json.NewDecoder(tr).Decode(&mapReq); err != nil {
+				return err
 			}
 
-			if len(body) > 0 {
-				if err := json.Unmarshal(body, &mapReq); err != nil {
-					return err
-				}
-			}
+			req.Body = io.NopCloser(pr)
 
-			req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-
-			g := errgroup.WithContext(ctx) //nolint:varnamelen
+			g := errgroup.WithContext(ctx)
 
 			var handleCount uint64
 
-			for _, enforcer := range e {
+			for _, enforcer := range enforcers {
 				enforcer := enforcer
 
 				g.Go(func(ctx context.Context) (err error) {
-					err = enforcer(ctx, authState, mapReq)
-					if err == nil {
-						atomic.AddUint64(&handleCount, 1)
+					handled, err := enforcer(ctx, authState, mapReq)
+					if err != nil {
 						return
 					}
 
-					if errors.Is(err, ErrNotHandled) {
-						err = nil
+					if handled {
+						atomic.AddUint64(&handleCount, 1)
 					}
 
 					return

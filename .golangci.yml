@@ -27,6 +27,7 @@ linters-settings:
     - 'errors\.New'
     - 'fmt\.Error.*'
     - 'fmt\.Print.*'
+    - 'ioutil\.*'
     - 'pretty\.Print.*'
 
   govet:
@@ -47,3 +48,4 @@ linters-settings:
     ignore-decls:
     - is *is.I
     - sb strings.Builder
+    - g *errgroup.Group
