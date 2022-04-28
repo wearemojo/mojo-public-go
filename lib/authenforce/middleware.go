@@ -3,6 +3,7 @@ package authenforce
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 
@@ -20,7 +21,7 @@ func CRPCMiddleware(enforcers Enforcers) crpc.MiddlewareFunc {
 			var buf bytes.Buffer
 			tee := io.TeeReader(req.Body, &buf)
 
-			if err := json.NewDecoder(tee).Decode(&mapReq); err != nil {
+			if err := json.NewDecoder(tee).Decode(&mapReq); err != nil && !errors.Is(err, io.EOF) {
 				return err
 			}
 
