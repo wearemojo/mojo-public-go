@@ -6,6 +6,7 @@ import (
 
 	"github.com/cuvva/cuvva-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/errgroup"
+	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
@@ -67,17 +68,26 @@ func (e Enforcers) Run(ctx context.Context, authState any, mapReq map[string]any
 	}
 
 	if err := g.Wait(); err != nil {
-		return cher.New(cher.AccessDenied, nil, cher.Coerce(err))
+		if cerr, ok := gerrors.As[cher.E](err); ok {
+			return wrapAuthErrType(authState, cerr)
+		}
+
+		return merr.Wrap(err, "enforcer_failed", nil)
 	}
 
-	switch {
-	case handleCount == 1: // all good
-		return nil
-	case handleCount == 0 && authState == nil:
-		return cher.New(cher.Unauthorized, nil, cher.New("no_enforcement", nil))
-	case handleCount == 0 && authState != nil:
-		return cher.New(cher.AccessDenied, nil, cher.New("auth_not_suitable", nil))
-	default: // handle count is greater than 1
-		return merr.New("multiple_enforcers_ran", nil)
+	switch handleCount {
+	case 0:
+		return wrapAuthErrType(authState, cher.New("no_suitable_auth_found", nil))
+	case 1: // all is safe, exactly one enforcer ran
+	default:
+		return merr.New("multiple_enforcers_handled", merr.M{"count": handleCount})
 	}
+}
+
+func wrapAuthErrType(authState any, err cher.E) error {
+	if authState == nil {
+		return cher.New(cher.Unauthorized, nil, err)
+	}
+
+	return cher.New(cher.AccessDenied, nil, err)
 }
