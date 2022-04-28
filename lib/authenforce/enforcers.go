@@ -23,8 +23,6 @@ type (
 	Enforcer func(context.Context, any, map[string]any) (handled bool, err error)
 )
 
-const ErrNotHandled = merr.Code("auth_not_handled")
-
 func UnsafeNoAuthentication(_ context.Context, _ any, _ map[string]any) (bool, error) {
 	return true, nil
 }
