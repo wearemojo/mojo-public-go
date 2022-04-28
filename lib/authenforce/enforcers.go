@@ -12,10 +12,18 @@ import (
 type (
 	// Enforcers is a set of Enforcer functions that are run together.
 	//
-	// It is important to note that only one enforcer can acknowledge a request. If
-	// multiple enforcers ack, an error will be returned as it is unsafe. It is
-	// therefore important that your enforcers are focused to find requests that are
-	// applicable and quickly return that it won't handle the auth.
+	// Enforcers are given auth state (any) and must first make a determination
+	// to handle that auth type. If an enforcer is not applicable, it should
+	// return false with no error. An enforcer should return false with an error
+	// if it is unable to run.
+	//
+	// From this stage, an enforcer should return handled as true.
+	// Once checks have completed, return no error to indicate the request
+	// should proceed, or an error to deny access.
+	//
+	// It is important for an enforcer to be tightly scoped when it is
+	// determining if it is applicable, as if multiple enforcers return true,
+	// the request will be rejected.
 	Enforcers []Enforcer
 
 	// Enforcer checks the auth state type. An example may be checking it is a
