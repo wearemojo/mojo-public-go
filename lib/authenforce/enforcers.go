@@ -27,8 +27,6 @@ type (
 	// the request will be rejected.
 	Enforcers []Enforcer
 
-	// Enforcer checks the auth state type. An example may be checking it is a
-	// user, a service, or some specific form of authentication.
 	Enforcer func(context.Context, any, map[string]any) (handled bool, err error)
 )
 
