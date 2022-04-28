@@ -10,8 +10,8 @@ import (
 )
 
 type (
-	// A set of enforcers that can be run together.
-
+	// Enforcers is a set of Enforcer functions that are run together.
+	//
 	// It is important to note that only one enforcer can acknowledge a request. If
 	// multiple enforcers ack, an error will be returned as it is unsafe. It is
 	// therefore important that your enforcers are focused to find requests that are
