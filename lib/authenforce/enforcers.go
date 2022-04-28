@@ -77,6 +77,7 @@ func (e Enforcers) Run(ctx context.Context, authState any, mapReq map[string]any
 	case 0:
 		return wrapAuthErrType(authState, cher.New("no_suitable_auth_found", nil))
 	case 1: // all is safe, exactly one enforcer ran
+		return nil
 	default:
 		return merr.New("multiple_enforcers_handled", merr.M{"count": handleCount})
 	}
