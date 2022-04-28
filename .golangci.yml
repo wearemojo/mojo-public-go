@@ -5,7 +5,7 @@ linters:
   enable-all: true
 
   disable:
-  - cyclop # disagree
+  - cyclop # alternative: gocognit - could add if we start unit testing heavily
   - exhaustivestruct # disagree - also not the intended use
   - gochecknoglobals # impractical
   - godot # disagree
