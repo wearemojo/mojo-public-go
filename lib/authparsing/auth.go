@@ -10,14 +10,14 @@ import (
 
 const ErrNoAuthorization = merr.Code("no_authorization")
 
-type Handler func(context.Context, string) (*AuthState, error)
+type Handler func(context.Context, string) (any, error)
 
 type Parser struct {
 	// keys must be lowercase
 	Handlers map[string]Handler
 }
 
-func (a Parser) Check(ctx context.Context, authorizationHeader string) (*AuthState, error) {
+func (a Parser) Check(ctx context.Context, authorizationHeader string) (any, error) {
 	if authorizationHeader == "" {
 		return nil, ErrNoAuthorization
 	}

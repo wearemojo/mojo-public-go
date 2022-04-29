@@ -5,6 +5,7 @@ linters:
   enable-all: true
 
   disable:
+  - cyclop # alternative: gocognit - could add if we start unit testing heavily
   - exhaustivestruct # disagree - also not the intended use
   - gochecknoglobals # impractical
   - godot # disagree
@@ -27,6 +28,7 @@ linters-settings:
     - 'errors\.New'
     - 'fmt\.Error.*'
     - 'fmt\.Print.*'
+    - 'ioutil\.*'
     - 'pretty\.Print.*'
 
   govet:
@@ -47,3 +49,4 @@ linters-settings:
     ignore-decls:
     - is *is.I
     - sb strings.Builder
+    - g *errgroup.Group
