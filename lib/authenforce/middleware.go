@@ -2,7 +2,6 @@ package authenforce
 
 import (
 	"bytes"
-	"encoding/json"
 	"io"
 	"net/http"
 
@@ -15,22 +14,15 @@ func CRPCMiddleware(enforcers Enforcers) crpc.MiddlewareFunc {
 		return func(res http.ResponseWriter, req *crpc.Request) error {
 			ctx := req.Context()
 			authState := authparsing.GetAuthState(ctx)
-			var mapReq map[string]any
 
 			body, err := io.ReadAll(req.Body)
 			if err != nil {
 				return err
 			}
 
-			if len(body) > 0 {
-				if err := json.Unmarshal(body, &mapReq); err != nil {
-					return err
-				}
-			}
-
 			req.Body = io.NopCloser(bytes.NewBuffer(body))
 
-			if err := enforcers.Run(ctx, authState, mapReq); err != nil {
+			if err := enforcers.Run(ctx, authState, body); err != nil {
 				return err
 			}
 

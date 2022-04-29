@@ -27,14 +27,14 @@ type (
 	// the request will be rejected.
 	Enforcers []Enforcer
 
-	Enforcer func(context.Context, any, map[string]any) (handled bool, err error)
+	Enforcer func(context.Context, any, []byte) (handled bool, err error)
 )
 
-func UnsafeNoAuthentication(_ context.Context, _ any, _ map[string]any) (bool, error) {
+func UnsafeNoAuthentication(_ context.Context, _ any, _ []byte) (bool, error) {
 	return true, nil
 }
 
-func AllowAny(_ context.Context, state any, _ map[string]any) (bool, error) {
+func AllowAny(_ context.Context, state any, _ []byte) (bool, error) {
 	if state == nil {
 		return true, cher.New("auth_not_provided", nil)
 	}
@@ -43,7 +43,7 @@ func AllowAny(_ context.Context, state any, _ map[string]any) (bool, error) {
 }
 
 // Run all enforcers in parallel and ensures that none of them error.
-func (e Enforcers) Run(ctx context.Context, authState any, mapReq map[string]any) error {
+func (e Enforcers) Run(ctx context.Context, authState any, req []byte) error {
 	g := errgroup.WithContext(ctx)
 
 	var handleCount uint64
@@ -52,7 +52,7 @@ func (e Enforcers) Run(ctx context.Context, authState any, mapReq map[string]any
 		enforcer := enforcer
 
 		g.Go(func(ctx context.Context) (err error) {
-			handled, err := enforcer(ctx, authState, mapReq)
+			handled, err := enforcer(ctx, authState, req)
 			if err != nil {
 				return
 			}
