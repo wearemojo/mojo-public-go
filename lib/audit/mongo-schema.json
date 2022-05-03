@@ -1,0 +1,133 @@
+{
+	"bsonType": "object",
+	"additionalProperties": false,
+
+	"required": [
+		"created_at",
+		"reason",
+		"actor"
+	],
+
+	"properties": {
+		"created_at": {
+			"bsonType": "date"
+		},
+
+		"reason": {
+			"bsonType": "object",
+			"additionalProperties": false,
+
+			"required": [
+				"code",
+				"meta"
+			],
+
+			"properties": {
+				"code": {
+					"bsonType": "string",
+					"minLength": 1
+				},
+
+				"meta": {
+					"bsonType": ["object", "null"],
+					"additionalProperties": true,
+					"minProperties": 1
+				}
+			}
+		},
+
+		"actor": {
+			"bsonType": "object",
+			"additionalProperties": false,
+
+			"required": [
+				"type",
+				"params"
+			],
+
+			"properties": {
+				"type": { "bsonType": "string" },
+				"params": { "bsonType": "object" }
+			},
+
+			"oneOf": [
+				{
+					"properties": {
+						"type": { "enum": ["unknown"] },
+						"params": { "enum": [{}] }
+					}
+				},
+				{
+					"properties": {
+						"type": { "enum": ["internal"] },
+
+						"params": {
+							"additionalProperties": false,
+
+							"required": [
+								"revision",
+								"code_path"
+							],
+
+							"properties": {
+								"revision": {
+									"bsonType": "string",
+									"pattern": "^([\\da-f]{40}|dev)$"
+								},
+								"code_path": {
+									"bsonType": "string",
+									"minLength": 1
+								}
+							}
+						}
+					}
+				},
+				{
+					"properties": {
+						"type": { "enum": ["service"] },
+
+						"params": {
+							"additionalProperties": false,
+
+							"required": [
+								"env",
+								"service"
+							],
+
+							"properties": {
+								"env": {
+									"bsonType": "string",
+									"minLength": 1
+								},
+								"service": {
+									"bsonType": "string",
+									"minLength": 1
+								}
+							}
+						}
+					}
+				},
+				{
+					"properties": {
+						"type": { "enum": ["user"] },
+
+						"params": {
+							"additionalProperties": false,
+
+							"required": [
+								"user_id"
+							],
+
+							"properties": {
+								"user_id": {
+									"bsonType": "string",
+									"pattern": "user_"
+								}
+							}
+						}
+					}
+				}
+			]
+		}
+	}
+}
