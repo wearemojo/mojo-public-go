@@ -3,13 +3,13 @@
 	"additionalProperties": false,
 
 	"required": [
-		"created_at",
+		"timestamp",
 		"reason",
 		"actor"
 	],
 
 	"properties": {
-		"created_at": {
+		"timestamp": {
 			"bsonType": "date"
 		},
 

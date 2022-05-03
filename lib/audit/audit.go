@@ -9,7 +9,7 @@ import (
 )
 
 type Record struct {
-	CreatedAt time.Time   `json:"created_at" bson:"created_at"`
+	Timestamp time.Time   `json:"timestamp" bson:"timestamp"`
 	Actor     actor.Actor `json:"actor" bson:"actor"`
 	Reason    Reason      `json:"reason" bson:"reason"`
 }
@@ -26,7 +26,7 @@ func New(ctx context.Context, code string, meta map[string]any) (*Record, error)
 	}
 
 	return &Record{
-		CreatedAt: time.Now(),
+		Timestamp: time.Now(),
 		Actor:     *actor,
 		Reason: Reason{
 			Code: code,
