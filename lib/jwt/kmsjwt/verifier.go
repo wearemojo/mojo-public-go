@@ -8,6 +8,7 @@ import (
 
 	kmsapi "cloud.google.com/go/kms/apiv1"
 	"github.com/cuvva/cuvva-public-go/lib/cher"
+	"github.com/cuvva/cuvva-public-go/lib/slicecontains"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
@@ -70,17 +71,22 @@ func (s *Verifier) findPublicKey(ctx context.Context, issuer, keyID string) (*ec
 	return jwt.ParseECPublicKeyFromPEM([]byte(res.Pem))
 }
 
-func (s *Verifier) Verify(ctx context.Context, token string) (claims jwtinterface.Claims, err error) {
-	parser := jwt.Parser{
-		ValidMethods:  []string{"ES256"},
-		UseJSONNumber: true,
-	}
-	_, err = parser.ParseWithClaims(token, &claims, func(t *jwt.Token) (any, error) {
+func (s *Verifier) Verify(ctx context.Context, token, t string, versions []string) (jwtinterface.Claims, error) {
+	parser := jwt.NewParser(
+		jwt.WithValidMethods([]string{"ES256"}),
+		jwt.WithJSONNumber(),
+	)
+
+	claims := jwtinterface.Claims{}
+
+	_, err := parser.ParseWithClaims(token, &claims, func(t *jwt.Token) (any, error) {
 		issuer, _ := claims["iss"].(string)
+		tokenType, _ := claims["t"].(string)
+		version, _ := claims["v"].(string)
 		keyID, _ := t.Header["kid"].(string)
 
-		if issuer == "" || keyID == "" {
-			return nil, merr.New("missing_fields", merr.M{"iss": issuer, "kid": keyID})
+		if issuer == "" || keyID == "" || tokenType == "" || version == "" {
+			return nil, merr.New("missing_fields", merr.M{"iss": issuer, "kid": keyID, "type": tokenType, "version": version})
 		}
 
 		return s.getPublicKey(ctx, issuer, keyID)
@@ -88,12 +94,24 @@ func (s *Verifier) Verify(ctx context.Context, token string) (claims jwtinterfac
 	if vErr, ok := gerrors.As[*jwt.ValidationError](err); ok {
 		switch {
 		case vErr.Errors&jwt.ValidationErrorIssuedAt != 0:
-			err = cher.New("token_used_before_issued", nil)
+			return nil, cher.New("token_used_before_issued", nil)
 		case vErr.Errors&jwt.ValidationErrorNotValidYet != 0:
-			err = cher.New("token_not_yet_valid", nil)
+			return nil, cher.New("token_not_yet_valid", nil)
 		case vErr.Errors&jwt.ValidationErrorExpired != 0:
-			err = cher.New("token_expired", nil)
+			return nil, cher.New("token_expired", nil)
 		}
 	}
-	return
+
+	tokenType, _ := claims["t"].(string)
+	version, _ := claims["v"].(string)
+
+	if t != tokenType {
+		return nil, cher.New("token_type_not_acceptable", cher.M{"type": tokenType})
+	}
+
+	if !slicecontains.String(versions, version) {
+		return nil, cher.New("token_version_not_acceptable", cher.M{"version": version})
+	}
+
+	return claims, nil
 }
