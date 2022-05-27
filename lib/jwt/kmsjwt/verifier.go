@@ -70,22 +70,17 @@ func (s *Verifier) findPublicKey(ctx context.Context, issuer, keyID string) (*ec
 	return jwt.ParseECPublicKeyFromPEM([]byte(res.Pem))
 }
 
-func (s *Verifier) Verify(ctx context.Context, token, allowedTypeVersion string) (jwtinterface.Claims, error) {
+func (s *Verifier) Verify(ctx context.Context, token string) (claims jwtinterface.Claims, err error) {
 	parser := jwt.NewParser(
 		jwt.WithValidMethods([]string{"ES256"}),
 		jwt.WithJSONNumber(),
 	)
-
-	claims := jwtinterface.Claims{}
-
-	_, err := parser.ParseWithClaims(token, &claims, func(t *jwt.Token) (any, error) {
+	_, err = parser.ParseWithClaims(token, &claims, func(t *jwt.Token) (any, error) {
 		issuer, _ := claims["iss"].(string)
-		tokenType, _ := claims["t"].(string)
-		version, _ := claims["v"].(string)
 		keyID, _ := t.Header["kid"].(string)
 
-		if issuer == "" || keyID == "" || tokenType == "" || version == "" {
-			return nil, merr.New("missing_fields", merr.M{"iss": issuer, "kid": keyID, "type": tokenType, "version": version})
+		if issuer == "" || keyID == "" {
+			return nil, merr.New("missing_fields", merr.M{"iss": issuer, "kid": keyID})
 		}
 
 		return s.getPublicKey(ctx, issuer, keyID)
@@ -93,25 +88,12 @@ func (s *Verifier) Verify(ctx context.Context, token, allowedTypeVersion string)
 	if vErr, ok := gerrors.As[*jwt.ValidationError](err); ok {
 		switch {
 		case vErr.Errors&jwt.ValidationErrorIssuedAt != 0:
-			return nil, cher.New("token_used_before_issued", nil)
+			err = cher.New("token_used_before_issued", nil)
 		case vErr.Errors&jwt.ValidationErrorNotValidYet != 0:
-			return nil, cher.New("token_not_yet_valid", nil)
+			err = cher.New("token_not_yet_valid", nil)
 		case vErr.Errors&jwt.ValidationErrorExpired != 0:
-			return nil, cher.New("token_expired", nil)
+			err = cher.New("token_expired", nil)
 		}
 	}
-
-	tokenType, _ := claims["t"].(string)
-	version, _ := claims["v"].(string)
-
-	tokenTypeVersion := fmt.Sprintf("%s_%s", tokenType, version)
-
-	if tokenTypeVersion != allowedTypeVersion {
-		return nil, cher.New("token_type_version_mismatch", cher.M{
-			"token_type_version":   tokenTypeVersion,
-			"allowed_type_version": allowedTypeVersion,
-		})
-	}
-
-	return claims, nil
+	return
 }
