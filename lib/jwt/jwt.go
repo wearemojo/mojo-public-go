@@ -10,5 +10,5 @@ type Signer interface {
 }
 
 type Verifier interface {
-	Verify(ctx context.Context, token string, allowedType string, allowedVersions []string) (claims Claims, err error)
+	Verify(ctx context.Context, token string) (claims Claims, err error)
 }
