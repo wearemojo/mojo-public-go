@@ -49,7 +49,7 @@ func SignWithPrefix(ctx context.Context, signer Signer, expiresAt *time.Time, cu
 }
 
 func VerifyWithPrefix(ctx context.Context, verifier Verifier, token string, allowed []TypeVersion) (typeVersion TypeVersion, claims Claims, err error) {
-	typeVersionStr, token, ok := strings.Cut(".", token)
+	typeVersionStr, token, ok := strings.Cut(token, ".")
 	if !ok {
 		err = cher.New("missing_token_type_version", nil)
 		return
