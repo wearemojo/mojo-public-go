@@ -8,7 +8,6 @@ import (
 
 	kmsapi "cloud.google.com/go/kms/apiv1"
 	"github.com/cuvva/cuvva-public-go/lib/cher"
-	"github.com/cuvva/cuvva-public-go/lib/slicecontains"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
@@ -71,7 +70,7 @@ func (s *Verifier) findPublicKey(ctx context.Context, issuer, keyID string) (*ec
 	return jwt.ParseECPublicKeyFromPEM([]byte(res.Pem))
 }
 
-func (s *Verifier) Verify(ctx context.Context, token, t string, versions []string) (jwtinterface.Claims, error) {
+func (s *Verifier) Verify(ctx context.Context, token, allowedTypeVersion string) (jwtinterface.Claims, error) {
 	parser := jwt.NewParser(
 		jwt.WithValidMethods([]string{"ES256"}),
 		jwt.WithJSONNumber(),
@@ -105,12 +104,13 @@ func (s *Verifier) Verify(ctx context.Context, token, t string, versions []strin
 	tokenType, _ := claims["t"].(string)
 	version, _ := claims["v"].(string)
 
-	if t != tokenType {
-		return nil, cher.New("token_type_not_acceptable", cher.M{"type": tokenType})
-	}
+	tokenTypeVersion := fmt.Sprintf("%s_%s", tokenType, version)
 
-	if !slicecontains.String(versions, version) {
-		return nil, cher.New("token_version_not_acceptable", cher.M{"version": version})
+	if tokenTypeVersion != allowedTypeVersion {
+		return nil, cher.New("token_type_version_mismatch", cher.M{
+			"token_type_version":   tokenTypeVersion,
+			"allowed_type_version": allowedTypeVersion,
+		})
 	}
 
 	return claims, nil
