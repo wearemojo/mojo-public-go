@@ -13,7 +13,9 @@ linters:
   - golint # deprecated: replaced by revive
   - gomnd # disagree
   - ireturn # disagree
+  - lll # impractical
   - nlreturn # disagree
+  - nonamedreturns # disagree
   - paralleltest # impractical
   - testpackage # disagree
   - wrapcheck # disagree
@@ -46,6 +48,7 @@ linters-settings:
     - db
     - fn
     - id
+    - ok
     ignore-decls:
     - is *is.I
     - sb strings.Builder
