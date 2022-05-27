@@ -122,6 +122,11 @@
 								"user_id": {
 									"bsonType": "string",
 									"pattern": "user_"
+								},
+
+								"session_id": {
+									"bsonType": "string",
+									"pattern": "session_"
 								}
 							}
 						}

@@ -26,10 +26,14 @@ type Actor struct {
 	Params map[string]string `json:"params" bson:"params"`
 }
 
-func NewUnknown() Actor {
+func NewUnknown(params map[string]string) Actor {
+	if params == nil {
+		params = map[string]string{}
+	}
+
 	return Actor{
 		Type:   TypeUnknown,
-		Params: map[string]string{},
+		Params: params,
 	}
 }
 
@@ -64,6 +68,16 @@ func NewUser(userID ksuid.ID) Actor {
 		Type: TypeUser,
 		Params: map[string]string{
 			"user_id": userID.String(),
+		},
+	}
+}
+
+func NewUserWithSession(sessionID, userID ksuid.ID) Actor {
+	return Actor{
+		Type: TypeUser,
+		Params: map[string]string{
+			"session_id": sessionID.String(),
+			"user_id":    userID.String(),
 		},
 	}
 }
