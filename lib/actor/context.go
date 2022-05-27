@@ -47,5 +47,5 @@ func GetActorOrUnknown(ctx context.Context) Actor {
 		return *actor
 	}
 
-	return NewUnknown()
+	return NewUnknown(nil)
 }
