@@ -115,13 +115,19 @@
 							"additionalProperties": false,
 
 							"required": [
-								"user_id"
+								"user_id",
+								"session_id"
 							],
 
 							"properties": {
 								"user_id": {
 									"bsonType": "string",
 									"pattern": "user_"
+								},
+
+								"session_id": {
+									"bsonType": ["string", "null"],
+									"pattern": "session_"
 								}
 							}
 						}

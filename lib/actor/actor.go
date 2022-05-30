@@ -22,14 +22,18 @@ var (
 )
 
 type Actor struct {
-	Type   Type              `json:"type" bson:"type"`
-	Params map[string]string `json:"params" bson:"params"`
+	Type   Type           `json:"type" bson:"type"`
+	Params map[string]any `json:"params" bson:"params"`
 }
 
-func NewUnknown() Actor {
+func NewUnknown(params map[string]any) Actor {
+	if params == nil {
+		params = map[string]any{}
+	}
+
 	return Actor{
 		Type:   TypeUnknown,
-		Params: map[string]string{},
+		Params: params,
 	}
 }
 
@@ -42,7 +46,7 @@ func NewUnknown() Actor {
 func NewInternal(skip int, codePathFallback string) Actor {
 	return Actor{
 		Type: TypeInternal,
-		Params: map[string]string{
+		Params: map[string]any{
 			"revision":  version.Revision,
 			"code_path": stacktrace.GetCallerCodePath(skip+1, codePathFallback),
 		},
@@ -52,18 +56,29 @@ func NewInternal(skip int, codePathFallback string) Actor {
 func NewService(env, service string) Actor {
 	return Actor{
 		Type: TypeService,
-		Params: map[string]string{
+		Params: map[string]any{
 			"env":     env,
 			"service": service,
 		},
 	}
 }
 
-func NewUser(userID ksuid.ID) Actor {
+func NewUser(sessionID, userID ksuid.ID) Actor {
 	return Actor{
 		Type: TypeUser,
-		Params: map[string]string{
-			"user_id": userID.String(),
+		Params: map[string]any{
+			"session_id": sessionID.String(),
+			"user_id":    userID.String(),
+		},
+	}
+}
+
+func NewUserWithoutSession(userID ksuid.ID) Actor {
+	return Actor{
+		Type: TypeUser,
+		Params: map[string]any{
+			"session_id": nil,
+			"user_id":    userID.String(),
 		},
 	}
 }
