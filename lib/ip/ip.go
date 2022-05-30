@@ -1,10 +1,10 @@
-package stripport
+package ip
 
 import (
 	"strings"
 )
 
-func StripPort(addr string) string {
+func GetIP(addr string) string {
 	if strings.Count(addr, ":") > 1 {
 		if sq := strings.LastIndexByte(addr, ']'); sq > 1 {
 			return addr[1:sq]

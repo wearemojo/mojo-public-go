@@ -1,10 +1,10 @@
-package stripport
+package ip
 
 import (
 	"testing"
 )
 
-func TestStripPort(t *testing.T) {
+func TestGetIP(t *testing.T) {
 	tests := []struct {
 		name string
 		in   string
@@ -39,7 +39,7 @@ func TestStripPort(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			ip := StripPort(test.in)
+			ip := GetIP(test.in)
 
 			if test.out != ip {
 				t.Errorf("expected %s, got %s", test.out, ip)
