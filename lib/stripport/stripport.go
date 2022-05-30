@@ -1,4 +1,4 @@
-package parseip
+package stripport
 
 import (
 	"strings"
