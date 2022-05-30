@@ -34,7 +34,7 @@ func UnsafeNoAuthentication(_ context.Context, _ any, _ []byte) (bool, error) {
 	return true, nil
 }
 
-func AllowAny(_ context.Context, state any, _ []byte) (bool, error) {
+func UnsafeAllowAny(_ context.Context, state any, _ []byte) (bool, error) {
 	if state == nil {
 		return true, cher.New("auth_not_provided", nil)
 	}
@@ -51,17 +51,17 @@ func (e Enforcers) Run(ctx context.Context, authState any, req []byte) error {
 	for _, enforcer := range e {
 		enforcer := enforcer
 
-		g.Go(func(ctx context.Context) (err error) {
+		g.Go(func(ctx context.Context) error {
 			handled, err := enforcer(ctx, authState, req)
 			if err != nil {
-				return
+				return err
 			}
 
 			if handled {
 				atomic.AddUint64(&handleCount, 1)
 			}
 
-			return
+			return nil
 		})
 	}
 
