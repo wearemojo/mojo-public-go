@@ -35,6 +35,7 @@ func Middleware(parser Parser) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			ctx := req.Context()
+			ctx = SetRequest(ctx, req)
 
 			authzHeader := req.Header.Get("Authorization")
 
