@@ -20,7 +20,7 @@ func (p TypeVersion) String() string {
 	return fmt.Sprintf("%s_%s", p.Type, p.Version)
 }
 
-func typeVersionFromString(in string) (tv TypeVersion, ok bool) {
+func TypeVersionFromString(in string) (tv TypeVersion, ok bool) {
 	tv.Type, tv.Version, ok = strings.Cut(in, "_")
 	return
 }
@@ -55,7 +55,7 @@ func VerifyWithPrefix(ctx context.Context, verifier Verifier, token string, allo
 		return
 	}
 
-	if typeVersion, ok = typeVersionFromString(typeVersionStr); !ok {
+	if typeVersion, ok = TypeVersionFromString(typeVersionStr); !ok {
 		err = cher.New("invalid_token_type_version", cher.M{"token_type_version": typeVersionStr})
 		return
 	}
