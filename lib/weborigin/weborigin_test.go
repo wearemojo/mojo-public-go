@@ -1,6 +1,7 @@
 package weborigin
 
 import (
+	"context"
 	"net/url"
 	"testing"
 
@@ -68,7 +69,7 @@ func TestGetWebOrigin(t *testing.T) {
 				t.Errorf("unexpected error: %s", err)
 			}
 
-			actual, err := GetWebOrigin(url)
+			actual, err := GetWebOrigin(context.Background(), url)
 			if err != nil && test.Err != "" {
 				if merr.IsCode(err, test.Err) {
 					return

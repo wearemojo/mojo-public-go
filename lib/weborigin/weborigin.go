@@ -1,6 +1,7 @@
 package weborigin
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 
@@ -10,13 +11,13 @@ import (
 // ParseWebOrigin takes a URL and returns a string to use to match web origins.
 // The definition of the web origin is quite complex so you should refer to the
 // test cases of this lib to see how it works.
-func GetWebOrigin(url *url.URL) (string, error) {
+func GetWebOrigin(ctx context.Context, url *url.URL) (string, error) {
 	if url.Scheme != "http" && url.Scheme != "https" {
-		return "", merr.New("invalid_scheme", nil)
+		return "", merr.New(ctx, "invalid_scheme", nil)
 	}
 
 	if url.Hostname() == "" {
-		return "", merr.New("invalid_hostname", nil)
+		return "", merr.New(ctx, "invalid_hostname", nil)
 	}
 
 	webOrigin := fmt.Sprintf("%s://%s", url.Scheme, url.Hostname())
@@ -24,8 +25,8 @@ func GetWebOrigin(url *url.URL) (string, error) {
 	return webOrigin, nil
 }
 
-func MustGetWebOrigin(in *url.URL) string {
-	webOrigin, err := GetWebOrigin(in)
+func MustGetWebOrigin(ctx context.Context, in *url.URL) string {
+	webOrigin, err := GetWebOrigin(ctx, in)
 	if err != nil {
 		panic(err)
 	}

@@ -1,6 +1,7 @@
 package merr
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -39,14 +40,16 @@ func TestCodeComparable(t *testing.T) {
 func TestIsCode(t *testing.T) {
 	is := is.New(t)
 
+	ctx := context.Background()
+
 	errs := []error{
 		Code("foo"),
-		New("foo", nil),
-		New(Code("foo"), nil),
-		New("foo", M{"a": "b"}),
-		New(Code("foo"), M{"a": "b"}),
-		Wrap(New("foo", nil), "bar", nil),
-		Wrap(wrappedError{New("foo", nil)}, "bar", nil),
+		New(ctx, "foo", nil),
+		New(ctx, Code("foo"), nil),
+		New(ctx, "foo", M{"a": "b"}),
+		New(ctx, Code("foo"), M{"a": "b"}),
+		Wrap(ctx, New(ctx, "foo", nil), "bar", nil),
+		Wrap(ctx, wrappedError{New(ctx, "foo", nil)}, "bar", nil),
 	}
 
 	for _, err := range errs {

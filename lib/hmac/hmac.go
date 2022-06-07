@@ -34,7 +34,7 @@ func (h HMAC) getSecret(ctx context.Context) ([]byte, error) {
 	}
 
 	if len(key) != keyLength {
-		return nil, merr.New("invalid_hmac_key", merr.M{"key_length": len(key)})
+		return nil, merr.New(ctx, "invalid_hmac_key", merr.M{"key_length": len(key)})
 	}
 
 	return key, nil

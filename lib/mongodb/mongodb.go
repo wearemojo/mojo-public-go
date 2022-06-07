@@ -39,7 +39,7 @@ func (m *MongoDB) Connect(ctx context.Context, schemaFS fs.FS, collectionNames [
 
 	err = db.SetupSchemas(ctx, schemaFS, collectionNames)
 	if err != nil {
-		return nil, merr.Wrap(err, "schema_setup_failed", merr.M{"collection_names": collectionNames})
+		return nil, merr.Wrap(ctx, err, "schema_setup_failed", merr.M{"collection_names": collectionNames})
 	}
 
 	return db, nil

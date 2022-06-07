@@ -70,7 +70,7 @@ func (e Enforcers) Run(ctx context.Context, authState any, req []byte) error {
 			return wrapAuthErrType(authState, cerr)
 		}
 
-		return merr.Wrap(err, "enforcer_failed", nil)
+		return merr.Wrap(ctx, err, "enforcer_failed", nil)
 	}
 
 	switch handleCount {
@@ -79,7 +79,7 @@ func (e Enforcers) Run(ctx context.Context, authState any, req []byte) error {
 	case 1: // all is safe, exactly one enforcer ran
 		return nil
 	default:
-		return merr.New("multiple_enforcers_handled", merr.M{"count": handleCount})
+		return merr.New(ctx, "multiple_enforcers_handled", merr.M{"count": handleCount})
 	}
 }
 
