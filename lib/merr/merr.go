@@ -1,6 +1,7 @@
 package merr
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -45,11 +46,11 @@ func newE(reason error, code Code, meta M) E {
 	}
 }
 
-func New(code Code, meta M) E {
+func New(_ context.Context, code Code, meta M) E {
 	return newE(nil, code, meta)
 }
 
-func Wrap(reason error, code Code, meta M) Merrer {
+func Wrap(_ context.Context, reason error, code Code, meta M) Merrer {
 	if reason == nil {
 		return nil
 	}
