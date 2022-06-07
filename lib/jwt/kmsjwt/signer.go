@@ -93,7 +93,7 @@ func (s *Signer) Sign(ctx context.Context, expiresAt *time.Time, customClaims jw
 	}
 
 	claims := jwtinterface.Claims{
-		"iss": fmt.Sprintf("%s-%s", s.env, s.serviceName),
+		"iss": fmt.Sprintf("%s;%s", s.env, s.serviceName),
 		"iat": time.Now().Unix(),
 		"exp": expiresAt.Unix(),
 	}
