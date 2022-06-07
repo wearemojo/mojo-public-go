@@ -106,8 +106,8 @@ func (e E) Is(err error) bool {
 		return true
 	}
 
-	// needed because E is not comparable
-	if merr, ok := err.(E); ok { // nolint:errorlint
+	//nolint:errorlint // needed because E is not comparable
+	if merr, ok := err.(E); ok {
 		return e.Equal(merr)
 	}
 

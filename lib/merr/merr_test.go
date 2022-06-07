@@ -35,7 +35,7 @@ func TestNewMeta(t *testing.T) {
 func TestWrap(t *testing.T) {
 	is := is.New(t)
 
-	err1 := errors.New("underlying error") // nolint:goerr113,forbidigo
+	err1 := errors.New("underlying error") //nolint:goerr113,forbidigo // needed for testing
 	err2 := Wrap(err1, "foo", nil)
 
 	err, ok := gerrors.As[E](err2)
@@ -44,13 +44,13 @@ func TestWrap(t *testing.T) {
 	is.Equal(err.Code, Code("foo"))
 	is.Equal(err.Meta, nil)
 	is.True(strings.HasSuffix(err.Stack[0].File, "/lib/merr/merr_test.go"))
-	is.Equal(err.Reason, errors.New("underlying error")) // nolint:goerr113,forbidigo
+	is.Equal(err.Reason, errors.New("underlying error")) //nolint:goerr113,forbidigo // needed for testing
 }
 
 func TestWrapMeta(t *testing.T) {
 	is := is.New(t)
 
-	err1 := errors.New("underlying error") // nolint:goerr113,forbidigo
+	err1 := errors.New("underlying error") //nolint:goerr113,forbidigo // needed for testing
 	err2 := Wrap(err1, "foo", M{"a": "b"})
 
 	err, ok := gerrors.As[E](err2)
@@ -59,7 +59,7 @@ func TestWrapMeta(t *testing.T) {
 	is.Equal(err.Code, Code("foo"))
 	is.Equal(err.Meta, M{"a": "b"})
 	is.True(strings.HasSuffix(err.Stack[0].File, "/lib/merr/merr_test.go"))
-	is.Equal(err.Reason, errors.New("underlying error")) // nolint:goerr113,forbidigo
+	is.Equal(err.Reason, errors.New("underlying error")) //nolint:goerr113,forbidigo // needed for testing
 }
 
 func TestWrapNil(t *testing.T) {
@@ -73,10 +73,9 @@ func TestWrapNil(t *testing.T) {
 func TestEqual(t *testing.T) {
 	is := is.New(t)
 
-	// same line to ensure same stack trace 😅
-	// nolint:lll
+	//nolint:lll // same line to ensure same stack trace 😅
 	err1, err2, err3, err4, err5, err6 := New("foo", M{"a": "b"}), New("foo", M{"a": "b"}), New("foo", M{"a": "c"}), New("bar", M{"a": "b"}), New("foo", nil), New("foo", M{"a": "b"})
-	err6.Reason = errors.New("foo") // nolint:goerr113,forbidigo
+	err6.Reason = errors.New("foo") //nolint:goerr113,forbidigo // needed for testing
 
 	is.True(err1.Equal(err2))
 	is.True(!err1.Equal(err3))
@@ -119,7 +118,7 @@ func TestEError(t *testing.T) {
 
 	is.Equal(New("foo", nil).Error(), "foo")
 	is.Equal(New("foo", M{"a": "b"}).Error(), "foo (map[a:b])")
-	is.Equal(Wrap(errors.New("foo"), "bar", nil).Error(), "bar: foo") // nolint:goerr113,forbidigo
+	is.Equal(Wrap(errors.New("foo"), "bar", nil).Error(), "bar: foo") //nolint:goerr113,forbidigo // needed for testing
 	is.Equal(Wrap(New("foo", nil), "bar", nil).Error(), "bar: foo")
 	is.Equal(Wrap(New("foo", M{"a": "b"}), "bar", nil).Error(), "bar: foo (map[a:b])")
 	is.Equal(Wrap(New("foo", nil), "bar", M{"c": "d"}).Error(), "bar (map[c:d]): foo")
@@ -162,7 +161,7 @@ func TestEIsE(t *testing.T) {
 func TestEUnwrap(t *testing.T) {
 	is := is.New(t)
 
-	err1 := errors.New("underlying error") // nolint:goerr113,forbidigo
+	err1 := errors.New("underlying error") //nolint:goerr113,forbidigo // needed for testing
 	err2 := Wrap(err1, "foo", nil)
 	err3 := Wrap(err2, "bar", nil)
 

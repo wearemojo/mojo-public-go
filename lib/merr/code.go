@@ -6,7 +6,8 @@ import (
 
 var _ error = Code("")
 
-type Code string // nolint:errname
+//nolint:errname // package name is already error-scoped
+type Code string
 
 func (c Code) Error() string {
 	return string(c)

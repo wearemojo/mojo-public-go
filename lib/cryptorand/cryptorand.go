@@ -7,7 +7,8 @@ import (
 )
 
 func New() *mathrand.Rand {
-	return mathrand.New(NewSource()) // nolint:gosec
+	//nolint:gosec // this is incorrect - it is using crypto/rand
+	return mathrand.New(NewSource())
 }
 
 type source struct{}

@@ -6,23 +6,36 @@ linters:
 
   disable:
   - cyclop # alternative: gocognit - could add if we start unit testing heavily
-  - exhaustivestruct # disagree - also not the intended use
+  - execinquery # broken: triggers on non-SQL queries
+  - exhaustivestruct # deprecated: replaced by exhaustruct
+  - exhaustruct  # disagree - also not the intended use
+  - funlen # alternative: gocognit
   - gochecknoglobals # impractical
   - godot # disagree
   - godox # disagree
   - golint # deprecated: replaced by revive
   - gomnd # disagree
+  - interfacer # deprecated
   - ireturn # disagree
   - lll # impractical
+  - maligned # deprecated: replaced by govet
   - nlreturn # disagree
   - nonamedreturns # disagree
   - paralleltest # impractical
+  - revive # disagree
+  - scopelint # deprecated: replaced by exportloopref
   - testpackage # disagree
   - wrapcheck # disagree
   - wsl # disagree
 
 severity:
   default-severity: error
+
+issues:
+  exclude-rules:
+  - linters:
+    - govet
+    text: "composites: `go.mongodb.org/mongo-driver/bson/primitive.E` composite literal uses unkeyed fields"
 
 linters-settings:
   forbidigo:
@@ -32,6 +45,7 @@ linters-settings:
     - 'fmt\.Print.*'
     - 'ioutil\.*'
     - 'pretty\.Print.*'
+    - 'reflect\..*'
 
   govet:
     enable-all: true
@@ -51,11 +65,14 @@ linters-settings:
 
   varnamelen:
     ignore-names:
+    - T
     - db
     - fn
     - id
     - ok
     ignore-decls:
+    - fs *flag.FlagSet
+    - g *errgroup.Group
     - is *is.I
     - sb strings.Builder
-    - g *errgroup.Group
+    - wg sync.WaitGroup

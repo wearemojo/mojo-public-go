@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/asn1"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
@@ -126,7 +127,8 @@ func (s *Signer) Sign(ctx context.Context, expiresAt *time.Time, customClaims jw
 var _ jwt.SigningMethod = (*jwtSigningMethodSign)(nil)
 
 type jwtSigningMethodSign struct {
-	ctx        context.Context // nolint:containedctx
+	//nolint:containedctx // we have to conform to jwt.SigningMethod
+	ctx        context.Context
 	signer     *Signer
 	keyVersion string
 }
@@ -170,7 +172,7 @@ func (s jwtSigningMethodSign) Sign(signingString string, key any) (string, error
 		return "", err
 	}
 
-	return jwt.EncodeSegment(sig), nil
+	return base64.RawURLEncoding.EncodeToString(sig), nil
 }
 
 func reencodeSignature(sig []byte, method *jwt.SigningMethodECDSA) ([]byte, error) {
@@ -193,5 +195,6 @@ func reencodeSignature(sig []byte, method *jwt.SigningMethodECDSA) ([]byte, erro
 	sBytesPadded := make([]byte, keyBytes)
 	copy(sBytesPadded[keyBytes-len(sBytes):], sBytes)
 
-	return append(rBytesPadded, sBytesPadded...), nil // nolint:makezero
+	//nolint:makezero // this is correct for this use case
+	return append(rBytesPadded, sBytesPadded...), nil
 }
