@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"fmt"
+	"strings"
 	"time"
 
 	kmsapi "cloud.google.com/go/kms/apiv1"
@@ -47,12 +48,17 @@ func (s *Verifier) getPublicKey(ctx context.Context, issuer, keyID string) (*ecd
 }
 
 func (s *Verifier) findPublicKey(ctx context.Context, issuer, keyID string) (*ecdsa.PublicKey, error) {
+	env, service, ok := strings.Cut(issuer, ";")
+	if !ok {
+		return nil, merr.New("invalid_issuer", merr.M{"issuer": issuer})
+	}
+
 	path := fmt.Sprintf(
 		"projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s/cryptoKeyVersions/%s",
 		s.projectID,
 		"global",
 		"services",
-		issuer,
+		fmt.Sprintf("%s-%s", env, service),
 		keyID,
 	)
 
