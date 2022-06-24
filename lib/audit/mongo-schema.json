@@ -132,6 +132,26 @@
 							}
 						}
 					}
+				},
+				{
+					"properties": {
+						"type": { "enum": ["session"] },
+
+						"params": {
+							"additionalProperties": false,
+
+							"required": [
+								"session_id"
+							],
+
+							"properties": {
+								"session_id": {
+									"bsonType": "string",
+									"pattern": "session_"
+								}
+							}
+						}
+					}
 				}
 			]
 		}
