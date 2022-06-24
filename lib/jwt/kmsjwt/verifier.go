@@ -93,13 +93,20 @@ func (s *Verifier) Verify(ctx context.Context, token string) (claims jwtinterfac
 	})
 	if vErr, ok := gerrors.As[*jwt.ValidationError](err); ok {
 		switch {
+		case vErr.Errors&jwt.ValidationErrorMalformed != 0:
+			return nil, cher.New("token_malformed", nil)
+		case vErr.Errors&jwt.ValidationErrorUnverifiable != 0:
+			return nil, cher.New("token_unverifiable", nil)
+		case vErr.Errors&jwt.ValidationErrorSignatureInvalid != 0:
+			return nil, cher.New("token_bad_signature", nil)
 		case vErr.Errors&jwt.ValidationErrorIssuedAt != 0:
-			err = cher.New("token_used_before_issued", nil)
+			return nil, cher.New("token_used_before_issued", nil)
 		case vErr.Errors&jwt.ValidationErrorNotValidYet != 0:
-			err = cher.New("token_not_yet_valid", nil)
+			return nil, cher.New("token_not_yet_valid", nil)
 		case vErr.Errors&jwt.ValidationErrorExpired != 0:
-			err = cher.New("token_expired", nil)
+			return nil, cher.New("token_expired", nil)
 		}
 	}
-	return
+
+	return claims, nil
 }
