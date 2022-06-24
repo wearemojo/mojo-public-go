@@ -19,6 +19,7 @@ var (
 	TypeInternal Type = "internal"
 	TypeService  Type = "service"
 	TypeUser     Type = "user"
+	TypeSession  Type = "session"
 )
 
 type Actor struct {
@@ -69,6 +70,15 @@ func NewUser(sessionID, userID ksuid.ID) Actor {
 		Params: map[string]any{
 			"session_id": sessionID.String(),
 			"user_id":    userID.String(),
+		},
+	}
+}
+
+func NewSession(sessionID ksuid.ID) Actor {
+	return Actor{
+		Type: TypeSession,
+		Params: map[string]any{
+			"session_id": sessionID.String(),
 		},
 	}
 }
