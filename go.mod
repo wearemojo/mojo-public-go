@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	cloud.google.com/go/kms v1.4.0
-	cloud.google.com/go/secretmanager v1.4.0
+	cloud.google.com/go/secretmanager v1.5.0
 	github.com/cuvva/cuvva-public-go v0.0.0-20220316143253-c8e125386bcc
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/google/go-cmp v0.5.8
