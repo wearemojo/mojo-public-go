@@ -40,16 +40,25 @@ func (h HMAC) getSecret(ctx context.Context) ([]byte, error) {
 	return key, nil
 }
 
-func (h HMAC) Generate(ctx context.Context, message string) (string, error) {
+func (h HMAC) GenerateRaw(ctx context.Context, message []byte) ([]byte, error) {
 	key, err := h.getSecret(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	mac := hmac.New(sha256.New, key)
+	mac.Write(message)
+
+	return mac.Sum(nil), nil
+}
+
+func (h HMAC) Generate(ctx context.Context, message string) (string, error) {
+	bytes, err := h.GenerateRaw(ctx, []byte(message))
 	if err != nil {
 		return "", err
 	}
 
-	mac := hmac.New(sha256.New, key)
-	mac.Write([]byte(message))
-
-	return hex.EncodeToString(mac.Sum(nil)), nil
+	return hex.EncodeToString(bytes), nil
 }
 
 func (h HMAC) Check(ctx context.Context, message, signature string) (bool, error) {
