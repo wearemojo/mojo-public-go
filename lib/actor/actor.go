@@ -15,11 +15,12 @@ type Actorer interface {
 type Type string
 
 var (
-	TypeUnknown  Type = "unknown"
-	TypeInternal Type = "internal"
-	TypeService  Type = "service"
-	TypeUser     Type = "user"
-	TypeSession  Type = "session"
+	TypeUnknown           Type = "unknown"
+	TypeInternal          Type = "internal"
+	TypeService           Type = "service"
+	TypeUser              Type = "user"
+	TypeSession           Type = "session"
+	TypeExternalCloudAuth Type = "external_cloud_auth"
 )
 
 type Actor struct {
@@ -89,6 +90,16 @@ func NewUserWithoutSession(userID ksuid.ID) Actor {
 		Params: map[string]any{
 			"session_id": nil,
 			"user_id":    userID.String(),
+		},
+	}
+}
+
+func NewExternalCloudAuth(typ, service string) Actor {
+	return Actor{
+		Type: TypeExternalCloudAuth,
+		Params: map[string]any{
+			"type":    typ,
+			"service": service,
 		},
 	}
 }
