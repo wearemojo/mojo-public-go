@@ -152,6 +152,32 @@
 							}
 						}
 					}
+				},
+				{
+					"properties": {
+						"type": { "enum": ["external_cloud_auth"] },
+
+						"params": {
+							"additionalProperties": false,
+
+							"required": [
+								"type",
+								"service"
+							],
+
+							"properties": {
+								"type": {
+									"bsonType": "string",
+									"minLength": 1
+								},
+
+								"service": {
+									"bsonType": "string",
+									"minLength": 1
+								}
+							}
+						}
+					}
 				}
 			]
 		}
