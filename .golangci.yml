@@ -40,12 +40,12 @@ issues:
 linters-settings:
   forbidigo:
     forbid:
-    - 'errors\.New'
-    - 'fmt\.Error.*'
-    - 'fmt\.Print.*'
-    - 'ioutil\.*'
-    - 'pretty\.Print.*'
-    - 'reflect\..*'
+    - 'errors\.New' # use merr
+    - 'fmt\.Error.*' # use mlog
+    - 'fmt\.Print.*' # nolint for structured stdout logging, otherwise use mlog
+    - 'ioutil\.*' # replaced by io
+    - 'pretty\.Print.*' # shouldn't be committed
+    - 'reflect\..*' # for reflect.DeepEqual, use go-cmp
 
   govet:
     enable-all: true
