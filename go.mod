@@ -13,7 +13,7 @@ require (
 	go.mongodb.org/mongo-driver v1.10.0
 	golang.org/x/oauth2 v0.0.0-20220622183110-fd043fe589d2
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
-	google.golang.org/api v0.88.0
+	google.golang.org/api v0.89.0
 	google.golang.org/genproto v0.0.0-20220624142145-8cd45d7dbd1f
 	google.golang.org/grpc v1.48.0
 	gopkg.in/ini.v1 v1.66.6
