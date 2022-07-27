@@ -15,6 +15,7 @@ type UserResult struct {
 }
 
 type User struct {
+	ID       int    `json:"id"`
 	Username string `json:"username"`
 }
 
@@ -39,4 +40,10 @@ func (c *Client) getUserByPath(ctx context.Context, path string) (res *User, err
 	err = c.systemClient().Do(ctx, "GET", path, nil, nil, &res2)
 	res = res2.User
 	return
+}
+
+func (c *Client) AnonymizeUser(ctx context.Context, userID int) error {
+	path := fmt.Sprintf("/admin/users/%d/anonymize", userID)
+
+	return c.systemClient().Do(ctx, "PUT", path, nil, nil, nil)
 }
