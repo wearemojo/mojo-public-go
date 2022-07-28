@@ -2,8 +2,10 @@ package discourse
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/cuvva/cuvva-public-go/lib/jsonclient"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type Client struct {
@@ -22,9 +24,10 @@ func NewClient(baseURL, apiKey string) *Client {
 
 func (c *Client) client(header http.Header) *jsonclient.Client {
 	return jsonclient.NewClient(c.BaseURL, &http.Client{
-		Transport: &headerRoundtripper{
+		Timeout: 10 * time.Second,
+		Transport: otelhttp.NewTransport(&headerRoundtripper{
 			header: header,
-		},
+		}),
 	})
 }
 
