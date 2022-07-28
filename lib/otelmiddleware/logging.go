@@ -8,16 +8,18 @@ import (
 	"github.com/cuvva/cuvva-public-go/lib/clog"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func SetCLogFields(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
-		id := getTraceID(req)
+		spanContext := trace.SpanContextFromContext(ctx)
 
-		if id != "" {
+		if spanContext.IsValid() {
 			handleCLogError(ctx, clog.SetFields(ctx, clog.Fields{
-				"trace_id": id,
+				"trace_id": spanContext.TraceID().String(),
+				"span_id":  spanContext.SpanID().String(),
 			}))
 		}
 
@@ -29,17 +31,19 @@ func SetCLogFieldsForGCP(gcpProjectID string) func(next http.Handler) http.Handl
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			ctx := req.Context()
-			id := getTraceID(req)
+			spanContext := trace.SpanContextFromContext(ctx)
 
-			if id != "" {
-				url := fmt.Sprintf("%s?project=%s&tid=%s", gcpBaseURL, gcpProjectID, id)
-				res := fmt.Sprintf("projects/%s/traces/%s", gcpProjectID, id)
+			if spanContext.IsValid() {
+				url := fmt.Sprintf("%s?project=%s&tid=%s", gcpBaseURL, gcpProjectID, spanContext.TraceID())
+				res := fmt.Sprintf("projects/%s/traces/%s", gcpProjectID, spanContext.TraceID())
 
 				handleCLogError(ctx, clog.SetFields(ctx, clog.Fields{
-					"trace_id":  id,
 					"trace_url": url,
+					"trace_id":  spanContext.TraceID().String(),
+					"span_id":   spanContext.SpanID().String(),
 
-					"logging.googleapis.com/trace": res,
+					"logging.googleapis.com/trace":  res,
+					"logging.googleapis.com/spanId": spanContext.SpanID().String(),
 				}))
 			}
 
