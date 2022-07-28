@@ -3,14 +3,11 @@ package otelmiddleware
 import (
 	"fmt"
 	"net/http"
-
-	"go.opentelemetry.io/otel/trace"
 )
 
 const (
 	headerKeyID  = "Trace-Id"
 	headerKeyURL = "Trace-Url"
-	gcpBaseURL   = "https://console.cloud.google.com/traces/list"
 )
 
 func TraceID(next http.Handler) http.Handler {
@@ -40,15 +37,4 @@ func TraceIDWithGCPURL(gcpProjectID string) func(next http.Handler) http.Handler
 			next.ServeHTTP(res, req)
 		})
 	}
-}
-
-func getTraceID(req *http.Request) string {
-	ctx := req.Context()
-	id := trace.SpanContextFromContext(ctx).TraceID()
-
-	if !id.IsValid() {
-		return ""
-	}
-
-	return id.String()
 }
