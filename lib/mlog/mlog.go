@@ -6,7 +6,15 @@ import (
 	"github.com/cuvva/cuvva-public-go/lib/clog"
 	"github.com/sirupsen/logrus"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
+	"github.com/wearemojo/mojo-public-go/lib/mlog/indirect"
 )
+
+func init() {
+	indirect.Debug = Debug
+	indirect.Info = Info
+	indirect.Warn = Warn
+	indirect.Error = Error
+}
 
 // Debug is to help with tracing the system's behavior
 //
