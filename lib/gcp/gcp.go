@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/wearemojo/mojo-public-go/lib/merr"
-	"github.com/wearemojo/mojo-public-go/lib/mlog"
+	mlog "github.com/wearemojo/mojo-public-go/lib/mlog/indirect"
 	"golang.org/x/oauth2/google"
 	compute "google.golang.org/api/compute/v1"
 	ini "gopkg.in/ini.v1"

@@ -2,11 +2,14 @@ package mlog
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/cuvva/cuvva-public-go/lib/clog"
 	"github.com/sirupsen/logrus"
+	"github.com/wearemojo/mojo-public-go/lib/gcp"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog/indirect"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func init() {
@@ -48,6 +51,8 @@ func Error(ctx context.Context, err merr.Merrer) {
 	log(ctx, logrus.ErrorLevel, err)
 }
 
+const gcpBaseURL = "https://console.cloud.google.com/traces/list"
+
 func log(ctx context.Context, level logrus.Level, err merr.Merrer) {
 	if err == nil {
 		return
@@ -56,14 +61,36 @@ func log(ctx context.Context, level logrus.Level, err merr.Merrer) {
 	merr := err.Merr()
 
 	// logrus runs `.String()` on anything implementing `error`
-	// so to get proper JSON, we need to copy the fields instead
-	fields := merr.Fields()
+	// so to get proper JSON, we need to copy the merrFields instead
+	merrFields := merr.Fields()
 
 	if level == logrus.InfoLevel {
-		fields["stack"] = nil
+		merrFields["stack"] = nil
+	}
+
+	fields := logrus.Fields{
+		"merr": merrFields,
+	}
+
+	sc := trace.SpanContextFromContext(ctx)
+
+	if sc.IsValid() {
+		fields["trace_id"] = sc.TraceID().String()
+		fields["span_id"] = sc.SpanID().String()
+		fields["logging.googleapis.com/spanId"] = sc.SpanID().String()
+
+		gcpProjectID, err := gcp.GetProjectID(ctx)
+
+		if err == nil {
+			url := fmt.Sprintf("%s?project=%s&tid=%s", gcpBaseURL, gcpProjectID, sc.TraceID())
+			res := fmt.Sprintf("projects/%s/traces/%s", gcpProjectID, sc.TraceID())
+
+			fields["trace_url"] = url
+			fields["logging.googleapis.com/trace"] = res
+		}
 	}
 
 	clog.Get(ctx).
-		WithField("merr", fields).
+		WithFields(fields).
 		Log(level, merr.Code)
 }
