@@ -9,7 +9,6 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/gcp"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog/indirect"
-	"go.opentelemetry.io/otel/trace"
 )
 
 func init() {
@@ -72,18 +71,14 @@ func log(ctx context.Context, level logrus.Level, err merr.Merrer) {
 		"merr": merrFields,
 	}
 
-	sc := trace.SpanContextFromContext(ctx)
-
-	if sc.IsValid() {
-		fields["trace_id"] = sc.TraceID().String()
-		fields["span_id"] = sc.SpanID().String()
-		fields["logging.googleapis.com/spanId"] = sc.SpanID().String()
+	if merr.TraceID.IsValid() && merr.SpanID.IsValid() {
+		fields["logging.googleapis.com/spanId"] = merr.SpanID.String()
 
 		gcpProjectID, err := gcp.GetProjectID(ctx)
 
 		if err == nil {
-			url := fmt.Sprintf("%s?project=%s&tid=%s", gcpBaseURL, gcpProjectID, sc.TraceID())
-			res := fmt.Sprintf("projects/%s/traces/%s", gcpProjectID, sc.TraceID())
+			url := fmt.Sprintf("%s?project=%s&tid=%s", gcpBaseURL, gcpProjectID, merr.TraceID)
+			res := fmt.Sprintf("projects/%s/traces/%s", gcpProjectID, merr.TraceID)
 
 			fields["trace_url"] = url
 			fields["logging.googleapis.com/trace"] = res

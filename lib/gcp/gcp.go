@@ -15,7 +15,7 @@ import (
 func GetProjectID(ctx context.Context) (string, error) {
 	credentials, err := google.FindDefaultCredentials(ctx, compute.ComputeScope)
 	if err != nil {
-		mlog.Warn(ctx, merr.Wrap(err, "gcp_default_credentials_unavailable", nil))
+		mlog.Warn(ctx, merr.Wrap(ctx, err, "gcp_default_credentials_unavailable", nil))
 
 		return "", err
 	}
@@ -39,7 +39,7 @@ func GetProjectID(ctx context.Context) (string, error) {
 	projectID := cfg.Section("core").Key("project").String()
 
 	if projectID == "" {
-		return "", merr.New("gcp_project_id_missing", merr.M{"path": path})
+		return "", merr.New(ctx, "gcp_project_id_missing", merr.M{"path": path})
 	}
 
 	return projectID, nil

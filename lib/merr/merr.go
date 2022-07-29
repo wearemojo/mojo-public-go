@@ -1,11 +1,13 @@
 package merr
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/wearemojo/mojo-public-go/lib/stacktrace"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var _ interface {
@@ -27,6 +29,9 @@ type E struct {
 	Code Code `json:"code"`
 	Meta M    `json:"meta"`
 
+	TraceID trace.TraceID `json:"trace_id"`
+	SpanID  trace.SpanID  `json:"span_id"`
+
 	Stack []stacktrace.Frame `json:"stack"`
 
 	Reason error `json:"reason"`
@@ -34,10 +39,15 @@ type E struct {
 
 type M map[string]any
 
-func newE(reason error, code Code, meta M) E {
+func newE(ctx context.Context, reason error, code Code, meta M) E {
+	sc := trace.SpanContextFromContext(ctx)
+
 	return E{
 		Code: code,
 		Meta: meta,
+
+		TraceID: sc.TraceID(),
+		SpanID:  sc.SpanID(),
 
 		Stack: stacktrace.GetCallerFrames(3),
 
@@ -45,16 +55,16 @@ func newE(reason error, code Code, meta M) E {
 	}
 }
 
-func New(code Code, meta M) E {
-	return newE(nil, code, meta)
+func New(ctx context.Context, code Code, meta M) E {
+	return newE(ctx, nil, code, meta)
 }
 
-func Wrap(reason error, code Code, meta M) Merrer {
+func Wrap(ctx context.Context, reason error, code Code, meta M) Merrer {
 	if reason == nil {
 		return nil
 	}
 
-	return newE(reason, code, meta)
+	return newE(ctx, reason, code, meta)
 }
 
 func (e E) Merr() E {

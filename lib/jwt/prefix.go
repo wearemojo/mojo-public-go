@@ -33,7 +33,7 @@ func SignWithPrefix(ctx context.Context, signer Signer, expiresAt *time.Time, cu
 
 	for k, v := range customClaims {
 		if _, ok := claims[k]; ok {
-			return "", merr.New("claim_unoverridable", merr.M{"claim": k})
+			return "", merr.New(ctx, "claim_unoverridable", merr.M{"claim": k})
 		}
 
 		claims[k] = v

@@ -1,6 +1,7 @@
 package merr
 
 import (
+	"context"
 	"errors"
 	"strings"
 	"testing"
@@ -12,8 +13,9 @@ import (
 
 func TestNew(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
-	err := New("foo", nil)
+	err := New(ctx, "foo", nil)
 
 	is.Equal(err.Code, Code("foo"))
 	is.Equal(err.Meta, nil)
@@ -23,8 +25,9 @@ func TestNew(t *testing.T) {
 
 func TestNewMeta(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
-	err := New("foo", M{"a": "b"})
+	err := New(ctx, "foo", M{"a": "b"})
 
 	is.Equal(err.Code, Code("foo"))
 	is.Equal(err.Meta, M{"a": "b"})
@@ -34,9 +37,10 @@ func TestNewMeta(t *testing.T) {
 
 func TestWrap(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
 	err1 := errors.New("underlying error") //nolint:goerr113,forbidigo // needed for testing
-	err2 := Wrap(err1, "foo", nil)
+	err2 := Wrap(ctx, err1, "foo", nil)
 
 	err, ok := gerrors.As[E](err2)
 
@@ -49,9 +53,10 @@ func TestWrap(t *testing.T) {
 
 func TestWrapMeta(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
 	err1 := errors.New("underlying error") //nolint:goerr113,forbidigo // needed for testing
-	err2 := Wrap(err1, "foo", M{"a": "b"})
+	err2 := Wrap(ctx, err1, "foo", M{"a": "b"})
 
 	err, ok := gerrors.As[E](err2)
 
@@ -64,17 +69,19 @@ func TestWrapMeta(t *testing.T) {
 
 func TestWrapNil(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
-	err := Wrap(nil, "foo", nil)
+	err := Wrap(ctx, nil, "foo", nil)
 
 	is.Equal(err, nil)
 }
 
 func TestEqual(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
 	//nolint:lll // same line to ensure same stack trace 😅
-	err1, err2, err3, err4, err5, err6 := New("foo", M{"a": "b"}), New("foo", M{"a": "b"}), New("foo", M{"a": "c"}), New("bar", M{"a": "b"}), New("foo", nil), New("foo", M{"a": "b"})
+	err1, err2, err3, err4, err5, err6 := New(ctx, "foo", M{"a": "b"}), New(ctx, "foo", M{"a": "b"}), New(ctx, "foo", M{"a": "c"}), New(ctx, "bar", M{"a": "b"}), New(ctx, "foo", nil), New(ctx, "foo", M{"a": "b"})
 	err6.Reason = errors.New("foo") //nolint:goerr113,forbidigo // needed for testing
 
 	is.True(err1.Equal(err2))
@@ -86,8 +93,9 @@ func TestEqual(t *testing.T) {
 
 func TestString(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
-	err := New("foo", M{"a": "b"})
+	err := New(ctx, "foo", M{"a": "b"})
 
 	err.Stack = []stacktrace.Frame{
 		{
@@ -115,26 +123,28 @@ github.com/wearemojo/mojo-public-go/lib/foo.barThing
 
 func TestEError(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
-	is.Equal(New("foo", nil).Error(), "foo")
-	is.Equal(New("foo", M{"a": "b"}).Error(), "foo (map[a:b])")
-	is.Equal(Wrap(errors.New("foo"), "bar", nil).Error(), "bar: foo") //nolint:goerr113,forbidigo // needed for testing
-	is.Equal(Wrap(New("foo", nil), "bar", nil).Error(), "bar: foo")
-	is.Equal(Wrap(New("foo", M{"a": "b"}), "bar", nil).Error(), "bar: foo (map[a:b])")
-	is.Equal(Wrap(New("foo", nil), "bar", M{"c": "d"}).Error(), "bar (map[c:d]): foo")
-	is.Equal(Wrap(New("foo", M{"a": "b"}), "bar", M{"c": "d"}).Error(), "bar (map[c:d]): foo (map[a:b])")
+	is.Equal(New(ctx, "foo", nil).Error(), "foo")
+	is.Equal(New(ctx, "foo", M{"a": "b"}).Error(), "foo (map[a:b])")
+	is.Equal(Wrap(ctx, errors.New("foo"), "bar", nil).Error(), "bar: foo") //nolint:goerr113,forbidigo // needed for testing
+	is.Equal(Wrap(ctx, New(ctx, "foo", nil), "bar", nil).Error(), "bar: foo")
+	is.Equal(Wrap(ctx, New(ctx, "foo", M{"a": "b"}), "bar", nil).Error(), "bar: foo (map[a:b])")
+	is.Equal(Wrap(ctx, New(ctx, "foo", nil), "bar", M{"c": "d"}).Error(), "bar (map[c:d]): foo")
+	is.Equal(Wrap(ctx, New(ctx, "foo", M{"a": "b"}), "bar", M{"c": "d"}).Error(), "bar (map[c:d]): foo (map[a:b])")
 }
 
 func TestEIsCode(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
 	errs := []error{
-		New("foo", nil),
-		New(Code("foo"), nil),
-		New("foo", M{"a": "b"}),
-		New(Code("foo"), M{"a": "b"}),
-		Wrap(New("foo", nil), "bar", nil),
-		Wrap(wrappedError{New("foo", nil)}, "bar", nil),
+		New(ctx, "foo", nil),
+		New(ctx, Code("foo"), nil),
+		New(ctx, "foo", M{"a": "b"}),
+		New(ctx, Code("foo"), M{"a": "b"}),
+		Wrap(ctx, New(ctx, "foo", nil), "bar", nil),
+		Wrap(ctx, wrappedError{New(ctx, "foo", nil)}, "bar", nil),
 	}
 
 	for _, err := range errs {
@@ -144,13 +154,14 @@ func TestEIsCode(t *testing.T) {
 
 func TestEIsE(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
-	errFoo := New("foo", nil)
+	errFoo := New(ctx, "foo", nil)
 
 	errs := []error{
 		errFoo,
-		Wrap(errFoo, "bar", nil),
-		Wrap(wrappedError{errFoo}, "bar", nil),
+		Wrap(ctx, errFoo, "bar", nil),
+		Wrap(ctx, wrappedError{errFoo}, "bar", nil),
 	}
 
 	for _, err := range errs {
@@ -160,10 +171,11 @@ func TestEIsE(t *testing.T) {
 
 func TestEUnwrap(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
 	err1 := errors.New("underlying error") //nolint:goerr113,forbidigo // needed for testing
-	err2 := Wrap(err1, "foo", nil)
-	err3 := Wrap(err2, "bar", nil)
+	err2 := Wrap(ctx, err1, "foo", nil)
+	err3 := Wrap(ctx, err2, "bar", nil)
 
 	is.Equal(errors.Unwrap(err3), err2)
 	is.Equal(errors.Unwrap(err2), err1)
@@ -171,8 +183,9 @@ func TestEUnwrap(t *testing.T) {
 
 func TestEAs(t *testing.T) {
 	is := is.New(t)
+	ctx := context.Background()
 
-	err := New("foo", nil)
+	err := New(ctx, "foo", nil)
 
 	var errFoo E
 	is.True(errors.As(err, &errFoo))

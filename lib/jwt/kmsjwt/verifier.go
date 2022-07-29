@@ -50,7 +50,7 @@ func (s *Verifier) getPublicKey(ctx context.Context, issuer, keyID string) (*ecd
 func (s *Verifier) findPublicKey(ctx context.Context, issuer, keyID string) (*ecdsa.PublicKey, error) {
 	env, service, ok := strings.Cut(issuer, ";")
 	if !ok {
-		return nil, merr.New("invalid_issuer", merr.M{"issuer": issuer})
+		return nil, merr.New(ctx, "invalid_issuer", merr.M{"issuer": issuer})
 	}
 
 	path := fmt.Sprintf(
@@ -70,7 +70,7 @@ func (s *Verifier) findPublicKey(ctx context.Context, issuer, keyID string) (*ec
 	}
 
 	if res.Algorithm != kms.CryptoKeyVersion_EC_SIGN_P256_SHA256 {
-		return nil, merr.New("unexpected_crypto_key_algorithm", merr.M{"algorithm": res.Algorithm})
+		return nil, merr.New(ctx, "unexpected_crypto_key_algorithm", merr.M{"algorithm": res.Algorithm})
 	}
 
 	return jwt.ParseECPublicKeyFromPEM([]byte(res.Pem))
@@ -86,7 +86,7 @@ func (s *Verifier) Verify(ctx context.Context, token string) (claims jwtinterfac
 		keyID, _ := t.Header["kid"].(string)
 
 		if issuer == "" || keyID == "" {
-			return nil, merr.New("missing_fields", merr.M{"iss": issuer, "kid": keyID})
+			return nil, merr.New(ctx, "missing_fields", merr.M{"iss": issuer, "kid": keyID})
 		}
 
 		return s.getPublicKey(ctx, issuer, keyID)
