@@ -24,5 +24,5 @@ func (p MockSecretProvider) Get(ctx context.Context, secretID string) (string, e
 		return value, nil
 	}
 
-	return "", merr.New(secret.ErrSecretNotFound, merr.M{"secret_id": secretID})
+	return "", merr.New(ctx, secret.ErrSecretNotFound, merr.M{"secret_id": secretID})
 }

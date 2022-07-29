@@ -54,7 +54,7 @@ func (p *GCPSecretProvider) load(ctx context.Context, secretID string) (_ string
 		Name: fmt.Sprintf("projects/%s/secrets/%s-%s/versions/latest", p.projectID, env, secretID),
 	})
 	if status.Code(err) == codes.NotFound {
-		err = merr.New(secret.ErrSecretNotFound, merr.M{"secret_id": secretID})
+		err = merr.New(ctx, secret.ErrSecretNotFound, merr.M{"secret_id": secretID})
 		return
 	} else if err != nil {
 		return

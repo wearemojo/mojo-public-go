@@ -22,7 +22,7 @@ type Reason struct {
 func New(ctx context.Context, code string, meta map[string]any) (*Record, error) {
 	actor := actor.GetActor(ctx)
 	if actor == nil {
-		return nil, merr.New("actor_not_found", nil)
+		return nil, merr.New(ctx, "actor_not_found", nil)
 	}
 
 	return &Record{

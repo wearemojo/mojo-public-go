@@ -28,7 +28,7 @@ func ContextWithProvider(ctx context.Context, val Provider) context.Context {
 func Get(ctx context.Context, secretID string) (string, error) {
 	p := getProvider(ctx)
 	if p == nil {
-		return "", merr.New("unset_secret_provider", nil)
+		return "", merr.New(ctx, "unset_secret_provider", nil)
 	}
 
 	return p.Get(ctx, secretID)

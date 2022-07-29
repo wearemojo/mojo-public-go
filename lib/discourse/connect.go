@@ -29,7 +29,7 @@ func (c *ConnectClient) SyncSSO(ctx context.Context, params url.Values) error {
 	// https://meta.discourse.org/t/sync-discourseconnect-user-data-with-the-sync-sso-route/84398
 
 	if params.Get("external_id") == "" {
-		return merr.New("missing_external_id", nil)
+		return merr.New(ctx, "missing_external_id", nil)
 	}
 
 	sso := base64.StdEncoding.EncodeToString([]byte(params.Encode()))

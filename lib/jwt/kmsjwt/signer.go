@@ -65,13 +65,13 @@ func (s *Signer) findKeyVersion(ctx context.Context) (string, error) {
 		OrderBy:  "name desc",
 	}).Next()
 	if errors.Is(err, iterator.Done) {
-		return "", merr.New("missing_crypto_key_version", merr.M{"path": path})
+		return "", merr.New(ctx, "missing_crypto_key_version", merr.M{"path": path})
 	} else if err != nil {
 		return "", err
 	}
 
 	if res.Algorithm != kms.CryptoKeyVersion_EC_SIGN_P256_SHA256 {
-		return "", merr.New("unexpected_crypto_key_algorithm", merr.M{"algorithm": res.Algorithm})
+		return "", merr.New(ctx, "unexpected_crypto_key_algorithm", merr.M{"algorithm": res.Algorithm})
 	}
 
 	i := strings.LastIndex(res.Name, "/")
@@ -82,11 +82,11 @@ func (s *Signer) findKeyVersion(ctx context.Context) (string, error) {
 
 func (s *Signer) Sign(ctx context.Context, expiresAt *time.Time, customClaims jwtinterface.Claims) (string, error) {
 	if _, ok := customClaims["v"].(string); !ok {
-		return "", merr.New("required_claim_missing", merr.M{"claim": "v"})
+		return "", merr.New(ctx, "required_claim_missing", merr.M{"claim": "v"})
 	}
 
 	if _, ok := customClaims["t"].(string); !ok {
-		return "", merr.New("required_claim_missing", merr.M{"claim": "t"})
+		return "", merr.New(ctx, "required_claim_missing", merr.M{"claim": "t"})
 	}
 
 	if expiresAt == nil {
@@ -101,7 +101,7 @@ func (s *Signer) Sign(ctx context.Context, expiresAt *time.Time, customClaims jw
 
 	for k, v := range customClaims {
 		if _, ok := claims[k]; ok {
-			return "", merr.New("claim_unoverridable", merr.M{"claim": k})
+			return "", merr.New(ctx, "claim_unoverridable", merr.M{"claim": k})
 		}
 
 		claims[k] = v
@@ -138,7 +138,7 @@ func (s jwtSigningMethodSign) Alg() string {
 }
 
 func (s jwtSigningMethodSign) Verify(signingString, signature string, key any) error {
-	return merr.New("not_implemented", nil)
+	return merr.New(s.ctx, "not_implemented", nil)
 }
 
 func (s jwtSigningMethodSign) Sign(signingString string, key any) (string, error) {
