@@ -10,7 +10,7 @@ require (
 	github.com/google/go-cmp v0.5.8
 	github.com/matryer/is v1.4.0
 	github.com/sirupsen/logrus v1.9.0
-	go.mongodb.org/mongo-driver v1.10.0
+	go.mongodb.org/mongo-driver v1.10.1
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.33.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.33.0
 	go.opentelemetry.io/otel/trace v1.8.0
