@@ -11,6 +11,7 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/mlog/indirect"
 )
 
+//nolint:gochecknoinits // currently no way around this
 func init() {
 	indirect.Debug = Debug
 	indirect.Info = Info

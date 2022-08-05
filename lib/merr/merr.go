@@ -40,14 +40,14 @@ type E struct {
 type M map[string]any
 
 func newE(ctx context.Context, reason error, code Code, meta M) E {
-	sc := trace.SpanContextFromContext(ctx)
+	spanContext := trace.SpanContextFromContext(ctx)
 
 	return E{
 		Code: code,
 		Meta: meta,
 
-		TraceID: sc.TraceID(),
-		SpanID:  sc.SpanID(),
+		TraceID: spanContext.TraceID(),
+		SpanID:  spanContext.SpanID(),
 
 		Stack: stacktrace.GetCallerFrames(3),
 

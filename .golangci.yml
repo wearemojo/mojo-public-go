@@ -15,12 +15,14 @@ linters:
   - godox # disagree
   - golint # deprecated: replaced by revive
   - gomnd # disagree
+  - ifshort # deprecated
   - interfacer # deprecated
   - ireturn # disagree
   - lll # impractical
   - maligned # deprecated: replaced by govet
   - nlreturn # disagree
   - nonamedreturns # disagree
+  - nosnakecase # deprecated: replaced by revive
   - paralleltest # impractical
   - revive # disagree
   - scopelint # deprecated: replaced by exportloopref
