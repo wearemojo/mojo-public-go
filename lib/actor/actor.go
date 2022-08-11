@@ -17,10 +17,11 @@ type Type string
 var (
 	TypeUnknown           Type = "unknown"
 	TypeInternal          Type = "internal"
-	TypeService           Type = "service"
-	TypeUser              Type = "user"
+	TypeService           Type = "service" // Mojo service
+	TypeUser              Type = "user"    // Mojo user
 	TypeSession           Type = "session"
-	TypeExternalCloudAuth Type = "external_cloud_auth"
+	TypeExternalCloudAuth Type = "external_cloud_auth" // non-Mojo system
+	TypeExternalUser      Type = "external_user"       // non-Mojo user
 )
 
 type Actor struct {
@@ -84,6 +85,7 @@ func NewSession(sessionID ksuid.ID) Actor {
 	}
 }
 
+// Deprecated: remove once WP auth is gone
 func NewUserWithoutSession(userID ksuid.ID) Actor {
 	return Actor{
 		Type: TypeUser,
@@ -100,6 +102,17 @@ func NewExternalCloudAuth(typ, service string) Actor {
 		Params: map[string]any{
 			"type":    typ,
 			"service": service,
+		},
+	}
+}
+
+func NewExternalUser(typ, id, reference string) Actor {
+	return Actor{
+		Type: TypeExternalUser,
+		Params: map[string]any{
+			"type":      typ,
+			"id":        id,
+			"reference": reference,
 		},
 	}
 }
