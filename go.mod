@@ -14,17 +14,17 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.34.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.34.0
 	go.opentelemetry.io/otel/trace v1.9.0
-	golang.org/x/oauth2 v0.0.0-20220622183110-fd043fe589d2
+	golang.org/x/oauth2 v0.0.0-20220808172628-8227340efae7
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
-	google.golang.org/api v0.92.0
-	google.golang.org/genproto v0.0.0-20220722212130-b98a9ff5e252
+	google.golang.org/api v0.93.0
+	google.golang.org/genproto v0.0.0-20220812140447-cec7f5303424
 	google.golang.org/grpc v1.48.0
 	gopkg.in/ini.v1 v1.67.0
 )
 
 require (
-	cloud.google.com/go v0.102.1 // indirect
-	cloud.google.com/go/compute v1.7.0 // indirect
+	cloud.google.com/go v0.103.0 // indirect
+	cloud.google.com/go/compute v1.8.0 // indirect
 	cloud.google.com/go/iam v0.3.0 // indirect
 	github.com/aws/aws-sdk-go v1.43.41 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -61,8 +61,8 @@ require (
 	go.opentelemetry.io/otel v1.9.0 // indirect
 	go.opentelemetry.io/otel/metric v0.31.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
-	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
-	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
+	golang.org/x/net v0.0.0-20220811182439-13a9a731de15 // indirect
+	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
