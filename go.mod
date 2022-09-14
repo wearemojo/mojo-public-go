@@ -12,7 +12,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	go.mongodb.org/mongo-driver v1.10.2
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.35.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.34.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.35.0
 	go.opentelemetry.io/otel/trace v1.10.0
 	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
