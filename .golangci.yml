@@ -6,6 +6,7 @@ linters:
 
   disable:
   - cyclop # alternative: gocognit - could add if we start unit testing heavily
+  - deadcode # deprecated: replaced by unused
   - execinquery # broken: triggers on non-SQL queries
   - exhaustivestruct # deprecated: replaced by exhaustruct
   - exhaustruct  # disagree - also not the intended use
@@ -26,7 +27,9 @@ linters:
   - paralleltest # impractical
   - revive # disagree
   - scopelint # deprecated: replaced by exportloopref
+  - structcheck # deprecated: replaced by unused
   - testpackage # disagree
+  - varcheck # deprecated: replaced by unused
   - wrapcheck # disagree
   - wsl # disagree
 
