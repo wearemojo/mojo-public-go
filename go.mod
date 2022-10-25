@@ -23,9 +23,8 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.104.0 // indirect
 	cloud.google.com/go/compute v1.10.0 // indirect
-	cloud.google.com/go/iam v0.3.0 // indirect
+	cloud.google.com/go/iam v0.5.0 // indirect
 	github.com/aws/aws-sdk-go v1.43.41 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
