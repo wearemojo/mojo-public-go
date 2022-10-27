@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	cloud.google.com/go/kms v1.4.0
-	cloud.google.com/go/secretmanager v1.7.0
+	cloud.google.com/go/secretmanager v1.8.0
 	github.com/cuvva/cuvva-public-go v0.0.0-20220412094328-0b3957ff0525
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/google/go-cmp v0.5.9
@@ -15,9 +15,9 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.4
 	go.opentelemetry.io/otel/trace v1.11.1
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
-	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0
-	google.golang.org/api v0.100.0
-	google.golang.org/genproto v0.0.0-20221014213838-99cd37c6964a
+	golang.org/x/sync v0.1.0
+	google.golang.org/api v0.101.0
+	google.golang.org/genproto v0.0.0-20221018160656-63c7b68cfc55
 	google.golang.org/grpc v1.50.1
 	gopkg.in/ini.v1 v1.67.0
 )
