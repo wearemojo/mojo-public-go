@@ -39,6 +39,9 @@ severity:
 issues:
   exclude-rules:
   - linters:
+    - gomoddirectives
+    text: "local replacement are not allowed: github.com/wearemojo/mojo-public-go"
+  - linters:
     - govet
     text: "composites: `go.mongodb.org/mongo-driver/bson/primitive.E` composite literal uses unkeyed fields"
 
@@ -56,6 +59,9 @@ linters-settings:
     enable-all: true
     disable:
     - fieldalignment # impractical
+
+  grouper:
+    import-require-grouping: true
 
   nolintlint:
     allow-unused: false

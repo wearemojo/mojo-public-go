@@ -16,7 +16,7 @@ func init() {
 	indirect.Debug = Debug
 	indirect.Info = Info
 	indirect.Warn = Warn
-	indirect.Error = Error
+	indirect.Error = Error //nolint:reassign // this is intended, works around import cycle
 }
 
 // Debug is to help with tracing the system's behavior
@@ -36,7 +36,8 @@ func Info(ctx context.Context, err merr.Merrer) {
 // Warn covers issues which were handled and do not require specific action
 // from an engineer, but which should be fixed at some point
 //
-// Only for issues which could occur indefinitely without serious consequences
+// Only use this for issues that can safely keep occurring indefinitely without
+// serious consequences
 //
 // e.g. a system was unavailable, but failed gracefully
 func Warn(ctx context.Context, err merr.Merrer) {

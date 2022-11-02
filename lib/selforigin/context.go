@@ -1,6 +1,8 @@
 package selforigin
 
-import "context"
+import (
+	"context"
+)
 
 type contextKey string
 

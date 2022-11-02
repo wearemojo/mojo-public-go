@@ -93,7 +93,8 @@ func (e E) String() string {
 
 // Error implements the error interface
 //
-// Provides a simple string representation of the error, but lacks some detail
+// Provides a simple string representation of the error, but cannot include the
+// complete data contained in the error
 //
 // No compatibility guarantees are made with its output - it may change at any time
 func (e E) Error() string {
