@@ -10,20 +10,21 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/matryer/is v1.4.0
 	github.com/sirupsen/logrus v1.9.0
-	go.mongodb.org/mongo-driver v1.10.4
+	go.mongodb.org/mongo-driver v1.11.0
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.36.4
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.4
 	go.opentelemetry.io/otel/trace v1.11.1
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
 	golang.org/x/sync v0.1.0
-	google.golang.org/api v0.101.0
+	google.golang.org/api v0.102.0
 	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
 	google.golang.org/grpc v1.50.1
 	gopkg.in/ini.v1 v1.67.0
 )
 
 require (
-	cloud.google.com/go/compute v1.10.0 // indirect
+	cloud.google.com/go/compute v1.12.1 // indirect
+	cloud.google.com/go/compute/metadata v0.2.1 // indirect
 	cloud.google.com/go/iam v0.5.0 // indirect
 	github.com/aws/aws-sdk-go v1.43.41 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
