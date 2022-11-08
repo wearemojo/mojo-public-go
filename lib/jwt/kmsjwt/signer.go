@@ -11,20 +11,20 @@ import (
 	"strings"
 	"time"
 
-	kmsapi "cloud.google.com/go/kms/apiv1"
+	kms "cloud.google.com/go/kms/apiv1"
+	"cloud.google.com/go/kms/apiv1/kmspb"
 	jwt "github.com/golang-jwt/jwt/v4"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/ptr"
 	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
 	"google.golang.org/api/iterator"
-	kms "google.golang.org/genproto/googleapis/cloud/kms/v1"
 )
 
 var _ jwtinterface.Signer = (*Signer)(nil)
 
 type Signer struct {
-	client      *kmsapi.KeyManagementClient
+	client      *kms.KeyManagementClient
 	projectID   string
 	env         string
 	serviceName string
@@ -32,7 +32,7 @@ type Signer struct {
 	keyVersionCache *ttlcache.SingularCache[string]
 }
 
-func NewSigner(client *kmsapi.KeyManagementClient, projectID, env, serviceName string) *Signer {
+func NewSigner(client *kms.KeyManagementClient, projectID, env, serviceName string) *Signer {
 	return &Signer{
 		client:      client,
 		projectID:   projectID,
@@ -58,7 +58,7 @@ func (s *Signer) findKeyVersion(ctx context.Context) (string, error) {
 		fmt.Sprintf("%s-%s", s.env, s.serviceName),
 	)
 
-	res, err := s.client.ListCryptoKeyVersions(ctx, &kms.ListCryptoKeyVersionsRequest{
+	res, err := s.client.ListCryptoKeyVersions(ctx, &kmspb.ListCryptoKeyVersionsRequest{
 		Parent:   path,
 		PageSize: 1,
 		Filter:   "state=ENABLED",
@@ -70,7 +70,7 @@ func (s *Signer) findKeyVersion(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	if res.Algorithm != kms.CryptoKeyVersion_EC_SIGN_P256_SHA256 {
+	if res.Algorithm != kmspb.CryptoKeyVersion_EC_SIGN_P256_SHA256 {
 		return "", merr.New(ctx, "unexpected_crypto_key_algorithm", merr.M{"algorithm": res.Algorithm})
 	}
 
@@ -155,10 +155,10 @@ func (s jwtSigningMethodSign) Sign(signingString string, key any) (string, error
 	h.Write([]byte(signingString))
 	digest := h.Sum(nil)
 
-	res, err := s.signer.client.AsymmetricSign(s.ctx, &kms.AsymmetricSignRequest{
+	res, err := s.signer.client.AsymmetricSign(s.ctx, &kmspb.AsymmetricSignRequest{
 		Name: path,
-		Digest: &kms.Digest{
-			Digest: &kms.Digest_Sha256{
+		Digest: &kmspb.Digest{
+			Digest: &kmspb.Digest_Sha256{
 				Sha256: digest,
 			},
 		},

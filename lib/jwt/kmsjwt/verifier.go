@@ -7,14 +7,14 @@ import (
 	"strings"
 	"time"
 
-	kmsapi "cloud.google.com/go/kms/apiv1"
+	kms "cloud.google.com/go/kms/apiv1"
+	"cloud.google.com/go/kms/apiv1/kmspb"
 	"github.com/cuvva/cuvva-public-go/lib/cher"
 	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
-	kms "google.golang.org/genproto/googleapis/cloud/kms/v1"
 )
 
 var _ jwtinterface.Verifier = (*Verifier)(nil)
@@ -24,13 +24,13 @@ type cacheKey struct {
 }
 
 type Verifier struct {
-	client    *kmsapi.KeyManagementClient
+	client    *kms.KeyManagementClient
 	projectID string
 
 	publicKeyCache *ttlcache.KeyedCache[cacheKey, *ecdsa.PublicKey]
 }
 
-func NewVerifier(client *kmsapi.KeyManagementClient, projectID string) *Verifier {
+func NewVerifier(client *kms.KeyManagementClient, projectID string) *Verifier {
 	return &Verifier{
 		client:    client,
 		projectID: projectID,
@@ -62,14 +62,14 @@ func (s *Verifier) findPublicKey(ctx context.Context, issuer, keyID string) (*ec
 		keyID,
 	)
 
-	res, err := s.client.GetPublicKey(ctx, &kms.GetPublicKeyRequest{
+	res, err := s.client.GetPublicKey(ctx, &kmspb.GetPublicKeyRequest{
 		Name: path,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	if res.Algorithm != kms.CryptoKeyVersion_EC_SIGN_P256_SHA256 {
+	if res.Algorithm != kmspb.CryptoKeyVersion_EC_SIGN_P256_SHA256 {
 		return nil, merr.New(ctx, "unexpected_crypto_key_algorithm", merr.M{"algorithm": res.Algorithm})
 	}
 
