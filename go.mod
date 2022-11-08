@@ -3,7 +3,7 @@ module github.com/wearemojo/mojo-public-go
 go 1.19
 
 require (
-	cloud.google.com/go/kms v1.5.0
+	cloud.google.com/go/kms v1.6.0
 	cloud.google.com/go/secretmanager v1.8.0
 	github.com/cuvva/cuvva-public-go v0.0.0-20220412094328-0b3957ff0525
 	github.com/golang-jwt/jwt/v4 v4.4.2
@@ -17,7 +17,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
 	golang.org/x/sync v0.1.0
 	google.golang.org/api v0.102.0
-	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e
+	google.golang.org/genproto v0.0.0-20221027153422-115e99e71e1c
 	google.golang.org/grpc v1.50.1
 	gopkg.in/ini.v1 v1.67.0
 )
@@ -25,7 +25,7 @@ require (
 require (
 	cloud.google.com/go/compute v1.12.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.1 // indirect
-	cloud.google.com/go/iam v0.5.0 // indirect
+	cloud.google.com/go/iam v0.6.0 // indirect
 	github.com/aws/aws-sdk-go v1.43.41 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
