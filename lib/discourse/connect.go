@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"net/url"
 
+	"github.com/cuvva/cuvva-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
@@ -32,11 +33,7 @@ func (c *ConnectClient) SyncSSO(ctx context.Context, params url.Values) error {
 		return merr.New(ctx, "missing_external_id", nil)
 	}
 
-	sso := base64.StdEncoding.EncodeToString([]byte(params.Encode()))
-
-	hmac := hmac.New(sha256.New, []byte(c.connectSecret))
-	hmac.Write([]byte(sso))
-	sig := hex.EncodeToString(hmac.Sum(nil))
+	sso, sig := c.StringifyAndSign(params)
 
 	req := map[string]string{
 		"sso": sso,
@@ -44,4 +41,37 @@ func (c *ConnectClient) SyncSSO(ctx context.Context, params url.Values) error {
 	}
 
 	return c.client.systemClient().Do(ctx, "POST", "/admin/users/sync_sso", nil, req, nil)
+}
+
+func (c *ConnectClient) sign(sso string) string {
+	h := hmac.New(sha256.New, []byte(c.connectSecret))
+	h.Write([]byte(sso))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func (c *ConnectClient) StringifyAndSign(params url.Values) (sso, sig string) {
+	sso = base64.StdEncoding.EncodeToString([]byte(params.Encode()))
+	sig = c.sign(sso)
+
+	return
+}
+
+func (c *ConnectClient) ParseAndVerify(ctx context.Context, sso, sig string) (url.Values, error) {
+	expectedSig := c.sign(sso)
+
+	if !hmac.Equal([]byte(sig), []byte(expectedSig)) {
+		return nil, cher.New("invalid_signature", nil)
+	}
+
+	bytes, err := base64.StdEncoding.DecodeString(sso)
+	if err != nil {
+		return nil, merr.Wrap(ctx, err, "cannot_decode", nil)
+	}
+
+	params, err := url.ParseQuery(string(bytes))
+	if err != nil {
+		return nil, merr.Wrap(ctx, err, "cannot_parse_query", nil)
+	}
+
+	return params, nil
 }
