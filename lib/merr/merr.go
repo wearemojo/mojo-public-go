@@ -59,6 +59,7 @@ func New(ctx context.Context, code Code, meta M) E {
 	return newE(ctx, nil, code, meta)
 }
 
+// TODO: replace in favor of variadic reasons on `New` in Go 1.20
 func Wrap(ctx context.Context, reason error, code Code, meta M) Merrer {
 	if reason == nil {
 		return nil
