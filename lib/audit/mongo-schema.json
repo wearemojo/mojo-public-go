@@ -178,6 +178,38 @@
 							}
 						}
 					}
+				},
+				{
+					"properties": {
+						"type": { "enum": ["external_user"] },
+
+						"params": {
+							"additionalProperties": false,
+
+							"required": [
+								"type",
+								"id",
+								"reference"
+							],
+
+							"properties": {
+								"type": {
+									"bsonType": "string",
+									"minLength": 1
+								},
+
+								"id": {
+									"bsonType": "string",
+									"minLength": 1
+								},
+
+								"reference": {
+									"bsonType": "string",
+									"minLength": 1
+								}
+							}
+						}
+					}
 				}
 			]
 		}
