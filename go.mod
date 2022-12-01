@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/kms v1.6.0
 	cloud.google.com/go/secretmanager v1.9.0
 	github.com/cuvva/cuvva-public-go v0.0.0-20220412094328-0b3957ff0525
-	github.com/golang-jwt/jwt/v4 v4.4.2
+	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/google/go-cmp v0.5.9
 	github.com/matryer/is v1.4.0
 	github.com/sirupsen/logrus v1.9.0
