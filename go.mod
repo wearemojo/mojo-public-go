@@ -3,6 +3,7 @@ module github.com/wearemojo/mojo-public-go
 go 1.19
 
 require (
+	cloud.google.com/go v0.105.0
 	cloud.google.com/go/kms v1.7.0
 	cloud.google.com/go/secretmanager v1.9.0
 	github.com/cuvva/cuvva-public-go v0.0.0-20220412094328-0b3957ff0525
