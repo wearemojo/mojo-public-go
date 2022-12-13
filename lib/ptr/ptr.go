@@ -12,3 +12,13 @@ func POrNil[T comparable](v T) *T {
 		return &v
 	}
 }
+
+func ShallowCopy[T any](v *T) *T {
+	if v == nil {
+		return nil
+	} else {
+		cpy := new(T)
+		*cpy = *v
+		return cpy
+	}
+}
