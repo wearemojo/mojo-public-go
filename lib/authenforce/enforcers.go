@@ -2,12 +2,13 @@ package authenforce
 
 import (
 	"context"
-	"sync/atomic"
+	"sync"
 
 	"github.com/cuvva/cuvva-public-go/lib/cher"
-	"github.com/wearemojo/mojo-public-go/lib/errgroup"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
+	"github.com/wearemojo/mojo-public-go/lib/mlog"
+	"github.com/wearemojo/mojo-public-go/lib/slicefn"
 )
 
 type (
@@ -42,45 +43,78 @@ func UnsafeAllowAny(_ context.Context, state any, _ []byte) (bool, error) {
 	return true, nil
 }
 
+type enforcerOutcome struct {
+	handled bool
+	err     error
+}
+
 // Run all enforcers in parallel and ensures that none of them error.
 func (e Enforcers) Run(ctx context.Context, authState any, req []byte) error {
-	g := errgroup.WithContext(ctx)
+	var outcomes []enforcerOutcome
+	var outcomeMutex sync.Mutex
 
-	var handleCount uint64
+	var wg sync.WaitGroup
 
 	for _, enforcer := range e {
 		enforcer := enforcer
+		wg.Add(1)
 
-		g.Go(func(ctx context.Context) error {
+		go func() {
+			defer wg.Done()
+
 			handled, err := enforcer(ctx, authState, req)
-			if err != nil {
-				return err
-			}
 
-			if handled {
-				atomic.AddUint64(&handleCount, 1)
-			}
+			outcomeMutex.Lock()
+			defer outcomeMutex.Unlock()
 
-			return nil
+			outcomes = append(outcomes, enforcerOutcome{
+				handled: handled,
+				err:     err,
+			})
+		}()
+	}
+
+	wg.Wait()
+
+	handled := slicefn.Filter(outcomes, func(outcome enforcerOutcome) bool {
+		return outcome.handled
+	})
+
+	unhandled := slicefn.Filter(outcomes, func(outcome enforcerOutcome) bool {
+		return !outcome.handled && outcome.err != nil
+	})
+
+	unhandledErrs := slicefn.Map(unhandled, func(outcome enforcerOutcome) error {
+		return outcome.err
+	})
+
+	if len(unhandledErrs) != 0 {
+		mlog.Warn(ctx, merr.New(ctx, "unhandled_enforcer_errors", merr.M{
+			"errors": unhandledErrs, // TODO: move to multi-error wrapping thing
+		}))
+	}
+
+	if len(handled) == 0 {
+		return wrapAuthErrType(authState, cher.New("no_suitable_auth_found", nil))
+	}
+
+	if len(handled) != 1 {
+		return merr.New(ctx, "multiple_enforcers_handled", merr.M{
+			"outcomes": outcomes,
 		})
 	}
 
-	if err := g.Wait(); err != nil {
-		if cerr, ok := gerrors.As[cher.E](err); ok {
-			return wrapAuthErrType(authState, cerr)
-		}
+	outcome := handled[0]
 
-		return merr.Wrap(ctx, err, "enforcer_failed", nil)
-	}
-
-	switch handleCount {
-	case 0:
-		return wrapAuthErrType(authState, cher.New("no_suitable_auth_found", nil))
-	case 1: // all is safe, exactly one enforcer ran
+	if outcome.err == nil {
 		return nil
-	default:
-		return merr.New(ctx, "multiple_enforcers_handled", merr.M{"count": handleCount})
 	}
+
+	if cerr, ok := gerrors.As[cher.E](outcome.err); ok {
+		return wrapAuthErrType(authState, cerr)
+	}
+
+	return merr.Wrap(ctx, outcome.err, "enforcer_failed", nil)
 }
 
 func wrapAuthErrType(authState any, err cher.E) error {
