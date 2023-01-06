@@ -4,8 +4,8 @@ go 1.19
 
 require (
 	cloud.google.com/go v0.107.0
-	cloud.google.com/go/kms v1.7.0
-	cloud.google.com/go/secretmanager v1.9.0
+	cloud.google.com/go/kms v1.8.0
+	cloud.google.com/go/secretmanager v1.10.0
 	github.com/cuvva/cuvva-public-go v0.0.0-20220412094328-0b3957ff0525
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/google/go-cmp v0.5.9
@@ -64,7 +64,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/sys v0.1.0 // indirect
-	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20221227171554-f9683d7f8bef // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
