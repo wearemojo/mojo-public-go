@@ -86,6 +86,8 @@ func NewSession(sessionID ksuid.ID) Actor {
 }
 
 // Deprecated: remove once WP auth is gone
+//
+// TODO: remove
 func NewUserWithoutSession(userID ksuid.ID) Actor {
 	return Actor{
 		Type: TypeUser,
