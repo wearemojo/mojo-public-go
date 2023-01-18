@@ -38,5 +38,5 @@ func (c *Client) Track(ctx context.Context, req *TrackRequest) error {
 		req.AuthToken = c.AuthToken
 	}
 
-	return c.client.Do(ctx, "POST", "/t/", nil, req, nil)
+	return c.client.Do(ctx, "POST", "/events/t", nil, req, nil)
 }
