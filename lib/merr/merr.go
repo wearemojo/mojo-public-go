@@ -39,8 +39,24 @@ type E struct {
 
 type M map[string]any
 
-func newE(ctx context.Context, reason error, code Code, meta M) E {
+func New(ctx context.Context, code Code, meta M, reasons ...error) E {
 	spanContext := trace.SpanContextFromContext(ctx)
+
+	for _, reason := range reasons {
+		if reason == nil {
+			panic("merr.New: nil reason provided for " + code.String())
+		}
+	}
+
+	// TODO: remove once Go 1.20 is released
+	var reason error
+	switch len(reasons) {
+	case 0:
+	case 1:
+		reason = reasons[0]
+	default:
+		panic("merr.New: multiple reasons provided for " + code.String())
+	}
 
 	return E{
 		Code: code,
@@ -49,23 +65,10 @@ func newE(ctx context.Context, reason error, code Code, meta M) E {
 		TraceID: spanContext.TraceID(),
 		SpanID:  spanContext.SpanID(),
 
-		Stack: stacktrace.GetCallerFrames(3),
+		Stack: stacktrace.GetCallerFrames(2),
 
 		Reason: reason,
 	}
-}
-
-func New(ctx context.Context, code Code, meta M) E {
-	return newE(ctx, nil, code, meta)
-}
-
-// TODO: replace in favor of variadic reasons on `New` in Go 1.20
-func Wrap(ctx context.Context, reason error, code Code, meta M) Merrer {
-	if reason == nil {
-		return nil
-	}
-
-	return newE(ctx, reason, code, meta)
 }
 
 func (e E) Merr() E {
@@ -106,7 +109,7 @@ func (e E) Error() string {
 	}
 
 	if e.Reason != nil {
-		str += fmt.Sprintf(": %v", e.Reason)
+		str += fmt.Sprintf("\n- %v", e.Reason)
 	}
 
 	return str

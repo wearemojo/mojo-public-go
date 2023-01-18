@@ -65,12 +65,12 @@ func (c *ConnectClient) ParseAndVerify(ctx context.Context, sso, sig string) (ur
 
 	bytes, err := base64.StdEncoding.DecodeString(sso)
 	if err != nil {
-		return nil, merr.Wrap(ctx, err, "cannot_decode", nil)
+		return nil, merr.New(ctx, "cannot_decode", nil, err)
 	}
 
 	params, err := url.ParseQuery(string(bytes))
 	if err != nil {
-		return nil, merr.Wrap(ctx, err, "cannot_parse_query", nil)
+		return nil, merr.New(ctx, "cannot_parse_query", nil, err)
 	}
 
 	return params, nil

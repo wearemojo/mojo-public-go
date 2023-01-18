@@ -47,8 +47,8 @@ func TestIsCode(t *testing.T) {
 		New(ctx, Code("foo"), nil),
 		New(ctx, "foo", M{"a": "b"}),
 		New(ctx, Code("foo"), M{"a": "b"}),
-		Wrap(ctx, New(ctx, "foo", nil), "bar", nil),
-		Wrap(ctx, wrappedError{New(ctx, "foo", nil)}, "bar", nil),
+		New(ctx, "bar", nil, New(ctx, "foo", nil)),
+		New(ctx, "bar", nil, wrappedError{New(ctx, "foo", nil)}),
 	}
 
 	for _, err := range errs {

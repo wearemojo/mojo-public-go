@@ -54,6 +54,6 @@ func SetCLogFieldsForGCP(gcpProjectID string) func(next http.Handler) http.Handl
 
 func handleCLogError(ctx context.Context, err error) {
 	if err != nil {
-		mlog.Warn(ctx, merr.Wrap(ctx, err, "clog_set_fields_failed", nil))
+		mlog.Warn(ctx, merr.New(ctx, "clog_set_fields_failed", nil, err))
 	}
 }

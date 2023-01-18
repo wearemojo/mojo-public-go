@@ -114,7 +114,7 @@ func (e Enforcers) Run(ctx context.Context, authState any, req []byte) error {
 		return wrapAuthErrType(authState, cerr)
 	}
 
-	return merr.Wrap(ctx, outcome.err, "enforcer_failed", nil)
+	return merr.New(ctx, "enforcer_failed", nil, outcome.err)
 }
 
 func wrapAuthErrType(authState any, err cher.E) error {

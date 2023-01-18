@@ -27,7 +27,7 @@ func jsonError(ctx context.Context, res http.ResponseWriter, err error) {
 	}
 
 	if encErr != nil {
-		mlog.Error(ctx, merr.Wrap(ctx, encErr, "error_encode_failed", nil))
+		mlog.Error(ctx, merr.New(ctx, "error_encode_failed", nil, encErr))
 	}
 }
 
@@ -45,7 +45,7 @@ func Middleware(parser Parser) func(http.Handler) http.Handler {
 				if cerr, ok := gerrors.As[cher.E](err); ok && cerr.Code == cher.Unauthorized && len(cerr.Reasons) == 1 {
 					err = cerr.Reasons[0]
 				}
-				mlog.Info(ctx, merr.Wrap(ctx, err, "auth_check_failed", nil))
+				mlog.Info(ctx, merr.New(ctx, "auth_check_failed", nil, err))
 
 				return
 			}
