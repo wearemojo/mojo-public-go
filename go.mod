@@ -3,7 +3,7 @@ module github.com/wearemojo/mojo-public-go
 go 1.19
 
 require (
-	cloud.google.com/go v0.108.0
+	cloud.google.com/go v0.109.0
 	cloud.google.com/go/kms v1.8.0
 	cloud.google.com/go/secretmanager v1.10.0
 	github.com/cuvva/cuvva-public-go v0.0.0-20220412094328-0b3957ff0525
@@ -66,6 +66,6 @@ require (
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/text v0.6.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20221227171554-f9683d7f8bef // indirect
+	google.golang.org/genproto v0.0.0-20230113154510-dbe35b8444a5 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 )
