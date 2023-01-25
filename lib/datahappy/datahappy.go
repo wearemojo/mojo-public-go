@@ -25,7 +25,7 @@ func NewClient(baseURL, authToken string) *Client {
 		client: jsonclient.NewClient(baseURL, &http.Client{
 			Timeout: 5 * time.Second,
 
-			Transport: otelhttp.NewTransport(http.DefaultTransport),
+			Transport: otelhttp.NewTransport(nil),
 		}),
 
 		AuthToken: authToken,

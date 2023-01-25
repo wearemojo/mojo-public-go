@@ -4,11 +4,11 @@ import (
 	"net/http"
 )
 
-type headerRoundtripper struct {
+type roundTripper struct {
 	header http.Header
 }
 
-func (h *headerRoundtripper) RoundTrip(req *http.Request) (*http.Response, error) {
+func (h roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	if req.Header == nil {
 		req.Header = http.Header{}
 	}

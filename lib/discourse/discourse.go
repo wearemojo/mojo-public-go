@@ -25,7 +25,7 @@ func NewClient(baseURL, apiKey string) *Client {
 func (c *Client) client(header http.Header) *jsonclient.Client {
 	return jsonclient.NewClient(c.BaseURL, &http.Client{
 		Timeout: 10 * time.Second,
-		Transport: otelhttp.NewTransport(&headerRoundtripper{
+		Transport: otelhttp.NewTransport(roundTripper{
 			header: header,
 		}),
 	})
