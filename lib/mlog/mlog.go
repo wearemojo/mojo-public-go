@@ -9,6 +9,7 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/gcp"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog/indirect"
+	"github.com/wearemojo/mojo-public-go/lib/stacktrace"
 )
 
 //nolint:gochecknoinits // currently no way around this
@@ -65,12 +66,13 @@ func log(ctx context.Context, level logrus.Level, err merr.Merrer) {
 	// so to get proper JSON, we need to copy the merrFields instead
 	merrFields := merr.Fields()
 
-	if level == logrus.InfoLevel {
-		merrFields["stack"] = nil
+	fields := logrus.Fields{
+		"error": merr.Error(),
+		"merr":  merrFields,
 	}
 
-	fields := logrus.Fields{
-		"merr": merrFields,
+	if merr.Stack != nil && level > logrus.InfoLevel {
+		fields["stack_trace"] = stacktrace.FormatFrames(merr.Stack)
 	}
 
 	if merr.TraceID.IsValid() && merr.SpanID.IsValid() {
