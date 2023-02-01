@@ -60,6 +60,7 @@ func log(ctx context.Context, level logrus.Level, err merr.Merrer) {
 		return
 	}
 
+	logger := clog.Get(ctx)
 	merr := err.Merr()
 
 	// logrus runs `.String()` on anything implementing `error`
@@ -69,6 +70,21 @@ func log(ctx context.Context, level logrus.Level, err merr.Merrer) {
 	fields := logrus.Fields{
 		"error": merr.Error(),
 		"merr":  merrFields,
+	}
+
+	// if we're doing unstructured/text logging, try to improve readability
+	if _, ok := logger.Logger.Formatter.(*logrus.TextFormatter); ok {
+		if level <= logrus.InfoLevel {
+			delete(merrFields, "stack")
+		}
+		if merrFields["meta"] == nil {
+			delete(merrFields, "meta")
+		}
+		if merrFields["reason"] == nil {
+			delete(merrFields, "reason")
+		}
+
+		fields = merrFields
 	}
 
 	if merr.Stack != nil && level > logrus.InfoLevel {
@@ -89,7 +105,7 @@ func log(ctx context.Context, level logrus.Level, err merr.Merrer) {
 		}
 	}
 
-	clog.Get(ctx).
+	logger.
 		WithFields(fields).
 		Log(level, merr.Code)
 }
