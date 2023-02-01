@@ -13,7 +13,7 @@ import (
 var _ interface {
 	error
 	Is(error) bool
-	Unwrap() error
+	Unwrap() []error
 } = E{}
 
 // Merrer (merr-er) represents a merr-compatible error
@@ -34,7 +34,7 @@ type E struct {
 
 	Stack []stacktrace.Frame `json:"stack"`
 
-	Reason error `json:"reason"`
+	Reasons []error `json:"reasons"`
 }
 
 type M map[string]any
@@ -48,16 +48,6 @@ func New(ctx context.Context, code Code, meta M, reasons ...error) E {
 		}
 	}
 
-	// TODO: remove once Go 1.20 is released
-	var reason error
-	switch len(reasons) {
-	case 0:
-	case 1:
-		reason = reasons[0]
-	default:
-		panic("merr.New: multiple reasons provided for " + code.String())
-	}
-
 	return E{
 		Code: code,
 		Meta: meta,
@@ -67,7 +57,7 @@ func New(ctx context.Context, code Code, meta M, reasons ...error) E {
 
 		Stack: stacktrace.GetCallerFrames(2),
 
-		Reason: reason,
+		Reasons: reasons,
 	}
 }
 
@@ -77,10 +67,10 @@ func (e E) Merr() E {
 
 func (e E) Fields() map[string]any {
 	return map[string]any{
-		"code":   e.Code,
-		"meta":   e.Meta,
-		"stack":  e.Stack,
-		"reason": e.Reason,
+		"code":    e.Code,
+		"meta":    e.Meta,
+		"stack":   e.Stack,
+		"reasons": e.Reasons,
 	}
 }
 
@@ -88,7 +78,7 @@ func (e E) Equal(e2 E) bool {
 	return e.Code == e2.Code &&
 		cmp.Equal(e.Meta, e2.Meta) &&
 		cmp.Equal(e.Stack, e2.Stack) &&
-		cmp.Equal(e.Reason, e2.Reason)
+		cmp.Equal(e.Reasons, e2.Reasons)
 }
 
 func (e E) String() string {
@@ -108,8 +98,8 @@ func (e E) Error() string {
 		str += fmt.Sprintf(" (%v)", e.Meta)
 	}
 
-	if e.Reason != nil {
-		str += fmt.Sprintf("\n- %v", e.Reason)
+	for _, reason := range e.Reasons {
+		str += fmt.Sprintf("\n- %v", reason)
 	}
 
 	return str
@@ -130,6 +120,6 @@ func (e E) Is(err error) bool {
 }
 
 // Unwrap enables the use of `errors.Unwrap`
-func (e E) Unwrap() error {
-	return e.Reason
+func (e E) Unwrap() []error {
+	return e.Reasons
 }

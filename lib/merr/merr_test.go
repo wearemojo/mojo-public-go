@@ -20,7 +20,7 @@ func TestNew(t *testing.T) {
 	is.Equal(err.Code, Code("foo"))
 	is.Equal(err.Meta, nil)
 	is.True(strings.HasSuffix(err.Stack[0].File, "/lib/merr/merr_test.go"))
-	is.Equal(err.Reason, nil)
+	is.Equal(err.Reasons, nil)
 }
 
 func TestNewMeta(t *testing.T) {
@@ -32,7 +32,7 @@ func TestNewMeta(t *testing.T) {
 	is.Equal(err.Code, Code("foo"))
 	is.Equal(err.Meta, M{"a": "b"})
 	is.True(strings.HasSuffix(err.Stack[0].File, "/lib/merr/merr_test.go"))
-	is.Equal(err.Reason, nil)
+	is.Equal(err.Reasons, nil)
 }
 
 func TestWrap(t *testing.T) {
@@ -48,7 +48,8 @@ func TestWrap(t *testing.T) {
 	is.Equal(err.Code, Code("foo"))
 	is.Equal(err.Meta, nil)
 	is.True(strings.HasSuffix(err.Stack[0].File, "/lib/merr/merr_test.go"))
-	is.Equal(err.Reason, errors.New("underlying error")) //nolint:goerr113,forbidigo // needed for testing
+	is.Equal(len(err.Reasons), 1)
+	is.Equal(err.Reasons[0], errors.New("underlying error")) //nolint:goerr113,forbidigo // needed for testing
 }
 
 func TestWrapMeta(t *testing.T) {
@@ -64,7 +65,8 @@ func TestWrapMeta(t *testing.T) {
 	is.Equal(err.Code, Code("foo"))
 	is.Equal(err.Meta, M{"a": "b"})
 	is.True(strings.HasSuffix(err.Stack[0].File, "/lib/merr/merr_test.go"))
-	is.Equal(err.Reason, errors.New("underlying error")) //nolint:goerr113,forbidigo // needed for testing
+	is.Equal(len(err.Reasons), 1)
+	is.Equal(err.Reasons[0], errors.New("underlying error")) //nolint:goerr113,forbidigo // needed for testing
 }
 
 func TestEqual(t *testing.T) {
@@ -73,7 +75,7 @@ func TestEqual(t *testing.T) {
 
 	//nolint:lll // same line to ensure same stack trace 😅
 	err1, err2, err3, err4, err5, err6 := New(ctx, "foo", M{"a": "b"}), New(ctx, "foo", M{"a": "b"}), New(ctx, "foo", M{"a": "c"}), New(ctx, "bar", M{"a": "b"}), New(ctx, "foo", nil), New(ctx, "foo", M{"a": "b"})
-	err6.Reason = errors.New("foo") //nolint:goerr113,forbidigo // needed for testing
+	err6.Reasons = []error{errors.New("foo")} //nolint:goerr113,forbidigo // needed for testing
 
 	is.True(err1.Equal(err2))
 	is.True(!err1.Equal(err3))
