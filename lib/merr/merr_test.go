@@ -170,8 +170,12 @@ func TestEUnwrap(t *testing.T) {
 	err2 := New(ctx, "foo", nil, err1)
 	err3 := New(ctx, "bar", nil, err2)
 
-	is.Equal(errors.Unwrap(err3), err2)
-	is.Equal(errors.Unwrap(err2), err1)
+	// Unwrap returns nil for multi-error wrapping
+	is.Equal(errors.Unwrap(err3), nil)
+	is.Equal(errors.Unwrap(err2), nil)
+
+	is.Equal(err3.Unwrap(), []error{err2})
+	is.Equal(err2.Unwrap(), []error{err1})
 }
 
 func TestEAs(t *testing.T) {
