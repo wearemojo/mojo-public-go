@@ -7,6 +7,7 @@ import (
 )
 
 func New() *mathrand.Rand {
+	//nolint:gosec // this is incorrect - it is using crypto/rand
 	return mathrand.New(NewSource())
 }
 
@@ -20,7 +21,6 @@ func (source) Seed(_ int64) {}
 
 func (source) Int63() int64 {
 	var data [8]byte
-	//nolint:gosec // this is incorrect - it is using crypto/rand
 	if _, err := rand.Read(data[:]); err != nil {
 		panic(err)
 	}
