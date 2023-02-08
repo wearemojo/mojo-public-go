@@ -13,8 +13,8 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	go.mongodb.org/mongo-driver v1.11.1
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.38.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.38.0
-	go.opentelemetry.io/otel/trace v1.12.0
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.39.0
+	go.opentelemetry.io/otel/trace v1.13.0
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783
 	golang.org/x/sync v0.1.0
 	google.golang.org/api v0.109.0
@@ -59,8 +59,8 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
 	go.opencensus.io v0.24.0 // indirect
-	go.opentelemetry.io/otel v1.12.0 // indirect
-	go.opentelemetry.io/otel/metric v0.35.0 // indirect
+	go.opentelemetry.io/otel v1.13.0 // indirect
+	go.opentelemetry.io/otel/metric v0.36.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
