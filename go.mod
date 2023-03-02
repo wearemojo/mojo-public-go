@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	cloud.google.com/go v0.110.0
-	cloud.google.com/go/kms v1.8.0
+	cloud.google.com/go/kms v1.9.0
 	cloud.google.com/go/secretmanager v1.10.0
 	github.com/cuvva/cuvva-public-go v0.0.0-20220412094328-0b3957ff0525
 	github.com/golang-jwt/jwt/v4 v4.5.0
@@ -25,7 +25,7 @@ require (
 require (
 	cloud.google.com/go/compute v1.18.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
-	cloud.google.com/go/iam v0.11.0 // indirect
+	cloud.google.com/go/iam v0.12.0 // indirect
 	github.com/aws/aws-sdk-go v1.43.41 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
