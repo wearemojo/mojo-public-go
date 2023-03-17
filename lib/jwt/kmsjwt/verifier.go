@@ -3,6 +3,7 @@ package kmsjwt
 import (
 	"context"
 	"crypto/ecdsa"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -11,7 +12,6 @@ import (
 	"cloud.google.com/go/kms/apiv1/kmspb"
 	"github.com/cuvva/cuvva-public-go/lib/cher"
 	jwt "github.com/golang-jwt/jwt/v4"
-	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
@@ -91,21 +91,21 @@ func (s *Verifier) Verify(ctx context.Context, token string) (claims jwtinterfac
 
 		return s.getPublicKey(ctx, issuer, keyID)
 	})
-	if vErr, ok := gerrors.As[*jwt.ValidationError](err); ok {
-		switch {
-		case vErr.Errors&jwt.ValidationErrorMalformed != 0:
-			return nil, cher.New("token_malformed", nil)
-		case vErr.Errors&jwt.ValidationErrorUnverifiable != 0:
-			return nil, cher.New("token_unverifiable", nil)
-		case vErr.Errors&jwt.ValidationErrorSignatureInvalid != 0:
-			return nil, cher.New("token_bad_signature", nil)
-		case vErr.Errors&jwt.ValidationErrorIssuedAt != 0:
-			return nil, cher.New("token_used_before_issued", nil)
-		case vErr.Errors&jwt.ValidationErrorNotValidYet != 0:
-			return nil, cher.New("token_not_yet_valid", nil)
-		case vErr.Errors&jwt.ValidationErrorExpired != 0:
-			return nil, cher.New("token_expired", nil)
-		}
+	switch {
+	case errors.Is(err, jwt.ErrTokenMalformed):
+		return nil, cher.New("token_malformed", nil)
+	case errors.Is(err, jwt.ErrTokenUnverifiable):
+		return nil, cher.New("token_unverifiable", nil)
+	case errors.Is(err, jwt.ErrTokenSignatureInvalid):
+		return nil, cher.New("token_bad_signature", nil)
+	case errors.Is(err, jwt.ErrTokenExpired):
+		return nil, cher.New("token_expired", nil)
+	case errors.Is(err, jwt.ErrTokenUsedBeforeIssued):
+		return nil, cher.New("token_used_before_issued", nil)
+	case errors.Is(err, jwt.ErrTokenNotValidYet):
+		return nil, cher.New("token_not_yet_valid", nil)
+	case err != nil:
+		return nil, merr.New(ctx, "unknown_token_validation_error", nil, err)
 	}
 
 	return claims, nil
