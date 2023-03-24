@@ -8,7 +8,16 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/ptr"
 )
 
+type RequestType string
+
+const (
+	RequestTypeTrack  RequestType = "track"
+	RequestTypeUpdate RequestType = "update"
+	RequestTypeDelete RequestType = "delete"
+)
+
 type TrackRequest struct {
+	Type         RequestType    `json:"type"`
 	AnonymousID  string         `json:"anonymousId,omitempty"`
 	UserID       string         `json:"userId,omitempty"`
 	Event        string         `json:"event"`
@@ -24,6 +33,10 @@ type TrackRequest struct {
 func (c *Client) Track(ctx context.Context, req *TrackRequest) error {
 	// ensure no mutation of the original request
 	req = ptr.ShallowCopy(req)
+
+	if req.Type == "" {
+		req.Type = RequestTypeTrack
+	}
 
 	if req.Context == nil {
 		req.Context = &Context{}
