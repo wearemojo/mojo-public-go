@@ -16,7 +16,6 @@ import (
 	jwt "github.com/golang-jwt/jwt/v4"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
-	"github.com/wearemojo/mojo-public-go/lib/ptr"
 	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
 	"google.golang.org/api/iterator"
 )
@@ -80,17 +79,13 @@ func (s *Signer) findKeyVersion(ctx context.Context) (string, error) {
 	return displayName, nil
 }
 
-func (s *Signer) Sign(ctx context.Context, expiresAt *time.Time, customClaims jwtinterface.Claims) (string, error) {
+func (s *Signer) Sign(ctx context.Context, expiresAt time.Time, customClaims jwtinterface.Claims) (string, error) {
 	if _, ok := customClaims["v"].(string); !ok {
 		return "", merr.New(ctx, "required_claim_missing", merr.M{"claim": "v"})
 	}
 
 	if _, ok := customClaims["t"].(string); !ok {
 		return "", merr.New(ctx, "required_claim_missing", merr.M{"claim": "t"})
-	}
-
-	if expiresAt == nil {
-		expiresAt = ptr.P(time.Now().Add(time.Minute * 15))
 	}
 
 	claims := jwtinterface.Claims{

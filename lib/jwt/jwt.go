@@ -6,7 +6,7 @@ import (
 )
 
 type Signer interface {
-	Sign(ctx context.Context, expiresAt *time.Time, customClaims Claims) (token string, err error)
+	Sign(ctx context.Context, expiresAt time.Time, customClaims Claims) (token string, err error)
 }
 
 type Verifier interface {

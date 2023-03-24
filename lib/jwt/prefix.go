@@ -25,7 +25,7 @@ func TypeVersionFromString(in string) (tv TypeVersion, ok bool) {
 	return
 }
 
-func SignWithPrefix(ctx context.Context, signer Signer, expiresAt *time.Time, customClaims Claims, typeVersion TypeVersion) (token string, err error) {
+func SignWithPrefix(ctx context.Context, signer Signer, expiresAt time.Time, customClaims Claims, typeVersion TypeVersion) (token string, err error) {
 	claims := Claims{
 		"t": typeVersion.Type,
 		"v": typeVersion.Version,
