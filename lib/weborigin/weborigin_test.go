@@ -8,7 +8,7 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
-var tests = []struct {
+var baseTests = []struct {
 	Name     string
 	URL      string
 	Expected string
@@ -59,8 +59,92 @@ var tests = []struct {
 	},
 }
 
-func TestGetWebOrigin(t *testing.T) {
+func TestGetOrigin(t *testing.T) {
+	tests := append([]struct {
+		Name     string
+		URL      string
+		Expected string
+		Err      merr.Code
+	}{
+		{
+			Name:     "no delimiters",
+			URL:      "blah-foo",
+			Expected: "blah-foo://",
+			Err:      merr.Code("invalid_scheme"),
+		},
+		{
+			Name:     "colon only",
+			URL:      "blah-foo:",
+			Expected: "blah-foo://",
+		},
+		{
+			Name:     "one slash",
+			URL:      "blah-foo:/",
+			Expected: "blah-foo://",
+		},
+		{
+			Name:     "two slashes",
+			URL:      "blah-foo://",
+			Expected: "blah-foo://",
+		},
+		{
+			Name:     "two slashes and more",
+			URL:      "blah-foo://foo/bar/baz",
+			Expected: "blah-foo://foo",
+		},
+		{
+			Name:     "two slashes and more with port",
+			URL:      "blah-foo://foo:8080/bar/baz",
+			Expected: "blah-foo://foo",
+		},
+		{
+			Name:     "three slashes",
+			URL:      "blah-foo:///",
+			Expected: "blah-foo://",
+		},
+		{
+			Name:     "three slashes and more",
+			URL:      "blah-foo:///foo/bar/baz",
+			Expected: "blah-foo://",
+		},
+		{
+			Name:     "three slashes and more with port",
+			URL:      "blah-foo://:8080/foo/bar/baz",
+			Expected: "blah-foo://",
+		},
+		{
+			Name:     "four slashes",
+			URL:      "blah-foo:////",
+			Expected: "blah-foo://",
+		},
+	}, baseTests...)
+
 	for _, test := range tests {
+		test := test
+
+		t.Run(test.Name, func(t *testing.T) {
+			url, err := url.Parse(test.URL)
+			if err != nil {
+				t.Errorf("unexpected error: %s", err)
+			}
+
+			actual, err := GetOrigin(context.Background(), url)
+			if err != nil && test.Err != "" {
+				if merr.IsCode(err, test.Err) {
+					return
+				}
+
+				t.Errorf("unexpected error: %v", err)
+			}
+			if actual != test.Expected {
+				t.Errorf("%s, expected %s, got %s", test.Name, test.Expected, actual)
+			}
+		})
+	}
+}
+
+func TestGetWebOrigin(t *testing.T) {
+	for _, test := range baseTests {
 		test := test
 
 		t.Run(test.Name, func(t *testing.T) {
