@@ -89,9 +89,7 @@ func (e Enforcers) Run(ctx context.Context, authState any, req []byte) error {
 	})
 
 	if len(unhandledErrs) != 0 {
-		mlog.Warn(ctx, merr.New(ctx, "unhandled_enforcer_errors", merr.M{
-			"errors": unhandledErrs, // TODO: move to multi-error wrapping thing
-		}))
+		mlog.Warn(ctx, merr.New(ctx, "unhandled_enforcer_errors", nil, unhandledErrs...))
 	}
 
 	if len(handled) == 0 {
