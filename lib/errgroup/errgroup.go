@@ -26,8 +26,18 @@ func (g *Group) Wait() error {
 	return g.g.Wait()
 }
 
+func (g *Group) SetLimit(n int) {
+	g.g.SetLimit(n)
+}
+
 func (g *Group) Go(f func(ctx context.Context) error) {
 	g.g.Go(func() error {
+		return f(g.gctx)
+	})
+}
+
+func (g *Group) TryGo(f func(ctx context.Context) error) bool {
+	return g.g.TryGo(func() error {
 		return f(g.gctx)
 	})
 }
