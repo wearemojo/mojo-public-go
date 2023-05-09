@@ -5,7 +5,7 @@ go 1.20
 require (
 	cloud.google.com/go v0.110.1
 	cloud.google.com/go/kms v1.10.2
-	cloud.google.com/go/secretmanager v1.10.0
+	cloud.google.com/go/secretmanager v1.10.1
 	github.com/cuvva/cuvva-public-go v0.0.0-20220412094328-0b3957ff0525
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/go-cmp v0.5.9
