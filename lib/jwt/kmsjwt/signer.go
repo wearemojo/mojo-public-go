@@ -9,10 +9,12 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
+	"sync"
 	"time"
 
 	kms "cloud.google.com/go/kms/apiv1"
 	"cloud.google.com/go/kms/apiv1/kmspb"
+	"github.com/chebyrash/promise"
 	jwt "github.com/golang-jwt/jwt/v4"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
@@ -29,6 +31,8 @@ type Signer struct {
 	serviceName string
 
 	keyVersionCache *ttlcache.SingularCache[string]
+	promise         *promise.Promise[string]
+	mutex           sync.Mutex
 }
 
 func NewSigner(client *kms.KeyManagementClient, projectID, env, serviceName string) *Signer {
@@ -44,8 +48,32 @@ func NewSigner(client *kms.KeyManagementClient, projectID, env, serviceName stri
 
 func (s *Signer) getKeyVersion(ctx context.Context) (string, error) {
 	return s.keyVersionCache.GetOrDoE(func() (string, error) {
-		return s.findKeyVersion(ctx)
+		s.setPromise(ctx)
+		defer func() { s.promise = nil }()
+
+		keyVersion, err := s.promise.Await(ctx)
+		if err != nil {
+			return "", err
+		}
+
+		return *keyVersion, nil
 	})
+}
+
+func (s *Signer) setPromise(ctx context.Context) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	if s.promise == nil {
+		s.promise = promise.New(func(resolve func(string), reject func(error)) {
+			keyVersion, err := s.findKeyVersion(ctx)
+			if err != nil {
+				reject(err)
+			}
+
+			resolve(keyVersion)
+		})
+	}
 }
 
 func (s *Signer) findKeyVersion(ctx context.Context) (string, error) {
