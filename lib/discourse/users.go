@@ -15,8 +15,9 @@ type UserResult struct {
 }
 
 type User struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
+	ID             int     `json:"id"`
+	Username       string  `json:"username"`
+	AvatarTemplate *string `json:"avatar_template"`
 }
 
 func (c *Client) GetUserByUsername(ctx context.Context, username string) (res *User, err error) {
