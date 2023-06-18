@@ -19,7 +19,7 @@ func Middleware() func(next http.Handler) http.Handler {
 			header.Set("Access-Control-Allow-Origin", "*")
 			header.Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, POST, PUT, PATCH, DELETE")
 			header.Set("Access-Control-Allow-Headers", "authorization, content-type")
-			header.Set("Access-Control-Expose-Headers", "trace-id, trace-url, request-id")
+			header.Set("Access-Control-Expose-Headers", "trace-id, trace-url")
 			header.Set("Access-Control-Max-Age", "86400")
 
 			if req.Method == http.MethodOptions {
