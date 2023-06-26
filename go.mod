@@ -3,7 +3,7 @@ module github.com/wearemojo/mojo-public-go
 go 1.20
 
 require (
-	cloud.google.com/go v0.110.2
+	cloud.google.com/go v0.110.3
 	cloud.google.com/go/kms v1.12.1
 	cloud.google.com/go/secretmanager v1.11.1
 	github.com/chebyrash/promise v0.0.0-20230414144155-dd8f641675f4
