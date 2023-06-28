@@ -1,12 +1,11 @@
 package authenforce
 
 import (
-	"bytes"
-	"io"
 	"net/http"
 
 	"github.com/cuvva/cuvva-public-go/lib/crpc"
 	"github.com/wearemojo/mojo-public-go/lib/authparsing"
+	"github.com/wearemojo/mojo-public-go/lib/bodycontext"
 )
 
 func CRPCMiddleware(enforcers Enforcers) crpc.MiddlewareFunc {
@@ -15,12 +14,7 @@ func CRPCMiddleware(enforcers Enforcers) crpc.MiddlewareFunc {
 			ctx := req.Context()
 			authState := authparsing.GetAuthState(ctx)
 
-			body, err := io.ReadAll(req.Body)
-			if err != nil {
-				return err
-			}
-
-			req.Body = io.NopCloser(bytes.NewBuffer(body))
+			body := bodycontext.GetContext(ctx)
 
 			if err := enforcers.Run(ctx, authState, body); err != nil {
 				return err
