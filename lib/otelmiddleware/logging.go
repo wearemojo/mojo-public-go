@@ -2,7 +2,6 @@ package otelmiddleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/cuvva/cuvva-public-go/lib/clog"
@@ -34,16 +33,16 @@ func SetCLogFieldsForGCP(gcpProjectID string) func(next http.Handler) http.Handl
 			spanContext := trace.SpanContextFromContext(ctx)
 
 			if spanContext.IsValid() {
-				url := fmt.Sprintf("%s?project=%s&tid=%s", gcpBaseURL, gcpProjectID, spanContext.TraceID())
-				res := fmt.Sprintf("projects/%s/traces/%s", gcpProjectID, spanContext.TraceID())
+				traceID := spanContext.TraceID().String()
+				spanID := spanContext.SpanID().String()
 
 				handleCLogError(ctx, clog.SetFields(ctx, clog.Fields{
-					"trace_url": url,
-					"trace_id":  spanContext.TraceID().String(),
-					"span_id":   spanContext.SpanID().String(),
+					"trace_url": getGCPTraceURL(gcpProjectID, traceID),
+					"trace_id":  traceID,
+					"span_id":   spanID,
 
-					"logging.googleapis.com/trace":  res,
-					"logging.googleapis.com/spanId": spanContext.SpanID().String(),
+					"logging.googleapis.com/trace":  getGCPTracePath(gcpProjectID, traceID),
+					"logging.googleapis.com/spanId": spanID,
 				}))
 			}
 
