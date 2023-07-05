@@ -33,16 +33,9 @@ func SetCLogFieldsForGCP(gcpProjectID string) func(next http.Handler) http.Handl
 			spanContext := trace.SpanContextFromContext(ctx)
 
 			if spanContext.IsValid() {
-				traceID := spanContext.TraceID().String()
-				spanID := spanContext.SpanID().String()
-
 				handleCLogError(ctx, clog.SetFields(ctx, clog.Fields{
-					"trace_url": getGCPTraceURL(gcpProjectID, traceID),
-					"trace_id":  traceID,
-					"span_id":   spanID,
-
-					"logging.googleapis.com/trace":  getGCPTracePath(gcpProjectID, traceID),
-					"logging.googleapis.com/spanId": spanID,
+					"logging.googleapis.com/trace":  getGCPTracePath(gcpProjectID, spanContext.TraceID().String()),
+					"logging.googleapis.com/spanId": spanContext.SpanID().String(),
 				}))
 			}
 
