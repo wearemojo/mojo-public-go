@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"go.opentelemetry.io/otel/trace"
@@ -38,13 +39,20 @@ func getGCPTraceURL(gcpProjectID, traceID string) string {
 func getGCPTraceLogsURL(gcpProjectID, traceID string, refTime time.Time) string {
 	tracePath := getGCPTracePath(gcpProjectID, traceID)
 	query := fmt.Sprintf("(trace=\"%s\" OR labels.\"appengine.googleapis.com/trace_id\"=\"%s\")", tracePath, traceID)
-	timeRange := fmt.Sprintf("%s/%s--PT5M", refTime.Format(time.RFC3339), refTime.Format(time.RFC3339))
+	timeRange := fmt.Sprintf("%s/%s--PT15M", refTime.Format(time.RFC3339), refTime.Format(time.RFC3339))
 
-	params := url.Values{
-		"project":   []string{gcpProjectID},
+	specialParams := url.Values{
 		"query":     []string{query},
 		"timeRange": []string{timeRange},
 	}
+	normalParams := url.Values{
+		"project": []string{gcpProjectID},
+	}
 
-	return fmt.Sprintf("%s/logs/query?%s", gcpBaseURL, params.Encode())
+	specialParamsEncoded := specialParams.Encode()
+	specialParamsEncoded = strings.ReplaceAll(specialParamsEncoded, "&", ";")
+	specialParamsEncoded = strings.ReplaceAll(specialParamsEncoded, "+", "%20")
+	normalParamsEncoded := normalParams.Encode()
+
+	return fmt.Sprintf("%s/logs/query;%s?%s", gcpBaseURL, specialParamsEncoded, normalParamsEncoded)
 }
