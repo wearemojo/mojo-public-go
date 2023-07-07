@@ -3,7 +3,7 @@ module github.com/wearemojo/mojo-public-go
 go 1.20
 
 require (
-	cloud.google.com/go v0.110.3
+	cloud.google.com/go v0.110.4
 	cloud.google.com/go/kms v1.12.1
 	cloud.google.com/go/secretmanager v1.11.1
 	github.com/chebyrash/promise v0.0.0-20230414144155-dd8f641675f4
@@ -19,7 +19,7 @@ require (
 	golang.org/x/oauth2 v0.10.0
 	golang.org/x/sync v0.3.0
 	google.golang.org/api v0.130.0
-	google.golang.org/grpc v1.56.1
+	google.golang.org/grpc v1.56.2
 	gopkg.in/ini.v1 v1.67.0
 )
 
