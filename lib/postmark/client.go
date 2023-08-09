@@ -2,13 +2,12 @@ package postmark
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/cuvva/cuvva-public-go/lib/jsonclient"
+	"github.com/wearemojo/mojo-public-go/lib/httpclient"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 //nolint:tagliatelle // postmark uses title case
@@ -53,10 +52,10 @@ func (c *Client) client(ctx context.Context) (*jsonclient.Client, error) {
 		return nil, err
 	}
 
-	return jsonclient.NewClient(c.BaseURL, &http.Client{
-		Timeout:   5 * time.Second,
-		Transport: otelhttp.NewTransport(roundTripper{apiKey}),
-	}), nil
+	return jsonclient.NewClient(
+		c.BaseURL,
+		httpclient.NewClient(5*time.Second, roundTripper{apiKey}),
+	), nil
 }
 
 func (c *Client) SendWithTemplate(ctx context.Context, req *EmailWithTemplate) (res *Response, err error) {

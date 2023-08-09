@@ -1,12 +1,11 @@
 package datahappy
 
 import (
-	"net/http"
 	"time"
 
 	"github.com/cuvva/cuvva-public-go/lib/jsonclient"
 	"github.com/cuvva/cuvva-public-go/lib/version"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"github.com/wearemojo/mojo-public-go/lib/httpclient"
 )
 
 var library = &Library{
@@ -22,11 +21,10 @@ type Client struct {
 
 func NewClient(baseURL, authToken string) *Client {
 	return &Client{
-		client: jsonclient.NewClient(baseURL, &http.Client{
-			Timeout: 5 * time.Second,
-
-			Transport: otelhttp.NewTransport(nil),
-		}),
+		client: jsonclient.NewClient(
+			baseURL,
+			httpclient.NewClient(5*time.Second, nil),
+		),
 
 		AuthToken: authToken,
 	}

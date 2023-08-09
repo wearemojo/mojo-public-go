@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/cuvva/cuvva-public-go/lib/jsonclient"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"github.com/wearemojo/mojo-public-go/lib/httpclient"
 )
 
 type Client struct {
@@ -23,12 +23,10 @@ func NewClient(baseURL, apiKey string) *Client {
 }
 
 func (c *Client) client(header http.Header) *jsonclient.Client {
-	return jsonclient.NewClient(c.BaseURL, &http.Client{
-		Timeout: 10 * time.Second,
-		Transport: otelhttp.NewTransport(roundTripper{
-			header: header,
-		}),
-	})
+	return jsonclient.NewClient(
+		c.BaseURL,
+		httpclient.NewClient(10*time.Second, roundTripper{header}),
+	)
 }
 
 func (c *Client) usernameClient(username string) *jsonclient.Client {
