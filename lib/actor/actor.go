@@ -85,19 +85,6 @@ func NewSession(sessionID ksuid.ID) Actor {
 	}
 }
 
-// Deprecated: remove once WP auth is gone
-//
-// TODO: remove
-func NewUserWithoutSession(userID ksuid.ID) Actor {
-	return Actor{
-		Type: TypeUser,
-		Params: map[string]any{
-			"session_id": nil,
-			"user_id":    userID.String(),
-		},
-	}
-}
-
 func NewExternalCloudAuth(typ, service string) Actor {
 	return Actor{
 		Type: TypeExternalCloudAuth,
