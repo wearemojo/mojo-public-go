@@ -8,6 +8,7 @@ require (
 	cloud.google.com/go/secretmanager v1.11.1
 	github.com/chebyrash/promise v0.0.0-20230414144155-dd8f641675f4
 	github.com/cuvva/cuvva-public-go v0.0.0-20220412094328-0b3957ff0525
+	github.com/deckarep/golang-set/v2 v2.3.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/go-cmp v0.5.9
 	github.com/matryer/is v1.4.1
@@ -18,7 +19,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.16.0
 	golang.org/x/oauth2 v0.11.0
 	golang.org/x/sync v0.3.0
-	google.golang.org/api v0.136.0
+	google.golang.org/api v0.137.0
 	google.golang.org/grpc v1.57.0
 	gopkg.in/ini.v1 v1.67.0
 )
@@ -38,7 +39,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/s2a-go v0.1.4 // indirect
+	github.com/google/s2a-go v0.1.5 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.5 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
