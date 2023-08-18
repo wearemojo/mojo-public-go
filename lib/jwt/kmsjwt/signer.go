@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/asn1"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
@@ -15,7 +14,7 @@ import (
 	kms "cloud.google.com/go/kms/apiv1"
 	"cloud.google.com/go/kms/apiv1/kmspb"
 	"github.com/chebyrash/promise"
-	jwt "github.com/golang-jwt/jwt/v4"
+	jwt "github.com/golang-jwt/jwt/v5"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/ttlcache"
@@ -160,11 +159,11 @@ func (s jwtSigningMethodSign) Alg() string {
 	return "ES256"
 }
 
-func (s jwtSigningMethodSign) Verify(signingString, signature string, key any) error {
+func (s jwtSigningMethodSign) Verify(signingString string, signature []byte, key any) error {
 	return merr.New(s.ctx, "not_implemented", nil)
 }
 
-func (s jwtSigningMethodSign) Sign(signingString string, key any) (string, error) {
+func (s jwtSigningMethodSign) Sign(signingString string, key any) ([]byte, error) {
 	path := fmt.Sprintf(
 		"projects/%s/locations/%s/keyRings/%s/cryptoKeys/%s/cryptoKeyVersions/%s",
 		s.signer.projectID,
@@ -187,15 +186,10 @@ func (s jwtSigningMethodSign) Sign(signingString string, key any) (string, error
 		},
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	sig, err := reencodeSignature(res.Signature, jwt.SigningMethodES256)
-	if err != nil {
-		return "", err
-	}
-
-	return base64.RawURLEncoding.EncodeToString(sig), nil
+	return reencodeSignature(res.Signature, jwt.SigningMethodES256)
 }
 
 func reencodeSignature(sig []byte, method *jwt.SigningMethodECDSA) ([]byte, error) {

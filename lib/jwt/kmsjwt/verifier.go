@@ -9,7 +9,7 @@ import (
 
 	kms "cloud.google.com/go/kms/apiv1"
 	"cloud.google.com/go/kms/apiv1/kmspb"
-	jwt "github.com/golang-jwt/jwt/v4"
+	jwt "github.com/golang-jwt/jwt/v5"
 	jwtinterface "github.com/wearemojo/mojo-public-go/lib/jwt"
 	"github.com/wearemojo/mojo-public-go/lib/jwt/golangjwt"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
@@ -79,6 +79,9 @@ func (s *Verifier) Verify(ctx context.Context, token string) (claims jwtinterfac
 	parser := jwt.NewParser(
 		jwt.WithValidMethods([]string{"ES256"}),
 		jwt.WithJSONNumber(),
+		jwt.WithIssuedAt(),
+		jwt.WithLeeway(5*time.Second),
+		jwt.WithStrictDecoding(),
 	)
 	_, err = parser.ParseWithClaims(token, &claims, func(t *jwt.Token) (any, error) {
 		issuer, _ := claims["iss"].(string)
