@@ -2,9 +2,12 @@ package postmark
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"github.com/cuvva/cuvva-public-go/lib/cher"
 	"github.com/cuvva/cuvva-public-go/lib/jsonclient"
+	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/httpclient"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
@@ -64,7 +67,11 @@ func (c *Client) SendWithTemplate(ctx context.Context, req *EmailWithTemplate) (
 		return nil, err
 	}
 
-	if err = jsonClient.Do(ctx, "POST", "email/withTemplate", nil, req, &res); err != nil {
+	err = jsonClient.Do(ctx, "POST", "email/withTemplate", nil, req, &res)
+	if cerr, ok := gerrors.As[cher.E](err); ok {
+		cerr.Code = fmt.Sprintf("postmark_%s", cerr.Code)
+		return nil, cerr
+	} else if err != nil {
 		return
 	}
 
