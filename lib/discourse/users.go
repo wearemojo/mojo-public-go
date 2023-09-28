@@ -6,6 +6,7 @@ import (
 	"regexp"
 
 	"github.com/cuvva/cuvva-public-go/lib/cher"
+	"github.com/cuvva/cuvva-public-go/lib/ksuid"
 )
 
 var usernameRegex = regexp.MustCompile(`^[\w.\-]+$`)
@@ -15,9 +16,21 @@ type UserResult struct {
 }
 
 type User struct {
-	ID             int     `json:"id"`
-	Username       string  `json:"username"`
-	AvatarTemplate *string `json:"avatar_template"`
+	ID                 int                 `json:"id"`
+	Username           string              `json:"username"`
+	AvatarTemplate     *string             `json:"avatar_template"`
+	SingleSignOnRecord *SingleSignOnRecord `json:"single_sign_on_record"`
+}
+
+type SingleSignOnRecord struct {
+	ExternalID ksuid.ID `json:"external_id"`
+}
+
+func (c *Client) GetUserByID(ctx context.Context, userID int) (res *User, err error) {
+	path := fmt.Sprintf("/admin/users/%d.json", userID)
+
+	err = c.systemClient().Do(ctx, "GET", path, nil, nil, &res)
+	return
 }
 
 func (c *Client) GetUserByUsername(ctx context.Context, username string) (res *User, err error) {
