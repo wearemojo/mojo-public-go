@@ -9,14 +9,14 @@ import (
 )
 
 type Record struct {
-	Timestamp time.Time   `json:"timestamp" bson:"timestamp"`
-	Actor     actor.Actor `json:"actor" bson:"actor"`
-	Reason    Reason      `json:"reason" bson:"reason"`
+	Timestamp time.Time   `bson:"timestamp" json:"timestamp"`
+	Actor     actor.Actor `bson:"actor"     json:"actor"`
+	Reason    Reason      `bson:"reason"    json:"reason"`
 }
 
 type Reason struct {
-	Code string         `json:"code" bson:"code"`
-	Meta map[string]any `json:"meta" bson:"meta"`
+	Code string         `bson:"code" json:"code"`
+	Meta map[string]any `bson:"meta" json:"meta"`
 }
 
 func New(ctx context.Context, code string, meta map[string]any) (*Record, error) {

@@ -25,8 +25,8 @@ var (
 )
 
 type Actor struct {
-	Type   Type           `json:"type" bson:"type"`
-	Params map[string]any `json:"params" bson:"params"`
+	Type   Type           `bson:"type"   json:"type"`
+	Params map[string]any `bson:"params" json:"params"`
 }
 
 func NewUnknown(params map[string]any) Actor {

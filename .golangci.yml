@@ -7,6 +7,7 @@ linters:
   disable:
   - cyclop # alternative: gocognit - could add if we start unit testing heavily
   - deadcode # deprecated: replaced by unused
+  - depguard # impractical
   - execinquery # broken: triggers on non-SQL queries
   - exhaustivestruct # deprecated: replaced by exhaustruct
   - exhaustruct  # disagree - also not the intended use
