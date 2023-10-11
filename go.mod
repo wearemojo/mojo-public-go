@@ -10,7 +10,7 @@ require (
 	github.com/cuvva/cuvva-public-go v0.0.0-20220412094328-0b3957ff0525
 	github.com/deckarep/golang-set/v2 v2.3.1
 	github.com/golang-jwt/jwt/v5 v5.0.0
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.6.0
 	github.com/matryer/is v1.4.1
 	github.com/sirupsen/logrus v1.9.3
 	go.mongodb.org/mongo-driver v1.12.1
@@ -20,7 +20,7 @@ require (
 	golang.org/x/oauth2 v0.13.0
 	golang.org/x/sync v0.4.0
 	google.golang.org/api v0.146.0
-	google.golang.org/grpc v1.58.2
+	google.golang.org/grpc v1.58.3
 	gopkg.in/ini.v1 v1.67.0
 )
 
