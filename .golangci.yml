@@ -54,7 +54,7 @@ linters-settings:
     - 'fmt\.Print.*' # nolint for structured stdout logging, otherwise use mlog
     - 'ioutil\.*' # replaced by io
     - 'pretty\.Print.*' # shouldn't be committed
-    - 'reflect\..*' # for reflect.DeepEqual, use go-cmp
+    - 'reflect\.DeepEqual' # use go-cmp
 
   govet:
     enable-all: true
@@ -85,6 +85,7 @@ linters-settings:
     ignore-decls:
     - fs *flag.FlagSet
     - g *errgroup.Group
+    - g errgroup.SettledGroup
     - is *is.I
     - sb strings.Builder
     - wg sync.WaitGroup
