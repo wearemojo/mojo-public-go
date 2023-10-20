@@ -3,7 +3,7 @@ module github.com/wearemojo/mojo-public-go
 go 1.21
 
 require (
-	cloud.google.com/go v0.110.8
+	cloud.google.com/go v0.110.9
 	cloud.google.com/go/kms v1.15.3
 	cloud.google.com/go/secretmanager v1.11.2
 	github.com/chebyrash/promise v0.0.0-20230414144155-dd8f641675f4
@@ -19,7 +19,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.19.0
 	golang.org/x/oauth2 v0.13.0
 	golang.org/x/sync v0.4.0
-	google.golang.org/api v0.147.0
+	google.golang.org/api v0.148.0
 	google.golang.org/grpc v1.59.0
 	gopkg.in/ini.v1 v1.67.0
 )
@@ -70,6 +70,6 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20231002182017-d307bd883b97 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20231002182017-d307bd883b97 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231009173412-8bfb1ae86b6c // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231012201019-e917dd12ba7a // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
