@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/cuvva/cuvva-public-go/lib/clog"
@@ -28,7 +29,7 @@ func SetCLogFieldsForGCP() func(next http.Handler) http.Handler {
 			httpRequest := map[string]any{
 				"requestMethod": req.Method,
 				"requestUrl":    fullURL.String(),
-				"requestSize":   fmt.Sprintf("%d", req.ContentLength),
+				"requestSize":   strconv.FormatInt(req.ContentLength, 10),
 				"userAgent":     req.UserAgent(),
 				"remoteIp":      req.RemoteAddr,
 				"referer":       req.Referer(),

@@ -18,6 +18,7 @@ linters:
   - golint # deprecated: replaced by revive
   - gomnd # disagree
   - ifshort # deprecated
+  - inamedparam # disagree
   - interfacer # deprecated
   - ireturn # disagree
   - lll # impractical
@@ -26,6 +27,7 @@ linters:
   - nonamedreturns # disagree
   - nosnakecase # deprecated: replaced by revive
   - paralleltest # impractical
+  - protogetter # disagree
   - revive # disagree
   - scopelint # deprecated: replaced by exportloopref
   - structcheck # deprecated: replaced by unused
