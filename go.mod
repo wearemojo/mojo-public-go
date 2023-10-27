@@ -4,8 +4,8 @@ go 1.21
 
 require (
 	cloud.google.com/go v0.110.9
-	cloud.google.com/go/kms v1.15.3
-	cloud.google.com/go/secretmanager v1.11.2
+	cloud.google.com/go/kms v1.15.4
+	cloud.google.com/go/secretmanager v1.11.3
 	github.com/chebyrash/promise v0.0.0-20230414144155-dd8f641675f4
 	github.com/cuvva/cuvva-public-go v0.0.0-20220412094328-0b3957ff0525
 	github.com/deckarep/golang-set/v2 v2.3.1
