@@ -3,9 +3,9 @@ package datahappy
 import (
 	"time"
 
-	"github.com/cuvva/cuvva-public-go/lib/jsonclient"
-	"github.com/cuvva/cuvva-public-go/lib/version"
 	"github.com/wearemojo/mojo-public-go/lib/httpclient"
+	"github.com/wearemojo/mojo-public-go/lib/jsonclient"
+	"github.com/wearemojo/mojo-public-go/lib/version"
 )
 
 var library = &Library{

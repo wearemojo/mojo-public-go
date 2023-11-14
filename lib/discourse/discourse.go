@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/cuvva/cuvva-public-go/lib/jsonclient"
 	"github.com/wearemojo/mojo-public-go/lib/httpclient"
+	"github.com/wearemojo/mojo-public-go/lib/jsonclient"
 )
 
 type Client struct {

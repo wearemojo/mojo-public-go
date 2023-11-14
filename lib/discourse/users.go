@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/cuvva/cuvva-public-go/lib/cher"
-	"github.com/cuvva/cuvva-public-go/lib/ksuid"
+	"github.com/wearemojo/mojo-public-go/lib/cher"
+	"github.com/wearemojo/mojo-public-go/lib/ksuid"
 )
 
 var usernameRegex = regexp.MustCompile(`^[\w.\-]+$`)

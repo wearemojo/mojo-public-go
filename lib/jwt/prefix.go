@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cuvva/cuvva-public-go/lib/cher"
+	"github.com/wearemojo/mojo-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/slicefn"
 )

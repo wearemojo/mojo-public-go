@@ -6,8 +6,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/cuvva/cuvva-public-go/lib/cher"
-	"github.com/cuvva/cuvva-public-go/lib/clog"
+	"github.com/wearemojo/mojo-public-go/lib/cher"
+	"github.com/wearemojo/mojo-public-go/lib/clog"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog"

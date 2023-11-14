@@ -5,8 +5,8 @@ import (
 	"io/fs"
 	"time"
 
-	"github.com/cuvva/cuvva-public-go/lib/config"
-	"github.com/cuvva/cuvva-public-go/lib/db/mongodb"
+	"github.com/wearemojo/mojo-public-go/lib/config"
+	"github.com/wearemojo/mojo-public-go/lib/db/mongodb"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
 	"go.mongodb.org/mongo-driver/bson"

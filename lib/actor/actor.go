@@ -3,9 +3,9 @@ package actor
 import (
 	"context"
 
-	"github.com/cuvva/cuvva-public-go/lib/ksuid"
-	"github.com/cuvva/cuvva-public-go/lib/version"
+	"github.com/wearemojo/mojo-public-go/lib/ksuid"
 	"github.com/wearemojo/mojo-public-go/lib/stacktrace"
+	"github.com/wearemojo/mojo-public-go/lib/version"
 )
 
 type Actorer interface {

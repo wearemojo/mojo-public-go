@@ -3,9 +3,9 @@ package authenforce
 import (
 	"net/http"
 
-	"github.com/cuvva/cuvva-public-go/lib/crpc"
 	"github.com/wearemojo/mojo-public-go/lib/authparsing"
 	"github.com/wearemojo/mojo-public-go/lib/bodycontext"
+	"github.com/wearemojo/mojo-public-go/lib/crpc"
 )
 
 func CRPCMiddleware(enforcers Enforcers) crpc.MiddlewareFunc {

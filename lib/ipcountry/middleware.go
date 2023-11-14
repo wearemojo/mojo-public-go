@@ -9,7 +9,7 @@ func Middleware() func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 			ctx := req.Context()
 
-			ipCountry := req.Header.Get("mojo-ip-country")
+			ipCountry := req.Header.Get("infra-ip-country")
 
 			ctx = SetIPCountry(ctx, ipCountry)
 			req = req.WithContext(ctx)

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cuvva/cuvva-public-go/lib/cher"
-	"github.com/cuvva/cuvva-public-go/lib/jsonclient"
+	"github.com/wearemojo/mojo-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/httpclient"
+	"github.com/wearemojo/mojo-public-go/lib/jsonclient"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
 )

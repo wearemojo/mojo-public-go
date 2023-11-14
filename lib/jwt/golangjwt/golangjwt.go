@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/cuvva/cuvva-public-go/lib/cher"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/wearemojo/mojo-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 

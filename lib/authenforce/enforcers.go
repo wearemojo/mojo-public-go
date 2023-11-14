@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/cuvva/cuvva-public-go/lib/cher"
+	"github.com/wearemojo/mojo-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog"

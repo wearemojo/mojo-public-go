@@ -1,0 +1,5 @@
+Some libraries published here originate from the cuvva-public-go repo.
+
+Each includes a specific `LICENSE` file that takes precedence over the licensing for the remainder of this repo.
+
+They were sourced from: https://github.com/cuvva/cuvva-public-go/tree/dee9e495e3fa4833de5ea0a25c0dc112d66f5f1c

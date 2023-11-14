@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/cuvva/cuvva-public-go/lib/cher"
+	"github.com/wearemojo/mojo-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
