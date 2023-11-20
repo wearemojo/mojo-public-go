@@ -22,8 +22,8 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.mongodb.org/mongo-driver v1.13.0
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.46.0
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.46.0
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.46.1
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.46.1
 	go.opentelemetry.io/otel/trace v1.21.0
 	golang.org/x/oauth2 v0.14.0
 	golang.org/x/sync v0.5.0
