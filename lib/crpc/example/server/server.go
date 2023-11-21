@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/wearemojo/mojo-public-go/lib/clog"
@@ -47,29 +48,30 @@ func main() {
 
 	log := cfg.Logging.Configure(context.Background())
 
-	var es example.Service = &ExampleServer{}
+	var svc example.Service = &ExampleServer{}
 
 	// create a new RPC server
-	hw := crpc.NewServer(unsafeNoAuthentication)
+	rpc := crpc.NewServer(unsafeNoAuthentication)
 
 	// add logging middleware
-	hw.Use(crpc.Logger())
+	rpc.Use(crpc.Logger())
 
 	// register Ping and Greet (version 2017-11-08)
-	hw.Register("ping", "2017-11-08", nil, es.Ping)
-	hw.Register("greet", "2017-11-08", example.GreetRequestSchema, es.Greet)
+	rpc.Register("ping", "2017-11-08", nil, svc.Ping)
+	rpc.Register("greet", "2017-11-08", example.GreetRequestSchema, svc.Greet)
 
 	mux := chi.NewRouter()
-
 	mux.Use(request.Logger(log))
+	mux.With(request.StripPrefix("/v1")).Handle("/v1/*", rpc)
 
-	mux.With(request.StripPrefix("/v1")).Handle("/v1/*", hw)
-
-	s := &http.Server{Handler: mux}
+	httpServer := &http.Server{
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
 
 	log.WithField("addr", cfg.Server.Addr).Info("listening")
 
-	if err := cfg.Server.ListenAndServe(s); err != nil {
+	if err := cfg.Server.ListenAndServe(httpServer); err != nil {
 		log.WithError(err).Fatal("listen failed")
 	}
 }

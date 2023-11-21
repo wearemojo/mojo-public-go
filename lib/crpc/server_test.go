@@ -3,12 +3,12 @@ package crpc
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/matryer/is"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -20,60 +20,60 @@ func TestWrap(t *testing.T) {
 	tests := []struct {
 		Name  string
 		Fn    any
-		Error error
+		Error merr.Code
 	}{
 		{
 			"HandlerFunc",
 			HandlerFunc(func(w http.ResponseWriter, r *Request) error { return nil }),
-			errors.New("fn doesn't need to be wrapped, use RegisterFunc"),
+			"fn_is_handler",
 		},
 		{
 			"WrappedFunc", &WrappedFunc{},
-			errors.New("fn is already wrapped, use RegisterFunc"),
+			"fn_already_wrapped",
 		},
 		{
 			"NotFunc", "string",
-			errors.New("fn must be function, got string"),
+			"fn_type_invalid",
 		},
 		{
 			"NoInput", func() {},
-			errors.New("fn input must be (context.Context) or (context.Context, *T), got 0 arguments"),
+			"fn_input_params_invalid",
 		},
 		{
 			"LongInput", func(ctx context.Context, foo string, bar string) {},
-			errors.New("fn input must be (context.Context) or (context.Context, *T), got 3 arguments"),
+			"fn_input_params_invalid",
 		},
 		{
 			"NoOutput", func(ctx context.Context) {},
-			errors.New("fn output must be (error) or (*T, error), got 0 arguments"),
+			"fn_output_params_invalid",
 		},
 		{
 			"LongOutput", func(ctx context.Context) (foo, bar string, err error) { return },
-			errors.New("fn output must be (error) or (*T, error), got 3 arguments"),
+			"fn_output_params_invalid",
 		},
 		{
 			"ContextRequired", func(foo string) error { return nil },
-			errors.New("fn first argument must implement context.Context, got string"),
+			"fn_first_input_not_context",
 		},
 		{
 			"ErrorRequired", func(ctx context.Context) string { return "" },
-			errors.New("fn last argument must implement error, got string"),
+			"fn_last_output_not_error",
 		},
 		{
 			"InputNotPointer", func(ctx context.Context, in testInput) error { return nil },
-			errors.New("fn last argument must be a pointer, got crpc.testInput"),
+			"fn_second_input_not_pointer",
 		},
 		{
 			"InputNotStruct", func(ctx context.Context, in *string) error { return nil },
-			errors.New("fn last argument must be a struct, got string"),
+			"fn_second_input_not_struct_pointer",
 		},
 		{
 			"OutputNotPointer", func(ctx context.Context) (out testOutput, err error) { return },
-			errors.New("unsupported return type, expected *struct or slice; got crpc.testOutput"),
+			"response_type_invalid",
 		},
 		{
 			"OutputNotStructSlice", func(ctx context.Context) (out *string, err error) { return },
-			errors.New("unsupported return type, expected *struct or slice; got string"),
+			"response_type_invalid",
 		},
 	}
 
@@ -82,9 +82,7 @@ func TestWrap(t *testing.T) {
 			is := is.New(t)
 
 			_, err := Wrap(test.Fn)
-			if test.Error != nil {
-				is.Equal(test.Error, err)
-			}
+			is.Equal(test.Error, err.(merr.E).Code) //nolint:errorlint,forcetypeassert // required for test
 		})
 	}
 }
@@ -92,11 +90,11 @@ func TestWrap(t *testing.T) {
 func TestMethodsAreBroughtForward(t *testing.T) {
 	is := is.New(t)
 
-	foov1 := &handler{v: "2019-01-01"}
-	barv1 := &handler{v: "2019-02-02"}
+	foov1 := &wrappedHandler{v: "2019-01-01"}
+	barv1 := &wrappedHandler{v: "2019-02-02"}
 
-	zs := Server{
-		registeredVersionMethods: map[string]map[string]*handler{
+	rpc := Server{
+		registeredVersionMethods: map[string]map[string]*wrappedHandler{
 			"2019-01-01": {
 				"foo": foov1,
 			},
@@ -106,9 +104,9 @@ func TestMethodsAreBroughtForward(t *testing.T) {
 		},
 	}
 
-	zs.buildRoutes()
+	rpc.buildRoutes()
 
-	expected := map[string]map[string]*handler{
+	expected := map[string]map[string]*wrappedHandler{
 		"2019-01-01": {
 			"foo": foov1,
 		},
@@ -122,20 +120,20 @@ func TestMethodsAreBroughtForward(t *testing.T) {
 		},
 	}
 
-	is.Equal(expected, zs.resolvedMethods)
+	is.Equal(expected, rpc.resolvedMethods)
 }
 
 func TestMethodsAreBroughtForwardComplex(t *testing.T) {
 	is := is.New(t)
 
-	foov1 := &handler{v: "2019-01-01"}
-	foov2 := &handler{v: "2019-02-02"}
-	barv1 := &handler{v: "2019-02-02"}
-	barv2 := &handler{v: "2019-03-03"}
-	barv3 := &handler{v: "2019-04-04"}
+	foov1 := &wrappedHandler{v: "2019-01-01"}
+	foov2 := &wrappedHandler{v: "2019-02-02"}
+	barv1 := &wrappedHandler{v: "2019-02-02"}
+	barv2 := &wrappedHandler{v: "2019-03-03"}
+	barv3 := &wrappedHandler{v: "2019-04-04"}
 
-	zs := Server{
-		registeredVersionMethods: map[string]map[string]*handler{
+	rpc := Server{
+		registeredVersionMethods: map[string]map[string]*wrappedHandler{
 			"2019-01-01": {
 				"foo": foov1,
 			},
@@ -152,9 +150,9 @@ func TestMethodsAreBroughtForwardComplex(t *testing.T) {
 		},
 	}
 
-	zs.buildRoutes()
+	rpc.buildRoutes()
 
-	expected := map[string]map[string]*handler{
+	expected := map[string]map[string]*wrappedHandler{
 		"2019-01-01": {
 			"foo": foov1,
 		},
@@ -176,17 +174,17 @@ func TestMethodsAreBroughtForwardComplex(t *testing.T) {
 		},
 	}
 
-	is.Equal(expected, zs.resolvedMethods)
+	is.Equal(expected, rpc.resolvedMethods)
 }
 
 func TestMethodsAreBroughtForwardAndRemoved(t *testing.T) {
 	is := is.New(t)
 
-	foov1 := &handler{v: "2019-01-01"}
-	barv1 := &handler{v: "2019-01-01"}
+	foov1 := &wrappedHandler{v: "2019-01-01"}
+	barv1 := &wrappedHandler{v: "2019-01-01"}
 
-	zs := Server{
-		registeredVersionMethods: map[string]map[string]*handler{
+	rpc := Server{
+		registeredVersionMethods: map[string]map[string]*wrappedHandler{
 			"2019-01-01": {
 				"foo": foov1,
 				"bar": barv1,
@@ -197,9 +195,9 @@ func TestMethodsAreBroughtForwardAndRemoved(t *testing.T) {
 		},
 	}
 
-	zs.buildRoutes()
+	rpc.buildRoutes()
 
-	expected := map[string]map[string]*handler{
+	expected := map[string]map[string]*wrappedHandler{
 		"2019-01-01": {
 			"foo": foov1,
 			"bar": barv1,
@@ -212,19 +210,19 @@ func TestMethodsAreBroughtForwardAndRemoved(t *testing.T) {
 		},
 	}
 
-	is.Equal(expected, zs.resolvedMethods)
+	is.Equal(expected, rpc.resolvedMethods)
 }
 
 func TestMethodsAreDefinedRemovedMultiple(t *testing.T) {
 	is := is.New(t)
 
-	foov1 := &handler{v: "2019-01-01"}
-	barv1 := &handler{v: "2019-01-01"}
-	foov2 := &handler{v: "2019-02-02"}
-	foov3 := &handler{v: "2019-03-03"}
+	foov1 := &wrappedHandler{v: "2019-01-01"}
+	barv1 := &wrappedHandler{v: "2019-01-01"}
+	foov2 := &wrappedHandler{v: "2019-02-02"}
+	foov3 := &wrappedHandler{v: "2019-03-03"}
 
-	zs := Server{
-		registeredVersionMethods: map[string]map[string]*handler{
+	rpc := Server{
+		registeredVersionMethods: map[string]map[string]*wrappedHandler{
 			"2019-01-01": {
 				"foo": foov1,
 				"bar": barv1,
@@ -244,9 +242,9 @@ func TestMethodsAreDefinedRemovedMultiple(t *testing.T) {
 		},
 	}
 
-	zs.buildRoutes()
+	rpc.buildRoutes()
 
-	expected := map[string]map[string]*handler{
+	expected := map[string]map[string]*wrappedHandler{
 		"2019-01-01": {
 			"foo": foov1,
 			"bar": barv1,
@@ -271,29 +269,29 @@ func TestMethodsAreDefinedRemovedMultiple(t *testing.T) {
 		},
 	}
 
-	is.Equal(expected, zs.resolvedMethods)
+	is.Equal(expected, rpc.resolvedMethods)
 }
 
 func TestPreviewMethodsAreRegistered(t *testing.T) {
 	is := is.New(t)
 
-	barv1 := &handler{v: "2019-01-01"}
-	fooPrev := &handler{v: "preview"}
+	barv1 := &wrappedHandler{v: "2019-01-01"}
+	fooPrev := &wrappedHandler{v: "preview"}
 
-	zs := Server{
-		registeredPreviewMethods: map[string]*handler{
+	rpc := Server{
+		registeredPreviewMethods: map[string]*wrappedHandler{
 			"foo": fooPrev,
 		},
-		registeredVersionMethods: map[string]map[string]*handler{
+		registeredVersionMethods: map[string]map[string]*wrappedHandler{
 			"2019-01-01": {
 				"bar": barv1,
 			},
 		},
 	}
 
-	zs.buildRoutes()
+	rpc.buildRoutes()
 
-	expected := map[string]map[string]*handler{
+	expected := map[string]map[string]*wrappedHandler{
 		"preview": {
 			"foo": fooPrev,
 		},
@@ -305,7 +303,7 @@ func TestPreviewMethodsAreRegistered(t *testing.T) {
 		},
 	}
 
-	is.Equal(expected, zs.resolvedMethods)
+	is.Equal(expected, rpc.resolvedMethods)
 }
 
 func TestNilPreviewMethodsPanic(t *testing.T) {
@@ -335,68 +333,70 @@ func TestPanicIfMethodDeclaredTwice(t *testing.T) {
 }
 
 func TestMiddlewareIsLoadedInOrder(t *testing.T) {
-	zs := NewServer(UnsafeNoAuthentication)
+	ctx := context.Background()
+	rpc := NewServer(UnsafeNoAuthentication)
 
-	zs.Register("foo", "preview", nil, makeRPCCall("called foo!"))
-	zs.Use(addHeaderMiddleware("X-Is-Test", "win!"))
-	zs.Register("bar", "preview", nil, makeRPCCall("called bar!"))
+	rpc.Register("foo", "preview", nil, makeRPCCall("called foo!"))
+	rpc.Use(addHeaderMiddleware("X-Is-Test", "win!"))
+	rpc.Register("bar", "preview", nil, makeRPCCall("called bar!"))
 
-	w := httptest.NewRecorder()
-	r, _ := http.NewRequest("POST", "/preview/foo", nil)
+	rec := httptest.NewRecorder()
+	r, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/preview/foo", nil)
 
-	zs.ServeHTTP(w, r)
+	rpc.ServeHTTP(rec, r)
 
-	if _, ok := w.Result().Header["X-Is-Test"]; ok {
+	if _, ok := rec.Result().Header["X-Is-Test"]; ok {
 		t.Error("was expecting 'X-Is-Test' header to not be present")
 	}
 
-	w = httptest.NewRecorder()
-	r, _ = http.NewRequest("POST", "/preview/bar", nil)
+	rec = httptest.NewRecorder()
+	r, _ = http.NewRequestWithContext(ctx, http.MethodPost, "/preview/bar", nil)
 
-	zs.ServeHTTP(w, r)
+	rpc.ServeHTTP(rec, r)
 
-	if _, ok := w.Result().Header["X-Is-Test"]; !ok {
+	if _, ok := rec.Result().Header["X-Is-Test"]; !ok {
 		t.Error("was expecting 'X-Is-Test' header to be present")
 	}
 }
 
 func TestMiddlewareRunsGlobalInOrderAndRequestSpecific(t *testing.T) {
-	zs := NewServer(UnsafeNoAuthentication)
+	ctx := context.Background()
+	rpc := NewServer(UnsafeNoAuthentication)
 
-	zs.Use(addHeaderMiddleware("X-Present-On-Both", "win!"))
-	zs.Register("foo", "preview", nil, makeRPCCall("called foo!"))
-	zs.Use(addHeaderMiddleware("X-Present-On-Bar", "win!"))
-	zs.Register("bar", "preview", nil, makeRPCCall("called bar!"), addHeaderMiddleware("X-Also-On-Bar", "wat?"))
+	rpc.Use(addHeaderMiddleware("X-Present-On-Both", "win!"))
+	rpc.Register("foo", "preview", nil, makeRPCCall("called foo!"))
+	rpc.Use(addHeaderMiddleware("X-Present-On-Bar", "win!"))
+	rpc.Register("bar", "preview", nil, makeRPCCall("called bar!"), addHeaderMiddleware("X-Also-On-Bar", "wat?"))
 
-	w1 := httptest.NewRecorder()
-	w2 := httptest.NewRecorder()
-	r1, _ := http.NewRequest("POST", "/preview/foo", nil)
-	r2, _ := http.NewRequest("POST", "/preview/bar", nil)
+	rec1 := httptest.NewRecorder()
+	rec2 := httptest.NewRecorder()
+	r1, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/preview/foo", nil)
+	r2, _ := http.NewRequestWithContext(ctx, http.MethodPost, "/preview/bar", nil)
 
-	zs.ServeHTTP(w1, r1)
-	zs.ServeHTTP(w2, r2)
+	rpc.ServeHTTP(rec1, r1)
+	rpc.ServeHTTP(rec2, r2)
 
-	if _, ok := w1.Result().Header["X-Present-On-Both"]; !ok {
+	if _, ok := rec1.Result().Header["X-Present-On-Both"]; !ok {
 		t.Error("was expecting 'X-Present-On-Both' header to be present")
 	}
 
-	if _, ok := w2.Result().Header["X-Present-On-Both"]; !ok {
+	if _, ok := rec2.Result().Header["X-Present-On-Both"]; !ok {
 		t.Error("was expecting 'X-Present-On-Both' header to be present")
 	}
 
-	if _, ok := w1.Result().Header["X-Present-On-Bar"]; ok {
+	if _, ok := rec1.Result().Header["X-Present-On-Bar"]; ok {
 		t.Error("was expecting 'X-Present-On-Bar' header to NOT be present")
 	}
 
-	if _, ok := w2.Result().Header["X-Present-On-Bar"]; !ok {
+	if _, ok := rec2.Result().Header["X-Present-On-Bar"]; !ok {
 		t.Error("was expecting 'X-Present-On-Bar' header to be present")
 	}
 
-	if _, ok := w1.Result().Header["X-Also-On-Bar"]; ok {
+	if _, ok := rec1.Result().Header["X-Also-On-Bar"]; ok {
 		t.Error("was expecting 'X-Also-On-Bar' header to NOT be present")
 	}
 
-	if _, ok := w2.Result().Header["X-Also-On-Bar"]; !ok {
+	if _, ok := rec2.Result().Header["X-Also-On-Bar"]; !ok {
 		t.Error("was expecting 'X-Also-On-Bar' header to be present")
 	}
 }
@@ -441,9 +441,9 @@ func TestSchemasAreCompiled(t *testing.T) {
 		return nil
 	}
 
-	zs := NewServer(UnsafeNoAuthentication)
+	rpc := NewServer(UnsafeNoAuthentication)
 
-	zs.Register("should_pass", "2019-01-01", validSchema, handler)
+	rpc.Register("should_pass", "2019-01-01", validSchema, handler)
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -451,7 +451,7 @@ func TestSchemasAreCompiled(t *testing.T) {
 		}
 	}()
 
-	zs.Register("should_crash", "2019-01-01", brokenSchema, handler)
+	rpc.Register("should_crash", "2019-01-01", brokenSchema, handler)
 }
 
 func UnsafeNoAuthentication(next HandlerFunc) HandlerFunc {

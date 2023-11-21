@@ -3,6 +3,7 @@ package crpc
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,6 +13,9 @@ import (
 	"strings"
 
 	"github.com/wearemojo/mojo-public-go/lib/cher"
+	"github.com/wearemojo/mojo-public-go/lib/gerrors"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
+	"github.com/wearemojo/mojo-public-go/lib/mlog"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -30,25 +34,11 @@ type Request struct {
 	RemoteAddr    string
 	BrowserOrigin string
 
-	ctx context.Context
+	originalRequest *http.Request
 }
 
-// Context returns the requests context from the transport.
-//
-// The returned context is always non-nil, it defaults to the
-// background context.
 func (r *Request) Context() context.Context {
-	if r.ctx == nil {
-		return context.Background()
-	}
-
-	return r.ctx
-}
-
-// WithContext sets the context of a Request
-func (r *Request) WithContext(ctx context.Context) *Request {
-	r.ctx = ctx
-	return r
+	return r.originalRequest.Context()
 }
 
 type contextKey string
@@ -78,9 +68,9 @@ type MiddlewareFunc func(next HandlerFunc) HandlerFunc
 // WrappedFunc contains the wrapped handler, and some additional information
 // about the function that was determined during the reflection process
 type WrappedFunc struct {
-	Handler       HandlerFunc
-	AcceptsInput  bool
-	ReturnsResult bool
+	Handler           HandlerFunc
+	HasRequestInput   bool
+	HasResponseOutput bool
 }
 
 var (
@@ -96,88 +86,98 @@ var (
 // func(ctx context.Context) (response *T, err error)
 // func(ctx context.Context) (err error)
 func Wrap(fn any) (*WrappedFunc, error) {
+	ctx := context.Background()
+
 	// prevent re-reflection of type that is already a HandlerFunc
 	if _, ok := fn.(HandlerFunc); ok {
-		return nil, fmt.Errorf("fn doesn't need to be wrapped, use RegisterFunc")
+		return nil, merr.New(ctx, "fn_is_handler", nil)
 	} else if _, ok := fn.(*WrappedFunc); ok {
-		return nil, fmt.Errorf("fn is already wrapped, use RegisterFunc")
+		return nil, merr.New(ctx, "fn_already_wrapped", nil)
 	}
 
-	v := reflect.ValueOf(fn)
-	t := v.Type()
+	fnValue := reflect.ValueOf(fn)
+	fnType := fnValue.Type()
 
 	// check the basic type and the number of inputs/outputs
-	if t.Kind() != reflect.Func {
-		return nil, fmt.Errorf("fn must be function, got %s", t.Kind())
-	} else if t.NumIn() < 1 || t.NumIn() > 2 {
-		return nil, fmt.Errorf("fn input must be (context.Context) or (context.Context, *T), got %d arguments", t.NumIn())
-	} else if t.NumOut() < 1 || t.NumOut() > 2 {
-		return nil, fmt.Errorf("fn output must be (error) or (*T, error), got %d arguments", t.NumOut())
+	if fnType.Kind() != reflect.Func {
+		return nil, merr.New(ctx, "fn_type_invalid", merr.M{"type": fnType.Kind()})
 	}
 
-	if !t.In(0).Implements(contextType) {
-		return nil, fmt.Errorf("fn first argument must implement context.Context, got %s", t.In(0))
-	} else if !t.Out(t.NumOut() - 1).Implements(errorType) {
-		return nil, fmt.Errorf("fn last argument must implement error, got %s", t.Out(t.NumOut()-1))
+	inputCount := fnType.NumIn()
+	outputCount := fnType.NumOut()
+	if inputCount < 1 || inputCount > 2 {
+		return nil, merr.New(ctx, "fn_input_params_invalid", merr.M{"count": inputCount})
+	} else if outputCount < 1 || outputCount > 2 {
+		return nil, merr.New(ctx, "fn_output_params_invalid", merr.M{"count": outputCount})
+	}
+
+	firstInput := fnType.In(0)
+	lastOutput := fnType.Out(outputCount - 1)
+	if !firstInput.Implements(contextType) {
+		return nil, merr.New(ctx, "fn_first_input_not_context", merr.M{"type": firstInput})
+	} else if !lastOutput.Implements(errorType) {
+		return nil, merr.New(ctx, "fn_last_output_not_error", merr.M{"type": lastOutput})
 	}
 
 	// resolve function parameter pointers to underlying type for use with
 	// reflect.New (which will return pointers).
-	var reqT, resT reflect.Type = nil, nil
+	var reqType reflect.Type
+	var hasResponseOutput bool
 
-	if t.NumIn() == 2 {
-		if t.In(1).Kind() != reflect.Ptr {
-			return nil, fmt.Errorf("fn last argument must be a pointer, got %s", t.In(1))
+	if inputCount == 2 {
+		secondInput := fnType.In(1)
+		if secondInput.Kind() != reflect.Ptr {
+			return nil, merr.New(ctx, "fn_second_input_not_pointer", merr.M{"type": secondInput.Kind()})
 		}
 
-		reqT = t.In(1).Elem()
-		if reqT.Kind() != reflect.Struct {
-			return nil, fmt.Errorf("fn last argument must be a struct, got %s", reqT.Kind())
+		reqType = secondInput.Elem()
+		if reqType.Kind() != reflect.Struct {
+			return nil, merr.New(ctx, "fn_second_input_not_struct_pointer", merr.M{"type": reqType.Kind()})
 		}
 	}
 
-	if t.NumOut() == 2 {
-		var err error
+	if outputCount == 2 {
+		hasResponseOutput = true
 
-		resT, err = wrapReturn(t.Out(0))
+		err := checkResponseType(ctx, fnType.Out(0))
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	hn := func(w http.ResponseWriter, r *Request) error {
-		ctx := reflect.ValueOf(r.Context())
+	handler := func(w http.ResponseWriter, req *Request) error {
+		ctxVal := reflect.ValueOf(req.Context())
 		var inputs []reflect.Value
 
-		if reqT == nil {
-			if r.Body != nil {
-				i, err := r.Body.Read(make([]byte, 1))
-				if i != 0 || err != io.EOF {
+		if reqType == nil {
+			if req.Body != nil {
+				i, err := req.Body.Read(make([]byte, 1))
+				if i != 0 || !errors.Is(err, io.EOF) {
 					return cher.New(cher.BadRequest, nil, cher.New("unexpected_request_body", nil))
 				}
 			}
 
-			inputs = []reflect.Value{ctx}
+			inputs = []reflect.Value{ctxVal}
 		} else {
-			if r.Body == nil {
+			if req.Body == nil {
 				return cher.New(cher.BadRequest, nil, cher.New("missing_request_body", nil))
 			}
 
-			req := reflect.New(reqT)
-			err := json.NewDecoder(r.Body).Decode(req.Interface())
-			if err == io.EOF {
+			reqVal := reflect.New(reqType)
+			err := json.NewDecoder(req.Body).Decode(reqVal.Interface())
+			if errors.Is(err, io.EOF) {
 				return cher.New(cher.BadRequest, nil, cher.New("missing_request_body", nil))
 			} else if err != nil {
-				return fmt.Errorf("crpc: json decoder error: %w", err)
+				return merr.New(ctx, "request_body_decode_failed", nil, err)
 			}
 
-			inputs = []reflect.Value{ctx, req}
+			inputs = []reflect.Value{ctxVal, reqVal}
 		}
 
-		res := v.Call(inputs)
+		res := fnValue.Call(inputs)
 
-		if err := res[len(res)-1]; !err.IsNil() {
-			return err.Interface().(error)
+		if errVal := res[len(res)-1]; !errVal.IsNil() {
+			return errVal.Interface().(error) //nolint:forcetypeassert // we checked the type above
 		}
 
 		if len(res) == 1 {
@@ -199,40 +199,40 @@ func Wrap(fn any) (*WrappedFunc, error) {
 	}
 
 	return &WrappedFunc{
-		Handler:       hn,
-		AcceptsInput:  reqT != nil,
-		ReturnsResult: resT != nil,
+		Handler:           handler,
+		HasRequestInput:   reqType != nil,
+		HasResponseOutput: hasResponseOutput,
 	}, nil
 }
 
-func wrapReturn(t reflect.Type) (reflect.Type, error) {
-	switch t.Kind() {
+func checkResponseType(ctx context.Context, typ reflect.Type) error {
+	switch typ.Kind() { //nolint:exhaustive // we only accept a few types
 	case reflect.Ptr:
-		n := t.Elem()
+		elem := typ.Elem()
 
-		if n.Kind() != reflect.Struct {
-			_, err := wrapReturn(n)
+		if elem.Kind() != reflect.Struct {
+			err := checkResponseType(ctx, elem)
 			if err != nil {
-				return nil, err
+				return err
 			}
 		}
 
-		return n, nil
+		return nil
 
 	case reflect.Slice:
-		n := t.Elem()
+		elem := typ.Elem()
 
-		if n.Kind() != reflect.String {
-			_, err := wrapReturn(n)
+		if elem.Kind() != reflect.String {
+			err := checkResponseType(ctx, elem)
 			if err != nil {
-				return nil, err
+				return err
 			}
 		}
 
-		return t, nil
+		return nil
 
 	default:
-		return nil, fmt.Errorf("unsupported return type, expected *struct or slice; got %s", t)
+		return merr.New(ctx, "response_type_invalid", merr.M{"type": typ.Kind()})
 	}
 }
 
@@ -247,7 +247,7 @@ func MustWrap(fn any) *WrappedFunc {
 	return wrapped
 }
 
-type handler struct {
+type wrappedHandler struct {
 	v  string
 	fn HandlerFunc
 }
@@ -261,10 +261,10 @@ type Server struct {
 	AuthenticationMiddleware MiddlewareFunc
 
 	// methods = version -> method -> HandlerFunc
-	registeredVersionMethods map[string]map[string]*handler
-	registeredPreviewMethods map[string]*handler
+	registeredVersionMethods map[string]map[string]*wrappedHandler
+	registeredPreviewMethods map[string]*wrappedHandler
 
-	resolvedMethods map[string]map[string]*handler
+	resolvedMethods map[string]map[string]*wrappedHandler
 
 	mw []MiddlewareFunc
 }
@@ -307,17 +307,17 @@ func isValidMethod(method, version string) bool {
 // defined above, or the presence of the schema doesn't match the presence
 // of the input argument, Register will panic. This function is not thread safe
 // and must be run in serial if called multiple times.
-func (s *Server) Register(method, version string, schema gojsonschema.JSONLoader, fnR any, mw ...MiddlewareFunc) {
-	if fnR == nil {
-		s.RegisterFunc(method, version, schema, nil, mw...)
+func (s *Server) Register(method, version string, schema gojsonschema.JSONLoader, fn any, middleware ...MiddlewareFunc) {
+	if fn == nil {
+		s.RegisterFunc(method, version, schema, nil, middleware...)
 
 		return
 	}
 
-	wrapped := MustWrap(fnR)
+	wrapped := MustWrap(fn)
 	hasSchema := schema != nil
 
-	if wrapped.AcceptsInput != hasSchema {
+	if wrapped.HasRequestInput != hasSchema {
 		if hasSchema {
 			panic("schema validation configured, but handler doesn't accept input")
 		} else {
@@ -325,19 +325,19 @@ func (s *Server) Register(method, version string, schema gojsonschema.JSONLoader
 		}
 	}
 
-	s.RegisterFunc(method, version, schema, &wrapped.Handler, mw...)
+	s.RegisterFunc(method, version, schema, &wrapped.Handler, middleware...)
 }
 
 // RegisterFunc associates a method name and version with a HandlerFunc,
 // and optional middleware. This function is not thread safe and must be run in
 // serial if called multiple times.
-func (s *Server) RegisterFunc(method, version string, schema gojsonschema.JSONLoader, fn *HandlerFunc, mw ...MiddlewareFunc) {
+func (s *Server) RegisterFunc(method, version string, schema gojsonschema.JSONLoader, fn *HandlerFunc, middleware ...MiddlewareFunc) {
 	if s.registeredVersionMethods == nil {
-		s.registeredVersionMethods = make(map[string]map[string]*handler)
+		s.registeredVersionMethods = make(map[string]map[string]*wrappedHandler)
 	}
 
 	if s.registeredPreviewMethods == nil {
-		s.registeredPreviewMethods = make(map[string]*handler)
+		s.registeredPreviewMethods = make(map[string]*wrappedHandler)
 	}
 
 	if fn == nil && schema != nil {
@@ -367,14 +367,14 @@ func (s *Server) RegisterFunc(method, version string, schema gojsonschema.JSONLo
 				panic(fmt.Sprintf("json schema error in %s: %s", method, err))
 			}
 
-			mw = append([]MiddlewareFunc{s.AuthenticationMiddleware, Validate(compiledSchema)}, mw...)
+			middleware = append([]MiddlewareFunc{s.AuthenticationMiddleware, Validate(compiledSchema)}, middleware...)
 		} else {
-			mw = append([]MiddlewareFunc{s.AuthenticationMiddleware}, mw...)
+			middleware = append([]MiddlewareFunc{s.AuthenticationMiddleware}, middleware...)
 		}
 
 		// This wraps the middleware funcs inside each one in reverse order
-		for i := range mw {
-			p := mw[len(mw)-1-i](*fn)
+		for i := range middleware {
+			p := middleware[len(middleware)-1-i](*fn)
 			fn = &p
 		}
 
@@ -383,7 +383,7 @@ func (s *Server) RegisterFunc(method, version string, schema gojsonschema.JSONLo
 			fn = &p
 		}
 
-		s.setRoute(version, method, &handler{version, *fn})
+		s.setRoute(version, method, &wrappedHandler{version, *fn})
 	}
 
 	s.buildRoutes()
@@ -403,25 +403,25 @@ func (s Server) isRouteDefined(method, version string) bool {
 	return false
 }
 
-func (s *Server) setRoute(version, method string, hn *handler) {
+func (s *Server) setRoute(version, method string, handler *wrappedHandler) {
 	if version == VersionPreview {
-		s.registeredPreviewMethods[method] = hn
+		s.registeredPreviewMethods[method] = handler
 
 		return
 	}
 
 	versions, ok := s.registeredVersionMethods[version]
 	if !ok {
-		versions = make(map[string]*handler)
+		versions = make(map[string]*wrappedHandler)
 		s.registeredVersionMethods[version] = versions
 	}
 
-	versions[method] = hn
+	versions[method] = handler
 }
 
 func (s *Server) buildRoutes() {
 	knownVersions := sort.StringSlice{}
-	resolvedMethods := make(map[string]map[string]*handler)
+	resolvedMethods := make(map[string]map[string]*wrappedHandler)
 
 	// build known versions
 	for version, methodSet := range s.registeredVersionMethods {
@@ -431,7 +431,7 @@ func (s *Server) buildRoutes() {
 
 		if _, ok := resolvedMethods[version]; !ok {
 			knownVersions = append(knownVersions, version)
-			resolvedMethods[version] = make(map[string]*handler)
+			resolvedMethods[version] = make(map[string]*wrappedHandler)
 		}
 	}
 
@@ -468,7 +468,7 @@ func (s *Server) buildRoutes() {
 
 	// Handle preview methods
 	if len(s.registeredPreviewMethods) > 0 {
-		resolvedMethods[VersionPreview] = make(map[string]*handler)
+		resolvedMethods[VersionPreview] = make(map[string]*wrappedHandler)
 	}
 
 	for mn, fn := range s.registeredPreviewMethods {
@@ -504,15 +504,15 @@ func (s *Server) Serve(res http.ResponseWriter, req *Request) error {
 		return cher.New(cher.NotFound, cher.M{"version": req.Version})
 	}
 
-	hn, ok := methodSet[req.Method]
-	if !ok || hn == nil {
+	handler, ok := methodSet[req.Method]
+	if !ok || handler == nil {
 		return cher.New(cher.NotFound, cher.M{"method": req.Method, "version": req.Version})
 	}
 
 	// append latest version to Infra-Endpoint-Status
-	appendInfraEndpointStatus(res, req.Version, hn.v)
+	appendInfraEndpointStatus(res, req.Version, handler.v)
 
-	fn := hn.fn
+	fn := handler.fn
 
 	return fn(res, req)
 }
@@ -552,13 +552,15 @@ func appendInfraEndpointStatus(w http.ResponseWriter, requestedVersion, resolved
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	ctx := r.Context()
+
+	if strings.ToUpper(r.Method) != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
 	if r.URL.RawQuery != "" {
-		s.writeError(w, cher.New("unexpected_input", nil))
+		s.writeError(ctx, w, cher.New("unexpected_input", nil))
 		return
 	}
 
@@ -568,47 +570,48 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		RemoteAddr:    r.RemoteAddr,
 		BrowserOrigin: r.Header.Get("Origin"),
 	}
-	req.ctx = setRequestContext(r.Context(), req)
+
+	ctx = setRequestContext(ctx, req)
+	r = r.WithContext(ctx)
+	req.originalRequest = r
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	var ok bool
 	req.Method, req.Version, ok = requestPath(r.URL.Path)
 	if !ok {
-		s.writeError(w, cher.New(cher.NotFound, nil))
+		s.writeError(ctx, w, cher.New(cher.NotFound, nil))
 		return
 	}
 
-	s.writeError(w, s.Serve(w, req))
+	s.writeError(ctx, w, s.Serve(w, req))
 }
 
 // expRequestPath only matches HTTP Paths formed of /<version date>/<method name>
 var expRequestPath = regexp.MustCompile(`^/(preview|latest|20\d{2}-\d{2}-\d{2})/([a-z0-9\_]+)$`)
 
 func requestPath(path string) (method, version string, ok bool) {
-	m := expRequestPath.FindStringSubmatch(path)
-	if len(m) != 3 {
+	match := expRequestPath.FindStringSubmatch(path)
+	if len(match) != 3 {
 		return
 	}
 
-	version = m[1]
-	method = m[2]
+	version = match[1]
+	method = match[2]
 	ok = true
 	return
 }
 
-func (s *Server) writeError(w http.ResponseWriter, err error) {
+func (s *Server) writeError(ctx context.Context, w http.ResponseWriter, err error) {
 	if err == nil {
 		return
 	}
 
 	var body cher.E
 
-	switch err := err.(type) {
-	case cher.E:
+	if err, ok := gerrors.As[cher.E](err); ok {
 		body = err
-
-	case *json.SyntaxError:
+	} else if err, ok := gerrors.As[*json.SyntaxError](err); ok {
 		body = cher.New(
 			"invalid_json",
 			cher.M{
@@ -616,8 +619,7 @@ func (s *Server) writeError(w http.ResponseWriter, err error) {
 				"offset": err.Offset,
 			},
 		)
-
-	case *json.UnmarshalTypeError:
+	} else if err, ok := gerrors.As[*json.UnmarshalTypeError](err); ok {
 		body = cher.New(
 			"invalid_json",
 			cher.M{
@@ -626,12 +628,14 @@ func (s *Server) writeError(w http.ResponseWriter, err error) {
 				"name":     err.Field,
 			},
 		)
-
-	default:
+	} else {
 		body = cher.New(cher.Unknown, nil)
 	}
 
 	w.WriteHeader(body.StatusCode())
 
-	json.NewEncoder(w).Encode(body)
+	werr := json.NewEncoder(w).Encode(body)
+	if werr != nil {
+		mlog.Warn(ctx, merr.New(ctx, "crpc_write_error_failed", nil, werr))
+	}
 }

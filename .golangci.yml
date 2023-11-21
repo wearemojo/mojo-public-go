@@ -50,9 +50,10 @@ issues:
   - linters:
     - govet
     text: "composites: go.mongodb.org/mongo-driver/bson/primitive.E struct literal uses unkeyed fields"
-
-  # TODO: fix these and remove
-  - { path: lib/crpc, text: ".*" }
+  - path: lib/crpc # TODO: resolve these
+    linters:
+    - gocognit
+    - nestif
 
 linters-settings:
   forbidigo:
