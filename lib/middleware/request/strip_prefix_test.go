@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestStripPrefix(t *testing.T) {
@@ -22,21 +22,23 @@ func TestStripPrefix(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
+			is := is.New(t)
+
 			var invoked bool
 
-			hn := StripPrefix(test.Prefix)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fn := StripPrefix(test.Prefix)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				invoked = true
 
-				assert.Equal(t, test.Result, r.URL.Path)
+				is.Equal(test.Result, r.URL.Path)
 			}))
 
-			hn.ServeHTTP(nil, &http.Request{
+			fn.ServeHTTP(nil, &http.Request{
 				URL: &url.URL{
 					Path: test.Path,
 				},
 			})
 
-			assert.True(t, invoked, "handler not invoked")
+			is.True(invoked)
 		})
 	}
 }

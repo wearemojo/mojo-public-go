@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestSplitPrefixID(t *testing.T) {
@@ -29,11 +29,13 @@ func TestSplitPrefixID(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
+			is := is.New(t)
+
 			environment, resource, id := splitPrefixID(test.Source)
 
-			assert.Equal(t, test.Environment, environment, "environment mismatch")
-			assert.Equal(t, test.Resource, resource, "resource mismatch")
-			assert.Equal(t, test.ID, id)
+			is.Equal(test.Environment, environment)
+			is.Equal(test.Resource, resource)
+			is.Equal(test.ID, id)
 		})
 	}
 }
@@ -59,7 +61,8 @@ func TestParse(t *testing.T) {
 					BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
 				},
 				SequenceID: 0,
-			}, nil,
+			},
+			nil,
 		},
 		{
 			"Resource", []byte("user_000000BPG6Lks9tQoAiJYrBRSXPX6"),
@@ -72,7 +75,8 @@ func TestParse(t *testing.T) {
 					BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
 				},
 				SequenceID: 0,
-			}, nil,
+			},
+			nil,
 		},
 		{
 			"ResourceEnvironment", []byte("test_user_000000BPG6Lks9tQoAiJYrBRSXPX6"),
@@ -85,19 +89,21 @@ func TestParse(t *testing.T) {
 					BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
 				},
 				SequenceID: 0,
-			}, nil,
+			},
+			nil,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
+			is := is.New(t)
+
 			id, err := Parse(string(test.Source))
 			if test.Error == nil {
-				if assert.NoError(t, err) {
-					assert.Equal(t, test.ID, id)
-				}
+				is.NoErr(err)
+				is.Equal(test.ID, id)
 			} else {
-				assert.Equal(t, test.Error, err)
+				is.Equal(test.Error, err)
 			}
 		})
 	}
@@ -105,7 +111,7 @@ func TestParse(t *testing.T) {
 
 func BenchmarkParse(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		Parse("user_000000BPG6Lks9tQoAiJYrBRSXPX6")
+		_, _ = Parse("user_000000BPG6Lks9tQoAiJYrBRSXPX6")
 	}
 }
 
@@ -113,7 +119,7 @@ func TestID(t *testing.T) {
 	t.Run("Scan", func(t *testing.T) {
 		tests := []struct {
 			Name string
-			Src  interface{}
+			Src  any
 
 			ID    ID
 			Error error
@@ -128,7 +134,8 @@ func TestID(t *testing.T) {
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
 					},
 					SequenceID: 0,
-				}, nil,
+				},
+				nil,
 			},
 			{
 				"String", "000000BPG6Lks9tQoAiJYrBRSXPX6",
@@ -140,7 +147,8 @@ func TestID(t *testing.T) {
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
 					},
 					SequenceID: 0,
-				}, nil,
+				},
+				nil,
 			},
 			{
 				"Unknown", 1234, ID{}, &ParseError{"unsupported scan, must be string or []byte"},
@@ -149,14 +157,15 @@ func TestID(t *testing.T) {
 
 		for _, test := range tests {
 			t.Run(test.Name, func(t *testing.T) {
+				is := is.New(t)
+
 				id := ID{}
 				err := id.Scan(test.Src)
 				if test.Error == nil {
-					if assert.NoError(t, err) {
-						assert.Equal(t, test.ID, id)
-					}
+					is.NoErr(err)
+					is.Equal(test.ID, id)
 				} else {
-					assert.Equal(t, test.Error, err)
+					is.Equal(test.Error, err)
 				}
 			})
 		}
@@ -183,7 +192,8 @@ func TestID(t *testing.T) {
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
 					},
 					SequenceID: 0,
-				}, nil,
+				},
+				nil,
 			},
 			{
 				"Resource", []byte(`"user_000000BPG6Lks9tQoAiJYrBRSXPX6"`),
@@ -196,7 +206,8 @@ func TestID(t *testing.T) {
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
 					},
 					SequenceID: 0,
-				}, nil,
+				},
+				nil,
 			},
 			{
 				"ResourceEnvironment", []byte(`"test_user_000000BPG6Lks9tQoAiJYrBRSXPX6"`),
@@ -209,20 +220,22 @@ func TestID(t *testing.T) {
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
 					},
 					SequenceID: 0,
-				}, nil,
+				},
+				nil,
 			},
 		}
 
 		for _, test := range tests {
 			t.Run(test.Name, func(t *testing.T) {
+				is := is.New(t)
+
 				id := ID{}
 				err := id.UnmarshalJSON(test.Source)
 				if test.Error == nil {
-					if assert.NoError(t, err) {
-						assert.Equal(t, test.ID, id)
-					}
+					is.NoErr(err)
+					is.Equal(test.ID, id)
 				} else {
-					assert.Equal(t, test.Error, err)
+					is.Equal(test.Error, err)
 				}
 			})
 		}
@@ -296,18 +309,18 @@ func TestID(t *testing.T) {
 
 		for _, test := range tests {
 			t.Run(test.Name, func(t *testing.T) {
-				assert.Equal(t, test.Bytes, test.ID.Bytes(), "bytes mismatch")
-				assert.Equal(t, string(test.Bytes), test.ID.String(), "string mismatch")
+				is := is.New(t)
+
+				is.Equal(test.Bytes, test.ID.Bytes())
+				is.Equal(string(test.Bytes), test.ID.String())
 
 				value, err := test.ID.Value()
-				if assert.NoError(t, err) {
-					assert.Equal(t, test.Bytes, value)
-				}
+				is.NoErr(err)
+				is.Equal(test.Bytes, value)
 
 				json, err := test.ID.MarshalJSON()
-				if assert.NoError(t, err) {
-					assert.Equal(t, test.JSON, json)
-				}
+				is.NoErr(err)
+				is.Equal(test.JSON, json)
 			})
 		}
 	})

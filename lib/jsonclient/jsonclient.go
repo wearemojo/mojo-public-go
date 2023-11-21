@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -14,15 +15,13 @@ import (
 	"time"
 
 	"github.com/wearemojo/mojo-public-go/lib/cher"
-	"github.com/wearemojo/mojo-public-go/lib/middleware/request"
+	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/version"
 )
 
-var (
-	// ErrNoResponse is returned when a client request is given a body to
-	// unmarshal to however the server does not return any content (HTTP 204).
-	ErrNoResponse = &ClientRequestError{"no response to unmarshal to body", nil}
-)
+// ErrNoResponse is returned when a client request is given a body to
+// unmarshal to however the server does not return any content (HTTP 204).
+var ErrNoResponse = ClientRequestError{"no response to unmarshal to body", nil}
 
 // DefaultUserAgent is the default HTTP User-Agent Header that is presented to the server.
 var DefaultUserAgent = "jsonclient/" + version.Truncated + " (+https://github.com/wearemojo/mojo-public-go/tree/main/lib/jsonclient)"
@@ -40,14 +39,14 @@ type Client struct {
 
 // NewClient returns a client configured with a transport scheme, remote host
 // and URL prefix supplied as a URL <scheme>://<host></prefix>
-func NewClient(baseURL string, c *http.Client) *Client {
+func NewClient(baseURL string, client *http.Client) *Client {
 	remote, err := url.Parse(baseURL)
 	if err != nil {
 		panic(err)
 	}
 
-	if c == nil {
-		c = &http.Client{
+	if client == nil {
+		client = &http.Client{
 			Timeout: 5 * time.Second,
 		}
 	}
@@ -59,27 +58,17 @@ func NewClient(baseURL string, c *http.Client) *Client {
 
 		UserAgent: DefaultUserAgent,
 
-		Client: c,
+		Client: client,
 	}
 }
 
 // Do executes an HTTP request against the configured server.
-func (c *Client) Do(ctx context.Context, method, path string, params url.Values, src, dst interface{}) error {
+func (c *Client) Do(ctx context.Context, method, path string, params url.Values, src, dst any) error {
 	return c.DoWithHeaders(ctx, method, path, nil, params, src, dst)
 }
 
 // DoWithHeaders executes an HTTP request against the configured server with custom headers.
-func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers http.Header, params url.Values, src, dst interface{}) error {
-	if c.Client == nil {
-		c.Client = http.DefaultClient
-	}
-
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	ctx, requestID := request.GetOrSetRequestID(ctx)
-
+func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers http.Header, params url.Values, src, dst any) error {
 	fullPath := pathlib.Join(c.Prefix, path)
 	req := &http.Request{
 		Method: method,
@@ -91,7 +80,6 @@ func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers
 		Header: http.Header{
 			"Accept":     []string{"application/json"},
 			"User-Agent": []string{c.UserAgent},
-			"Request-Id": []string{requestID},
 		},
 		Host: c.Host,
 	}
@@ -104,30 +92,30 @@ func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers
 		req.Header[key] = value
 	}
 
-	err := c.setRequestBody(req, src)
+	err := setRequestBody(req, src)
 	if err != nil {
-		return &ClientRequestError{"could not marshal", err}
+		return ClientRequestError{"could not marshal", err}
 	}
 
 	res, err := c.Client.Do(req.WithContext(ctx))
 	if err != nil {
-		if netErr, ok := err.(net.Error); ok {
+		if netErr, ok := gerrors.As[net.Error](err); ok {
 			if netErr.Timeout() {
 				return cher.New(cher.RequestTimeout, cher.M{"method": method, "path": fullPath, "host": c.Host, "scheme": c.Scheme, "timeout_error": netErr})
 			}
 
-			return &ClientTransportError{method, path, "request failed", netErr}
+			return ClientTransportError{method, path, "request failed", netErr}
 		}
 
-		return &ClientTransportError{method, path, "unknown error", err}
+		return ClientTransportError{method, path, "unknown error", err}
 	}
 
 	defer res.Body.Close()
 
-	return c.handleResponse(res, method, path, dst)
+	return handleResponse(res, method, path, dst)
 }
 
-func (c *Client) setRequestBody(req *http.Request, src interface{}) error {
+func setRequestBody(req *http.Request, src any) error {
 	if src != nil {
 		var buf bytes.Buffer
 
@@ -145,7 +133,7 @@ func (c *Client) setRequestBody(req *http.Request, src interface{}) error {
 	return nil
 }
 
-func (c *Client) handleResponse(res *http.Response, method, path string, dst interface{}) error {
+func handleResponse(res *http.Response, method, path string, dst any) error {
 	if res.StatusCode >= 200 && res.StatusCode < 300 {
 		if dst == nil {
 			return nil
@@ -156,10 +144,10 @@ func (c *Client) handleResponse(res *http.Response, method, path string, dst int
 		}
 
 		err := json.NewDecoder(res.Body).Decode(dst)
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			return ErrNoResponse
 		} else if err != nil {
-			return &ClientTransportError{method, path, "could not unmarshal", err}
+			return ClientTransportError{method, path, "could not unmarshal", err}
 		}
 
 		return nil
@@ -167,7 +155,7 @@ func (c *Client) handleResponse(res *http.Response, method, path string, dst int
 
 	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
-		return &ClientTransportError{method, path, "could not read response body stream", err}
+		return ClientTransportError{method, path, "could not read response body stream", err}
 	}
 
 	var body cher.E
@@ -175,7 +163,7 @@ func (c *Client) handleResponse(res *http.Response, method, path string, dst int
 		return body
 	}
 
-	var errorResBody interface{}
+	var errorResBody any
 	if err := json.Unmarshal(resBody, &errorResBody); err != nil {
 		errorResBody = string(resBody)
 	}
@@ -210,11 +198,11 @@ type ClientRequestError struct {
 }
 
 // Cause returns the causal error (if wrapped) or nil
-func (cre *ClientRequestError) Cause() error {
+func (cre ClientRequestError) Cause() error {
 	return cre.cause
 }
 
-func (cre *ClientRequestError) Error() string {
+func (cre ClientRequestError) Error() string {
 	if cre.cause != nil {
 		return cre.ErrorString + ": " + cre.cause.Error()
 	}
@@ -231,74 +219,14 @@ type ClientTransportError struct {
 }
 
 // Cause returns the causal error (if wrapped) or nil
-func (cte *ClientTransportError) Cause() error {
+func (cte ClientTransportError) Cause() error {
 	return cte.cause
 }
 
-func (cte *ClientTransportError) Error() string {
+func (cte ClientTransportError) Error() string {
 	if cte.cause != nil {
 		return fmt.Sprintf("%s %s %s: %s", cte.Method, cte.Path, cte.ErrorString, cte.cause.Error())
 	}
 
 	return fmt.Sprintf("%s %s %s", cte.Method, cte.Path, cte.ErrorString)
-}
-
-// AuthenticatedRoundTripper applies authentication before handing the request
-// to the embedded transport for execution.
-type AuthenticatedRoundTripper struct {
-	http.RoundTripper
-
-	authHeader string
-}
-
-// NewAuthenticatedRoundTripper returns a new AuthenticatedRoundTripper that will
-// apply the given auth before performing the request.
-func NewAuthenticatedRoundTripper(rt http.RoundTripper, authType, authToken string) *AuthenticatedRoundTripper {
-	if rt == nil {
-		rt = http.DefaultTransport
-	}
-
-	return &AuthenticatedRoundTripper{
-		RoundTripper: rt,
-
-		authHeader: authType + " " + authToken,
-	}
-}
-
-// RoundTrip applies authentication before performing the request.
-func (art *AuthenticatedRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("Authorization", art.authHeader)
-
-	return art.RoundTripper.RoundTrip(req)
-}
-
-// BasicAuthRoundTripper applies authentication before handing the request
-// to the embedded transport for execution.
-type BasicAuthRoundTripper struct {
-	http.RoundTripper
-
-	username string
-	password string
-}
-
-// NewBasicAuthRoundTripper returns a new BasicAuthRoundTripper that will
-// apply the given auth before performing the request.
-func NewBasicAuthRoundTripper(rt http.RoundTripper, username, password string) *BasicAuthRoundTripper {
-	if rt == nil {
-		rt = http.DefaultTransport
-	}
-
-	return &BasicAuthRoundTripper{
-		RoundTripper: rt,
-
-		username: username,
-		password: password,
-	}
-}
-
-// RoundTrip applies authentication before performing the request.
-func (bart *BasicAuthRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.SetBasicAuth(bart.username, bart.password)
-
-	return bart.RoundTripper.RoundTrip(req)
 }

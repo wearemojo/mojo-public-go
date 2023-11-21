@@ -41,7 +41,7 @@ func Middleware(parser Parser) func(http.Handler) http.Handler {
 
 			authState, err := parser.Check(ctx, authzHeader)
 			if err != nil && !errors.Is(err, ErrNoAuthorization) {
-				handleCLogError(ctx, clog.SetError(ctx, err))
+				clog.SetError(ctx, err)
 				jsonError(ctx, res, err)
 
 				if cerr, ok := gerrors.As[cher.E](err); ok && cerr.Code == cher.Unauthorized && len(cerr.Reasons) == 1 {
@@ -57,11 +57,5 @@ func Middleware(parser Parser) func(http.Handler) http.Handler {
 
 			next.ServeHTTP(res, req)
 		})
-	}
-}
-
-func handleCLogError(ctx context.Context, err error) {
-	if err != nil {
-		mlog.Warn(ctx, merr.New(ctx, "clog_set_error_failed", nil, err))
 	}
 }

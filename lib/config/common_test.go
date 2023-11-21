@@ -1,15 +1,18 @@
 package config
 
 import (
+	"context"
 	"testing"
 
 	"github.com/go-redis/redis"
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/writeconcern"
 )
 
 func TestRedisOptions(t *testing.T) {
+	is := is.New(t)
+
 	expected := &redis.Options{
 		Network:  "tcp",
 		Addr:     "localhost:6379",
@@ -23,26 +26,25 @@ func TestRedisOptions(t *testing.T) {
 
 	opts, err := r.Options()
 
-	assert.Nil(t, err)
-	assert.Equal(t, expected, opts)
+	is.NoErr(err)
+	is.Equal(expected, opts)
 }
 
 func TestMongoDBOptions(t *testing.T) {
+	is := is.New(t)
+
 	m := &MongoDB{
 		URI: "mongodb://foo:bar@127.0.0.1/demo?authSource=admin",
 	}
 
-	opts, dbName, err := m.Options()
+	opts, dbName, err := m.Options(context.Background())
 
-	if !assert.NoError(t, err) {
-		return
-	}
+	is.NoErr(err)
+	is.Equal(dbName, "demo")
+	is.Equal(opts.Hosts, []string{"127.0.0.1"})
+	is.Equal(opts.WriteConcern, writeconcern.Majority())
 
-	assert.Equal(t, dbName, "demo")
-	assert.Equal(t, opts.Hosts, []string{"127.0.0.1"})
-	assert.Equal(t, opts.WriteConcern, writeconcern.New(writeconcern.WMajority(), writeconcern.J(true)))
-
-	assert.Equal(t, opts.Auth, &options.Credential{
+	is.Equal(opts.Auth, &options.Credential{
 		AuthSource:  "admin",
 		Username:    "foo",
 		Password:    "bar",

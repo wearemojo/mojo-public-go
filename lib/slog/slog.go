@@ -8,8 +8,6 @@ import (
 	"time"
 
 	"github.com/wearemojo/mojo-public-go/lib/clog"
-	"github.com/wearemojo/mojo-public-go/lib/merr"
-	"github.com/wearemojo/mojo-public-go/lib/mlog"
 )
 
 func SetCLogFieldsForGCP() func(next http.Handler) http.Handler {
@@ -38,12 +36,9 @@ func SetCLogFieldsForGCP() func(next http.Handler) http.Handler {
 				// cache keys are not applicable
 			}
 
-			err := clog.SetFields(ctx, clog.Fields{
+			clog.SetFields(ctx, clog.Fields{
 				"httpRequest": httpRequest,
 			})
-			if err != nil {
-				mlog.Warn(ctx, merr.New(ctx, "clog_set_fields_failed", nil, err))
-			}
 
 			// wrap given response writer with one that tracks status code/bytes written
 			resWrap := &responseWriter{ResponseWriter: res}

@@ -12,9 +12,7 @@ type Info struct {
 
 type contextKey string
 
-var (
-	infoContextKey = contextKey("info")
-)
+var infoContextKey = contextKey("info")
 
 // SetContext wraps the context with the service info
 func SetContext(ctx context.Context, name, env string) context.Context {

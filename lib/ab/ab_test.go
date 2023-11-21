@@ -38,8 +38,10 @@ func TestCheck(t *testing.T) {
 	}
 }
 
-var testID = ksuid.Generate(context.Background(), "test").String()
-var userID = ksuid.Generate(context.Background(), "user").String()
+var (
+	testID = ksuid.Generate(context.Background(), "test").String()
+	userID = ksuid.Generate(context.Background(), "user").String()
+)
 
 func BenchmarkParse(b *testing.B) {
 	for i := 0; i < b.N; i++ {

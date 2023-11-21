@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -19,7 +19,7 @@ type testOutput struct{}
 func TestWrap(t *testing.T) {
 	tests := []struct {
 		Name  string
-		Fn    interface{}
+		Fn    any
 		Error error
 	}{
 		{
@@ -79,15 +79,19 @@ func TestWrap(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
+			is := is.New(t)
+
 			_, err := Wrap(test.Fn)
 			if test.Error != nil {
-				assert.Equal(t, test.Error, err)
+				is.Equal(test.Error, err)
 			}
 		})
 	}
 }
 
 func TestMethodsAreBroughtForward(t *testing.T) {
+	is := is.New(t)
+
 	foov1 := &handler{v: "2019-01-01"}
 	barv1 := &handler{v: "2019-02-02"}
 
@@ -118,10 +122,12 @@ func TestMethodsAreBroughtForward(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, zs.resolvedMethods)
+	is.Equal(expected, zs.resolvedMethods)
 }
 
 func TestMethodsAreBroughtForwardComplex(t *testing.T) {
+	is := is.New(t)
+
 	foov1 := &handler{v: "2019-01-01"}
 	foov2 := &handler{v: "2019-02-02"}
 	barv1 := &handler{v: "2019-02-02"}
@@ -170,10 +176,12 @@ func TestMethodsAreBroughtForwardComplex(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, zs.resolvedMethods)
+	is.Equal(expected, zs.resolvedMethods)
 }
 
 func TestMethodsAreBroughtForwardAndRemoved(t *testing.T) {
+	is := is.New(t)
+
 	foov1 := &handler{v: "2019-01-01"}
 	barv1 := &handler{v: "2019-01-01"}
 
@@ -204,10 +212,12 @@ func TestMethodsAreBroughtForwardAndRemoved(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, zs.resolvedMethods)
+	is.Equal(expected, zs.resolvedMethods)
 }
 
 func TestMethodsAreDefinedRemovedMultiple(t *testing.T) {
+	is := is.New(t)
+
 	foov1 := &handler{v: "2019-01-01"}
 	barv1 := &handler{v: "2019-01-01"}
 	foov2 := &handler{v: "2019-02-02"}
@@ -261,10 +271,12 @@ func TestMethodsAreDefinedRemovedMultiple(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, zs.resolvedMethods)
+	is.Equal(expected, zs.resolvedMethods)
 }
 
 func TestPreviewMethodsAreRegistered(t *testing.T) {
+	is := is.New(t)
+
 	barv1 := &handler{v: "2019-01-01"}
 	fooPrev := &handler{v: "preview"}
 
@@ -293,7 +305,7 @@ func TestPreviewMethodsAreRegistered(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, zs.resolvedMethods)
+	is.Equal(expected, zs.resolvedMethods)
 }
 
 func TestNilPreviewMethodsPanic(t *testing.T) {

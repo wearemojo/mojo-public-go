@@ -2,27 +2,22 @@ package ksuid
 
 import (
 	"bytes"
-	crypto_rand "crypto/rand"
+	"context"
 	"encoding/binary"
 	"encoding/hex"
-	"fmt"
-	math_rand "math/rand"
 	"net"
 	"os"
+
+	"github.com/wearemojo/mojo-public-go/lib/cryptorand"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
-var random *math_rand.Rand
+var random = cryptorand.New()
 
-func init() {
-	var b [8]byte
-
-	_, err := crypto_rand.Read(b[:])
-	if err != nil {
-		panic("cannot seed random bytes")
-	}
-
-	random = math_rand.New(math_rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
-}
+const (
+	ErrNoHardwareAddress = merr.Code("no_hardware_address")
+	ErrNotDockerized     = merr.Code("not_dockerized")
+)
 
 type InstanceID struct {
 	SchemeData byte
@@ -38,23 +33,23 @@ func (i InstanceID) Bytes() [8]byte {
 }
 
 // NewHardwareID returns a HardwareID for the current node.
-func NewHardwareID() (InstanceID, error) {
-	hwAddr, err := getHardwareAddr()
+func NewHardwareID(ctx context.Context) (InstanceID, error) {
+	hwAddr, err := getHardwareAddr(ctx)
 	if err != nil {
 		return InstanceID{}, err
 	}
 
-	var bd [8]byte
-	copy(bd[:], hwAddr)
-	binary.BigEndian.PutUint16(bd[6:], uint16(os.Getpid()))
+	var bytes [8]byte
+	copy(bytes[:], hwAddr)
+	binary.BigEndian.PutUint16(bytes[6:], uint16(os.Getpid()))
 
 	return InstanceID{
 		SchemeData: 'H',
-		BytesData:  bd,
+		BytesData:  bytes,
 	}, nil
 }
 
-func getHardwareAddr() (net.HardwareAddr, error) {
+func getHardwareAddr(ctx context.Context) (net.HardwareAddr, error) {
 	addrs, err := net.Interfaces()
 	if err != nil {
 		return nil, err
@@ -67,12 +62,12 @@ func getHardwareAddr() (net.HardwareAddr, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("no hardware addr available")
+	return nil, merr.New(ctx, ErrNoHardwareAddress, nil)
 }
 
 // NewDockerID returns a DockerID for the current Docker container.
-func NewDockerID() (InstanceID, error) {
-	cid, err := getDockerID()
+func NewDockerID(ctx context.Context) (InstanceID, error) {
+	cid, err := getDockerID(ctx)
 	if err != nil {
 		return InstanceID{}, err
 	}
@@ -86,11 +81,11 @@ func NewDockerID() (InstanceID, error) {
 	}, nil
 }
 
-func getDockerID() ([]byte, error) {
+func getDockerID(ctx context.Context) ([]byte, error) {
 	src, err := os.ReadFile("/proc/1/cpuset")
 	src = bytes.TrimSpace(src)
 	if os.IsNotExist(err) || len(src) < 64 || !bytes.HasPrefix(src, []byte("/docker")) {
-		return nil, fmt.Errorf("not a docker container")
+		return nil, merr.New(ctx, ErrNotDockerized, nil)
 	} else if err != nil {
 		return nil, err
 	}

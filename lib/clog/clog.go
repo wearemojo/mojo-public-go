@@ -1,4 +1,3 @@
-// Package clog (context logger) provides shared log configuration and helpers for building HTTP services
 package clog
 
 import (
@@ -9,13 +8,14 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/wearemojo/mojo-public-go/lib/cher"
+	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/servicecontext"
 	"github.com/wearemojo/mojo-public-go/lib/version"
 )
 
 type contextKey string
 
-type Fields map[string]interface{}
+type Fields map[string]any
 
 // LoggerKey is the key used for request-scoped loggers in a requests context map
 const loggerKey contextKey = "clog"
@@ -53,13 +53,13 @@ type Config struct {
 }
 
 // Configure applies standard Logging structure options to a logrus Entry.
-func (c Config) Configure(ctx context.Context) (log *logrus.Entry) {
+func (c Config) Configure(ctx context.Context) *logrus.Entry {
 	var serviceName string
 	if svc := servicecontext.GetContext(ctx); svc != nil {
 		serviceName = svc.Name
 	}
 
-	log = logrus.WithFields(logrus.Fields{
+	log := logrus.WithFields(logrus.Fields{
 		ServiceKey: serviceName,
 		VersionKey: version.Revision,
 	})
@@ -93,7 +93,7 @@ func (c Config) Configure(ctx context.Context) (log *logrus.Entry) {
 		log.Logger.Level = logrus.InfoLevel
 	}
 
-	return
+	return log
 }
 
 // ContextLogger wraps logrus Entry to allow field mutation, which means the
@@ -115,7 +115,7 @@ func (l *ContextLogger) GetLogger() *logrus.Entry {
 }
 
 // SetField updates the internal field map
-func (l *ContextLogger) SetField(field string, value interface{}) *ContextLogger {
+func (l *ContextLogger) SetField(field string, value any) *ContextLogger {
 	l.entry = l.entry.WithField(field, value)
 	return l
 }
@@ -134,11 +134,17 @@ func (l *ContextLogger) SetError(err error) *ContextLogger {
 
 // getContextLogger retrieves the ContextLogger instance from the context
 func getContextLogger(ctx context.Context) *ContextLogger {
-	if ctxLogger, ok := ctx.Value(loggerKey).(*ContextLogger); ok {
+	ctxLogger, _ := ctx.Value(loggerKey).(*ContextLogger)
+	return ctxLogger
+}
+
+func mustGetContextLogger(ctx context.Context) *ContextLogger {
+	ctxLogger := getContextLogger(ctx)
+	if ctxLogger != nil {
 		return ctxLogger
 	}
 
-	return nil
+	panic("no clog exists in the context")
 }
 
 // Set sets a persistent, mutable logger for the request context.
@@ -162,38 +168,18 @@ func Get(ctx context.Context) *logrus.Entry {
 }
 
 // SetField adds or updates a field to the ContextLogger in a context
-func SetField(ctx context.Context, field string, value interface{}) error {
-	ctxLogger := getContextLogger(ctx)
-
-	if ctxLogger == nil {
-		return errors.New("no clog exists in the context")
-	}
-
-	ctxLogger.SetField(field, value)
-
-	return nil
+func SetField(ctx context.Context, field string, value any) {
+	mustGetContextLogger(ctx).SetField(field, value)
 }
 
 // SetFields adds or updates fields to the ContextLogger in a context
-func SetFields(ctx context.Context, fields Fields) error {
-	ctxLogger := getContextLogger(ctx)
-
-	if ctxLogger == nil {
-		return errors.New("no clog exists in the context")
-	}
-
-	ctxLogger.SetFields(logrus.Fields(fields))
-
-	return nil
+func SetFields(ctx context.Context, fields Fields) {
+	mustGetContextLogger(ctx).SetFields(logrus.Fields(fields))
 }
 
 // SetError adds or updates an error to the ContextLogger in a context
-func SetError(ctx context.Context, err error) error {
-	ctxLogger := getContextLogger(ctx)
-
-	if ctxLogger == nil {
-		return errors.New("no clog exists in the context")
-	}
+func SetError(ctx context.Context, err error) {
+	ctxLogger := mustGetContextLogger(ctx)
 
 	ctxLogger.SetError(err)
 
@@ -207,35 +193,22 @@ func SetError(ctx context.Context, err error) error {
 			ctxLogger.SetField("error_meta", cherErr.Meta)
 		}
 	}
-
-	return nil
 }
 
 // ConfigureTimeoutsAsErrors changes to default behaviour of logging timeouts as info, to log them as errors
 func ConfigureTimeoutsAsErrors(ctx context.Context) {
-	ctxLogger := getContextLogger(ctx)
-	if ctxLogger == nil {
-		return
-	}
-
-	ctxLogger.timeoutsAsErrors = true
+	mustGetContextLogger(ctx).timeoutsAsErrors = true
 }
 
 // TimeoutsAsErrors determines whether ConfigureTimeoutsAsErrors was called on the context
 func TimeoutsAsErrors(ctx context.Context) bool {
-	ctxLogger := getContextLogger(ctx)
-	if ctxLogger == nil {
-		return false
-	}
-
-	return ctxLogger.timeoutsAsErrors
+	return mustGetContextLogger(ctx).timeoutsAsErrors
 }
 
 // DetermineLevel returns a suggested logrus Level type for a given error
 func DetermineLevel(err error, timeoutsAsErrors bool) logrus.Level {
-	if cherError, ok := err.(cher.E); ok {
+	if cherError, ok := gerrors.As[cher.E](err); ok {
 		switch cherError.Code {
-
 		// some cher codes have specific log levels
 		case cher.BadRequest, cher.RequestTimeout:
 			return logrus.WarnLevel

@@ -95,7 +95,7 @@ var (
 // func(ctx context.Context, request *T) (err error)
 // func(ctx context.Context) (response *T, err error)
 // func(ctx context.Context) (err error)
-func Wrap(fn interface{}) (*WrappedFunc, error) {
+func Wrap(fn any) (*WrappedFunc, error) {
 	// prevent re-reflection of type that is already a HandlerFunc
 	if _, ok := fn.(HandlerFunc); ok {
 		return nil, fmt.Errorf("fn doesn't need to be wrapped, use RegisterFunc")
@@ -238,7 +238,7 @@ func wrapReturn(t reflect.Type) (reflect.Type, error) {
 
 // MustWrap is the same as Wrap, however it panics when passed an
 // invalid handler.
-func MustWrap(fn interface{}) *WrappedFunc {
+func MustWrap(fn any) *WrappedFunc {
 	wrapped, err := Wrap(fn)
 	if err != nil {
 		panic(err)
@@ -307,7 +307,7 @@ func isValidMethod(method, version string) bool {
 // defined above, or the presence of the schema doesn't match the presence
 // of the input argument, Register will panic. This function is not thread safe
 // and must be run in serial if called multiple times.
-func (s *Server) Register(method, version string, schema gojsonschema.JSONLoader, fnR interface{}, mw ...MiddlewareFunc) {
+func (s *Server) Register(method, version string, schema gojsonschema.JSONLoader, fnR any, mw ...MiddlewareFunc) {
 	if fnR == nil {
 		s.RegisterFunc(method, version, schema, nil, mw...)
 

@@ -1,38 +1,47 @@
 package request
 
 import (
+	"context"
 	"testing"
 
 	"github.com/blang/semver"
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestParseVersionHeader(t *testing.T) {
 	t.Run("empty should error", func(t *testing.T) {
-		parsed, err := parseVersionHeader("")
-		assert.NotNil(t, err)
-		assert.Nil(t, parsed)
+		is := is.New(t)
+
+		parsed, err := parseVersionHeader(context.Background(), "")
+		is.True(err != nil)
+		is.Equal(parsed, nil)
 	})
 
 	t.Run("invalid should error", func(t *testing.T) {
-		parsed, err := parseVersionHeader("a-1-")
-		assert.NotNil(t, err)
-		assert.Nil(t, parsed)
+		is := is.New(t)
+
+		parsed, err := parseVersionHeader(context.Background(), "a-1-")
+		is.True(err != nil)
+		is.Equal(parsed, nil)
 	})
 
 	t.Run("ios should work", func(t *testing.T) {
-		parsed, err := parseVersionHeader("ios-3.6.8-1337")
-		assert.Nil(t, err)
-		assert.Equal(t, parsed.Platform, ClientPlatformIOS)
-		assert.Equal(t, parsed.Version, semver.MustParse("3.6.8"))
-		assert.Equal(t, parsed.Build, 1337)
+		is := is.New(t)
+
+		parsed, err := parseVersionHeader(context.Background(), "ios-3.6.8-1337")
+		is.NoErr(err)
+		is.Equal(parsed.Platform, ClientPlatformIOS)
+		is.Equal(parsed.Version, semver.MustParse("3.6.8"))
+		is.Equal(parsed.Build, 1337)
 	})
 
 	t.Run("android should work", func(t *testing.T) {
-		parsed, err := parseVersionHeader("android-0.0.1-1")
-		assert.Nil(t, err)
-		assert.Equal(t, parsed.Platform, ClientPlatformAndroid)
-		assert.Equal(t, parsed.Version, semver.MustParse("0.0.1"))
-		assert.Equal(t, parsed.Build, 1)
+		is := is.New(t)
+
+		parsed, err := parseVersionHeader(context.Background(), "android-0.0.1-1")
+		is.NoErr(err)
+		is.Equal(parsed.Platform, ClientPlatformAndroid)
+		is.Equal(parsed.Version, semver.MustParse("0.0.1"))
+		is.Equal(parsed.Build, 1)
 	})
 }

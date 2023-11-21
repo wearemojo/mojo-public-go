@@ -5,13 +5,13 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-func init() {
+func RegisterKSUIDFormat() {
 	gojsonschema.FormatCheckers.Add("ksuid", ksuidFormatChecker{})
 }
 
 type ksuidFormatChecker struct{}
 
-func (f ksuidFormatChecker) IsFormat(input interface{}) bool {
+func (f ksuidFormatChecker) IsFormat(input any) bool {
 	str, ok := input.(string)
 	if !ok {
 		return false

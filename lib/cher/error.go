@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"slices"
 
 	"github.com/pkg/errors"
-	"github.com/wearemojo/mojo-public-go/lib/slicecontains"
 )
 
 // errors that are expected to be common across services
@@ -47,7 +47,7 @@ func New(code string, meta M, reasons ...E) E {
 }
 
 // Errorf returns a new E structure, with a message formatted by fmt.
-func Errorf(code string, meta M, format string, args ...interface{}) E {
+func Errorf(code string, meta M, format string, args ...any) E {
 	meta["message"] = fmt.Sprintf(format, args...)
 
 	return E{
@@ -106,26 +106,26 @@ func (e E) Serialize() string {
 	return string(output)
 }
 
-// M it an alias type for map[string]interface{}
-type M map[string]interface{}
+// M it an alias type for map[string]any
+type M map[string]any
 
 // Coerce attempts to coerce a CHER out of any object.
 // - `E` types are just returned as-is
 // - strings are taken as the Code for an E object
 // - bytes are unmarshaled from JSON to an E object
 // - types implementing the `error` interface to an E object with the error as a reason
-func Coerce(v interface{}) E {
-	switch v := v.(type) {
+func Coerce(val any) E {
+	switch val := val.(type) {
 	case E:
-		return v
+		return val
 
 	case string:
-		return E{Code: v}
+		return E{Code: val}
 
 	case []byte:
-		var e E
+		var cerr E
 
-		err := json.Unmarshal(v, &e)
+		err := json.Unmarshal(val, &cerr)
 		if err != nil {
 			return E{
 				Code: CoercionError,
@@ -135,15 +135,15 @@ func Coerce(v interface{}) E {
 			}
 		}
 
-		return e
+		return cerr
 
 	case error:
-		v = errors.Cause(v)
+		val = errors.Cause(val)
 
 		return E{
 			Code: Unknown,
 			Meta: M{
-				"message": v.Error(),
+				"message": val.Error(),
 			},
 		}
 	}
@@ -182,7 +182,7 @@ func WrapIfNotCherCodes(err error, msg string, codes []string) error {
 	}
 
 	var cErr E
-	if errors.As(err, &cErr) && slicecontains.String(codes, cErr.Code) {
+	if errors.As(err, &cErr) && slices.Contains(codes, cErr.Code) {
 		return cErr
 	}
 

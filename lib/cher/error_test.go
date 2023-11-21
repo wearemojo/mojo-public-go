@@ -1,33 +1,36 @@
 package cher
 
 import (
-	"fmt"
 	"net/http"
 	"testing"
 
+	"github.com/matryer/is"
 	"github.com/pkg/errors"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestE(t *testing.T) {
 	t.Run("New", func(t *testing.T) {
+		is := is.New(t)
+
 		m := M{"foo": "bar"}
 		e := New(NotFound, m, E{Code: "foo"})
 
-		assert.Equal(t, e, E{
+		is.Equal(e, E{
 			Code: NotFound,
 			Meta: m,
 			Reasons: []E{
-				E{Code: "foo"},
+				{Code: "foo"},
 			},
 		})
 	})
 
 	t.Run("Errorf", func(t *testing.T) {
+		is := is.New(t)
+
 		m := M{"foo": "bar"}
 		e := Errorf(NotFound, m, "foo %s", "bar")
 
-		assert.Equal(t, e, E{
+		is.Equal(e, E{
 			Code: NotFound,
 			Meta: M{
 				"foo":     "bar",
@@ -52,47 +55,54 @@ func TestE(t *testing.T) {
 
 		for _, test := range tests {
 			t.Run(test.Name, func(t *testing.T) {
+				is := is.New(t)
+
 				sc := test.E.StatusCode()
-				assert.Equal(t, test.StatusCode, sc)
+				is.Equal(test.StatusCode, sc)
 			})
 		}
 	})
 
 	t.Run("Error", func(t *testing.T) {
+		is := is.New(t)
+
 		e := E{Code: NotFound}
-		assert.Equal(t, NotFound, e.Error())
+		is.Equal(NotFound, e.Error())
 	})
 }
 
 func TestCoerce(t *testing.T) {
 	tests := []struct {
 		Name   string
-		Src    interface{}
+		Src    any
 		Result E
 	}{
 		{"E", E{Code: "foo"}, E{Code: "foo"}},
 		{"String", "foo", E{Code: "foo"}},
 		{"JSON", []byte(`{"code":"foo"}`), E{Code: "foo"}},
 		{"BadJSON", []byte(`{"code":0}`), E{Code: CoercionError, Meta: M{"message": "json: cannot unmarshal number into Go struct field E.code of type string"}}},
-		{"Error", errors.New("foo"), E{Code: Unknown, Meta: M{"message": "foo"}}},
+		{"Error", errors.New("foo"), E{Code: Unknown, Meta: M{"message": "foo"}}}, //nolint:forbidigo // required for test
 		{"Unknown", nil, E{Code: CoercionError}},
 	}
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
+			is := is.New(t)
+
 			e := Coerce(test.Src)
 
-			assert.Equal(t, test.Result, e)
+			is.Equal(test.Result, e)
 		})
 	}
 }
 
+//nolint:dupl // verbosity isn't an issue here
 func TestWrapIfNotCher(t *testing.T) {
 	type testCase struct {
 		name   string
 		msg    string
 		err    error
-		expect func(*testing.T, error)
+		expect func(*is.I, error)
 	}
 
 	tests := []testCase{
@@ -100,52 +110,55 @@ func TestWrapIfNotCher(t *testing.T) {
 			name: "nil",
 			msg:  "foo",
 			err:  nil,
-			expect: func(t *testing.T, err error) {
-				assert.NoError(t, err)
+			expect: func(is *is.I, err error) {
+				is.NoErr(err)
 			},
 		},
 		{
 			name: "err",
 			msg:  "foo",
-			err:  fmt.Errorf("nope"),
-			expect: func(t *testing.T, err error) {
-				assert.EqualError(t, err, "foo: nope")
+			err:  errors.New("nope"), //nolint:forbidigo // required for test
+			expect: func(is *is.I, err error) {
+				is.Equal(err.Error(), "foo: nope")
 			},
 		},
 		{
 			name: "cher",
 			msg:  "foo",
 			err:  New("nope", nil),
-			expect: func(t *testing.T, err error) {
-				cErr, ok := err.(E)
-				assert.True(t, ok)
-				assert.Equal(t, "nope", cErr.Code)
+			expect: func(is *is.I, err error) {
+				cErr, ok := err.(E) //nolint:errorlint // required for test
+				is.True(ok)
+				is.Equal(cErr.Code, "nope")
 			},
 		},
 		{
 			name: "cher unknown",
 			msg:  "foo",
 			err:  New("unknown", nil),
-			expect: func(t *testing.T, err error) {
-				assert.EqualError(t, err, "foo: unknown")
+			expect: func(is *is.I, err error) {
+				is.Equal(err.Error(), "foo: unknown")
 			},
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			is := is.New(t)
+
 			result := WrapIfNotCher(tc.err, tc.msg)
-			tc.expect(t, result)
+			tc.expect(is, result)
 		})
 	}
 }
 
+//nolint:dupl // verbosity isn't an issue here
 func TestWrapIfNotCherCodes(t *testing.T) {
 	type testCase struct {
 		name   string
 		msg    string
 		err    error
-		expect func(*testing.T, error)
+		expect func(*is.I, error)
 	}
 
 	tests := []testCase{
@@ -153,42 +166,44 @@ func TestWrapIfNotCherCodes(t *testing.T) {
 			name: "nil",
 			msg:  "foo",
 			err:  nil,
-			expect: func(t *testing.T, err error) {
-				assert.NoError(t, err)
+			expect: func(is *is.I, err error) {
+				is.NoErr(err)
 			},
 		},
 		{
 			name: "err",
 			msg:  "foo",
-			err:  fmt.Errorf("nope"),
-			expect: func(t *testing.T, err error) {
-				assert.EqualError(t, err, "foo: nope")
+			err:  errors.New("nope"), //nolint:forbidigo // required for test
+			expect: func(is *is.I, err error) {
+				is.Equal(err.Error(), "foo: nope")
 			},
 		},
 		{
 			name: "cher specified code",
 			msg:  "foo",
 			err:  New("code_1", nil),
-			expect: func(t *testing.T, err error) {
-				cErr, ok := err.(E)
-				assert.True(t, ok)
-				assert.Equal(t, "code_1", cErr.Code)
+			expect: func(is *is.I, err error) {
+				cErr, ok := err.(E) //nolint:errorlint // required for test
+				is.True(ok)
+				is.Equal(cErr.Code, "code_1")
 			},
 		},
 		{
 			name: "cher other code",
 			msg:  "foo",
 			err:  New("unknown", nil),
-			expect: func(t *testing.T, err error) {
-				assert.EqualError(t, err, "foo: unknown")
+			expect: func(is *is.I, err error) {
+				is.Equal(err.Error(), "foo: unknown")
 			},
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			is := is.New(t)
+
 			result := WrapIfNotCher(tc.err, tc.msg)
-			tc.expect(t, result)
+			tc.expect(is, result)
 		})
 	}
 }

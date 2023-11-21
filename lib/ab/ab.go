@@ -1,3 +1,4 @@
+//nolint:gosec // for consistent hashing, not security
 package ab
 
 import (

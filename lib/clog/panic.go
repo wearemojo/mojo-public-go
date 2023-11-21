@@ -12,13 +12,13 @@ import (
 // Propagating a panic can be important for cases like calls made via net/http where the whole process isn't required
 // to fail because one request panics. Propagating makes sure we dont disturb upstream panic handling.
 func HandlePanic(ctx context.Context, propagate bool) {
-	r := recover()
-	if r == nil {
+	panicVal := recover()
+	if panicVal == nil {
 		return
 	}
 
-	st := make([]byte, 1<<16) // create a 2 byte stack trace buffer
-	st = st[:runtime.Stack(st, false)]
+	stack := make([]byte, 1<<16) // create a 2 byte stack trace buffer
+	stack = stack[:runtime.Stack(stack, false)]
 
 	var logger *logrus.Entry
 	ctxLogger := getContextLogger(ctx)
@@ -30,11 +30,11 @@ func HandlePanic(ctx context.Context, propagate bool) {
 
 	logger.WithFields(logrus.Fields{
 		"error":       "panic",
-		"panic":       r,
-		"stack_trace": string(st),
+		"panic":       panicVal,
+		"stack_trace": string(stack),
 	}).Error("request")
 
 	if propagate {
-		panic(r)
+		panic(panicVal)
 	}
 }

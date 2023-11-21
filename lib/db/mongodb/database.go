@@ -16,11 +16,11 @@ type Database struct {
 	*mongo.Database
 }
 
-func (d Database) Collection(name string, opts ...*options.CollectionOptions) *Collection {
-	return &Collection{d.Database.Collection(name, opts...)}
+func (db Database) Collection(name string, opts ...*options.CollectionOptions) *Collection {
+	return &Collection{db.Database.Collection(name, opts...)}
 }
 
-func (d Database) SetupSchemas(ctx context.Context, fs fs.FS, collectionNames []string) error {
+func (db Database) SetupSchemas(ctx context.Context, fs fs.FS, collectionNames []string) error {
 	for _, colName := range collectionNames {
 		file, err := fs.Open(fmt.Sprintf("%s.json", colName))
 		if err != nil {
@@ -32,12 +32,12 @@ func (d Database) SetupSchemas(ctx context.Context, fs fs.FS, collectionNames []
 			return err
 		}
 
-		var schema interface{}
+		var schema any
 		if err := json.Unmarshal(data, &schema); err != nil {
 			return err
 		}
 
-		if err := d.RunCommand(ctx, bson.D{
+		if err := db.RunCommand(ctx, bson.D{
 			{"collMod", colName},
 			{"validationLevel", "strict"},
 			{"validationAction", "error"},
@@ -58,7 +58,7 @@ func (db *Database) DoTx(ctx context.Context, fn func(ctx mongo.SessionContext) 
 
 func (db *Database) DoTxWithOptions(ctx context.Context, opts *options.SessionOptions, fn func(ctx mongo.SessionContext) error) error {
 	return db.Client().UseSessionWithOptions(ctx, opts, func(ctx mongo.SessionContext) error {
-		_, err := ctx.WithTransaction(ctx, func(ctx mongo.SessionContext) (interface{}, error) {
+		_, err := ctx.WithTransaction(ctx, func(ctx mongo.SessionContext) (any, error) {
 			return nil, fn(ctx)
 		})
 		return err

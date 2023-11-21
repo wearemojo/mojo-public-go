@@ -30,7 +30,6 @@ const (
 // MustParse unmarshals an ID from a string and panics on error.
 func MustParse(src string) ID {
 	id, err := Parse(src)
-
 	if err != nil {
 		panic(err)
 	}
@@ -70,26 +69,26 @@ func Parse(str string) (id ID, err error) {
 	return
 }
 
-func splitPrefixID(s []byte) (environment, resource string, id []byte) {
+func splitPrefixID(input []byte) (environment, resource string, id []byte) {
 	// NOTE(jc): this function is optimized to reduce conditional branching
 	// on the hot path/most common use case.
 
-	i := bytes.LastIndexByte(s, '_')
-	if i < 0 {
-		id = s
+	lastIdx := bytes.LastIndexByte(input, '_')
+	if lastIdx < 0 {
+		id = input
 		return
 	}
 
-	j := bytes.IndexByte(s[:i], '_')
-	if j > -1 {
-		environment = string(s[:j])
-		resource = string(s[j+1 : i])
-		id = s[i+1:]
+	firstIdx := bytes.IndexByte(input[:lastIdx], '_')
+	if firstIdx > -1 {
+		environment = string(input[:firstIdx])
+		resource = string(input[firstIdx+1 : lastIdx])
+		id = input[lastIdx+1:]
 		return
 	}
 
-	resource = string(s[:i])
-	id = s[i+1:]
+	resource = string(input[:lastIdx])
+	id = input[lastIdx+1:]
 
 	return
 }
@@ -106,7 +105,7 @@ func (id ID) Equal(x ID) bool {
 
 // Scan implements a custom database/sql.Scanner to support
 // unmarshaling from standard database drivers.
-func (id *ID) Scan(src interface{}) error {
+func (id *ID) Scan(src any) error {
 	switch src := src.(type) {
 	case string:
 		n, err := Parse(src)
@@ -216,15 +215,15 @@ func (id ID) Bytes() []byte {
 
 	iid := id.InstanceID.Bytes()
 
-	x := make([]byte, decodedLen)
-	y := make([]byte, encodedLen)
-	binary.BigEndian.PutUint64(x, id.Timestamp)
-	x[8] = id.InstanceID.Scheme()
-	copy(x[9:], iid[:])
-	binary.BigEndian.PutUint32(x[17:], id.SequenceID)
+	decodedBytes := make([]byte, decodedLen)
+	encodedBytes := make([]byte, encodedLen)
+	binary.BigEndian.PutUint64(decodedBytes, id.Timestamp)
+	decodedBytes[8] = id.InstanceID.Scheme()
+	copy(decodedBytes[9:], iid[:])
+	binary.BigEndian.PutUint32(decodedBytes[17:], id.SequenceID)
 
-	basex.Base62.Encode(y, x)
-	copy(dst[prefixLen+2:], y)
+	basex.Base62.Encode(encodedBytes, decodedBytes)
+	copy(dst[prefixLen+2:], encodedBytes)
 
 	dst[prefixLen] = '0'
 	dst[prefixLen+1] = '0'

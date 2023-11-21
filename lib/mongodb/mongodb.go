@@ -48,7 +48,7 @@ func (m *MongoDB) Connect(ctx context.Context, schemaFS fs.FS, collectionNames [
 }
 
 func connect(ctx context.Context, uri string) (*mongodb.Database, error) {
-	opts, dbName, err := config.MongoDB{URI: uri}.Options()
+	opts, dbName, err := config.MongoDB{URI: uri}.Options(ctx)
 	if err != nil {
 		return nil, err
 	}

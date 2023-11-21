@@ -2,43 +2,52 @@ package request
 
 import (
 	"bytes"
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
+	"github.com/matryer/is"
 	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
+	"github.com/wearemojo/mojo-public-go/lib/clog"
 )
 
 func TestResponseWriter(t *testing.T) {
 	t.Run("WriteHeader", func(t *testing.T) {
+		is := is.New(t)
+
 		w := httptest.NewRecorder()
 		rw := &responseWriter{ResponseWriter: w}
 
 		rw.WriteHeader(http.StatusTeapot)
 
-		assert.Equal(t, http.StatusTeapot, w.Code)
-		assert.Equal(t, http.StatusTeapot, rw.Status)
+		is.Equal(http.StatusTeapot, w.Code)
+		is.Equal(http.StatusTeapot, rw.Status)
 	})
 
 	t.Run("Write", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		rw := &responseWriter{ResponseWriter: w}
+		is := is.New(t)
+
+		rec := httptest.NewRecorder()
+		res := &responseWriter{ResponseWriter: rec}
 
 		data := []byte("hello")
 
-		n, err := rw.Write(data)
-		if assert.NoError(t, err) {
-			assert.Equal(t, n, 5)
-			assert.Equal(t, http.StatusOK, w.Code)
-			assert.Equal(t, http.StatusOK, rw.Status)
-			assert.Equal(t, data, w.Body.Bytes())
-		}
+		n, err := res.Write(data)
+		is.NoErr(err)
+
+		is.Equal(n, 5)
+		is.Equal(http.StatusOK, rec.Code)
+		is.Equal(http.StatusOK, res.Status)
+		is.Equal(data, rec.Body.Bytes())
 	})
 }
 
 func TestLogger(t *testing.T) {
+	ctx := context.Background()
+
 	tests := []struct {
 		Name     string
 		Status   int
@@ -51,7 +60,10 @@ func TestLogger(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
+			is := is.New(t)
+
 			log := logrus.New().WithField("foo", "bar")
+			ctx = clog.Set(ctx, log)
 
 			var buf bytes.Buffer
 			log.Logger.Out = &buf
@@ -62,36 +74,37 @@ func TestLogger(t *testing.T) {
 			next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 				handlerInvoked = true
 				w.WriteHeader(test.Status)
-				w.Write(data)
+				_, err := w.Write(data)
+				is.NoErr(err)
 			})
 
 			mw := Logger(log)
-			if assert.NotNil(t, mw) {
-				fn := mw(next)
-				if assert.NotNil(t, fn) {
-					w := httptest.NewRecorder()
-					r := &http.Request{
-						Method:     "GET",
-						URL:        &url.URL{Path: "/"},
-						Proto:      "HTTP/1.1",
-						RemoteAddr: "127.0.0.1",
-						Header: http.Header{
-							"User-Agent": []string{"FooBar"},
-							"Referer":    []string{"FooBar"},
-						},
-					}
+			is.True(mw != nil)
 
-					fn.ServeHTTP(w, r)
+			fn := mw(next)
+			is.True(fn != nil)
 
-					assert.Equal(t, test.Status, w.Code)
-					assert.Equal(t, data, w.Body.Bytes())
-					assert.True(t, handlerInvoked, "handler not invoked")
+			rec := httptest.NewRecorder()
+			r := (&http.Request{
+				Method:     http.MethodGet,
+				URL:        &url.URL{Path: "/"},
+				Proto:      "HTTP/1.1",
+				RemoteAddr: "127.0.0.1",
+				Header: http.Header{
+					"User-Agent": []string{"FooBar"},
+					"Referer":    []string{"FooBar"},
+				},
+			}).WithContext(ctx)
 
-					// TODO(jc): compare whole log entry, currently contains timestamp so
-					// plain comparison will not work
-					assert.Contains(t, buf.String(), test.Contains)
-				}
-			}
+			fn.ServeHTTP(rec, r)
+
+			is.Equal(test.Status, rec.Code)
+			is.Equal(data, rec.Body.Bytes())
+			is.True(handlerInvoked)
+
+			// TODO(jc): compare whole log entry, currently contains timestamp so
+			// plain comparison will not work
+			is.True(strings.Contains(buf.String(), test.Contains))
 		})
 	}
 }

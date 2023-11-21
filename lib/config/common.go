@@ -3,24 +3,19 @@ package config
 import (
 	"context"
 	"errors"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/go-redis/redis"
-	"github.com/sirupsen/logrus"
 	"github.com/wearemojo/mojo-public-go/lib/db/mongodb"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readconcern"
 	"go.mongodb.org/mongo-driver/mongo/writeconcern"
 	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
-	"golang.org/x/sync/errgroup"
 )
 
 // Redis configures a connection to a Redis database.
@@ -72,7 +67,7 @@ type MongoDB struct {
 }
 
 // Options returns the MongoDB client options and database name.
-func (m MongoDB) Options() (opts *options.ClientOptions, dbName string, err error) {
+func (m MongoDB) Options(ctx context.Context) (opts *options.ClientOptions, dbName string, err error) {
 	opts = options.Client().ApplyURI(m.URI)
 	opts.MaxConnIdleTime = m.MaxConnIdleTime
 	opts.MaxConnecting = m.MaxConnecting
@@ -87,7 +82,7 @@ func (m MongoDB) Options() (opts *options.ClientOptions, dbName string, err erro
 	// all Go services use majority reads/writes, and this is unlikely to change
 	// if it does change, switch to accepting as an argument
 	opts.SetReadConcern(readconcern.Majority())
-	opts.SetWriteConcern(writeconcern.New(writeconcern.WMajority(), writeconcern.J(true)))
+	opts.SetWriteConcern(writeconcern.Majority())
 
 	cs, err := connstring.Parse(m.URI)
 	if err != nil {
@@ -96,15 +91,15 @@ func (m MongoDB) Options() (opts *options.ClientOptions, dbName string, err erro
 
 	dbName = cs.Database
 	if dbName == "" {
-		err = errors.New("missing mongo database name")
+		err = merr.New(ctx, "mongo_db_name_missing", nil)
 	}
 
 	return
 }
 
 // Connect returns a connected mongo.Database instance.
-func (m MongoDB) Connect() (*mongodb.Database, error) {
-	opts, dbName, err := m.Options()
+func (m MongoDB) Connect(ctx context.Context) (*mongodb.Database, error) {
+	opts, dbName, err := m.Options(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -115,44 +110,10 @@ func (m MongoDB) Connect() (*mongodb.Database, error) {
 
 	// this package can only be used for service config
 	// so can only happen at init-time - no need to accept context input
-	ctx, cancel := context.WithTimeout(context.Background(), m.ConnectTimeout)
+	ctx, cancel := context.WithTimeout(ctx, m.ConnectTimeout)
 	defer cancel()
 
 	return mongodb.Connect(ctx, opts, dbName)
-}
-
-// JWT configures public (and optionally private) keys and issuer for
-// JSON Web Tokens. It is intended to be used in composition rather than a key.
-type JWT struct {
-	Issuer  string `json:"issuer"`
-	Public  string `json:"public"`
-	Private string `json:"private,omitempty"`
-}
-
-// AWS configures credentials for access to Amazon Web Services.
-// It is intended to be used in composition rather than a key.
-type AWS struct {
-	AccessKeyID     string `json:"access_key_id"`
-	AccessKeySecret string `json:"access_key_secret"`
-
-	Region string `json:"region,omitempty"`
-}
-
-// Credentials returns a configured set of AWS credentials.
-func (a AWS) Credentials() *credentials.Credentials {
-	if a.AccessKeyID != "" && a.AccessKeySecret != "" {
-		return credentials.NewStaticCredentials(a.AccessKeyID, a.AccessKeySecret, "")
-	}
-
-	return nil
-}
-
-// Session returns an AWS Session configured with region and credentials.
-func (a AWS) Session() (*session.Session, error) {
-	return session.NewSession(&aws.Config{
-		Region:      aws.String(a.Region),
-		Credentials: a.Credentials(),
-	})
 }
 
 // DefaultGraceful is the graceful shutdown timeout applied when no
@@ -188,7 +149,7 @@ func (cfg *Server) ListenAndServe(srv *http.Server) error {
 
 	go func() {
 		err := srv.ListenAndServe()
-		if err != http.ErrServerClosed {
+		if !errors.Is(err, http.ErrServerClosed) {
 			errs <- err
 		}
 	}()
@@ -209,51 +170,6 @@ func (cfg *Server) ListenAndServe(srv *http.Server) error {
 	}
 }
 
-func (cfg *Server) Listen() (net.Listener, error) {
-	l, err := net.Listen("tcp", cfg.Addr)
-	if err != nil {
-		return nil, err
-	}
-
-	return l, nil
-}
-
-// Serve the HTTP requests on the specified listener, and gracefully close when the context is cancelled.
-func (cfg *Server) Serve(ctx context.Context, l net.Listener, srv *http.Server) (err error) {
-	eg, egCtx := errgroup.WithContext(ctx)
-
-	eg.Go(func() error {
-		err := srv.Serve(l)
-		if err == http.ErrServerClosed {
-			return nil
-		}
-
-		return err
-	})
-
-	eg.Go(func() error {
-		select {
-		case <-ctx.Done():
-			logrus.Println("shutting down gracefully")
-			ctx, cancel := context.WithTimeout(context.Background(), cfg.GracefulTimeout())
-			defer cancel()
-			return srv.Shutdown(ctx)
-		case <-egCtx.Done():
-			return nil
-		}
-	})
-
-	return eg.Wait()
-}
-
-func (cfg *Server) GracefulTimeout() time.Duration {
-	if cfg.Graceful == 0 {
-		cfg.Graceful = DefaultGraceful
-	}
-
-	return time.Duration(cfg.Graceful) * time.Second
-}
-
 func ContextWithCancelOnSignal(ctx context.Context) context.Context {
 	ctx, cancel := context.WithCancel(ctx)
 	stop := make(chan os.Signal, 1)
@@ -268,9 +184,4 @@ func ContextWithCancelOnSignal(ctx context.Context) context.Context {
 	}()
 
 	return ctx
-}
-
-// UnderwriterOpts represents the underwriters info/models options.
-type UnderwriterOpts struct {
-	IncludeUnreleased bool `json:"include_unreleased"`
 }

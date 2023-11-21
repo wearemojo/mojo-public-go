@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestClientIP(t *testing.T) {
@@ -21,18 +21,20 @@ func TestClientIP(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
+			is := is.New(t)
+
 			handlerInvoked := false
-			w := httptest.NewRecorder()
+			rec := httptest.NewRecorder()
 			r := &http.Request{Header: http.Header{ClientIPHeader: []string{test.ClientIP}}, RemoteAddr: "1.2.3.4"}
 			next := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) { handlerInvoked = true })
 
 			hn := ClientIP(next)
-			if assert.NotNil(t, hn) {
-				hn.ServeHTTP(w, r)
+			is.True(hn != nil)
 
-				assert.Equal(t, test.ExpectedRemoteAddr, r.RemoteAddr)
-				assert.True(t, handlerInvoked, "handler not invoked")
-			}
+			hn.ServeHTTP(rec, r)
+
+			is.Equal(test.ExpectedRemoteAddr, r.RemoteAddr)
+			is.True(handlerInvoked)
 		})
 	}
 }

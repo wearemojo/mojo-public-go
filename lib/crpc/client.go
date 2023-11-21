@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path"
 
+	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/jsonclient"
 	"github.com/wearemojo/mojo-public-go/lib/servicecontext"
 	"github.com/wearemojo/mojo-public-go/lib/version"
@@ -37,22 +38,16 @@ func NewClient(ctx context.Context, baseURL string, c *http.Client) *Client {
 	return &Client{jcc}
 }
 
-// WithUASuffix updates the current user agent with an additional string
-func (c *Client) WithUASuffix(suffix string) *Client {
-	c.UserAgent = fmt.Sprintf("%s %s", c.UserAgent, suffix)
-	return c
-}
-
 // Do executes an RPC request against the configured server.
-func (c *Client) Do(ctx context.Context, method, version string, src, dst interface{}) error {
+func (c *Client) Do(ctx context.Context, method, version string, src, dst any) error {
 	err := c.Client.Do(ctx, "POST", path.Join(version, method), nil, src, dst)
 
 	if err == nil {
 		return nil
 	}
 
-	if err, ok := err.(*jsonclient.ClientTransportError); ok {
-		return &ClientTransportError{method, version, err.ErrorString, err.Cause()}
+	if err, ok := gerrors.As[jsonclient.ClientTransportError](err); ok {
+		return ClientTransportError{method, version, err.ErrorString, err.Cause()}
 	}
 
 	return err
@@ -67,11 +62,11 @@ type ClientTransportError struct {
 }
 
 // Cause returns the causal error (if wrapped) or nil
-func (cte *ClientTransportError) Cause() error {
+func (cte ClientTransportError) Cause() error {
 	return cte.cause
 }
 
-func (cte *ClientTransportError) Error() string {
+func (cte ClientTransportError) Error() string {
 	if cte.cause != nil {
 		return fmt.Sprintf("%s/%s %s: %s", cte.Version, cte.Method, cte.ErrorString, cte.cause.Error())
 	}

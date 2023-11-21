@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestHeader(t *testing.T) {
@@ -20,23 +20,25 @@ func TestHeader(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
+			is := is.New(t)
+
 			handlerInvoked := false
-			w := httptest.NewRecorder()
-			r := &http.Request{}
+			res := httptest.NewRecorder()
+			req := &http.Request{}
 			next := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) { handlerInvoked = true })
 
 			Revision = test.Revision
 			Truncated = genTruncated()
 			mw := Header(test.App)
-			if assert.NotNil(t, mw) {
-				hn := mw(next)
-				if assert.NotNil(t, hn) {
-					hn.ServeHTTP(w, r)
+			is.True(mw != nil)
 
-					assert.Equal(t, test.Expected, w.Header().Get("Server"))
-					assert.True(t, handlerInvoked, "handler not invoked")
-				}
-			}
+			hn := mw(next)
+			is.True(hn != nil)
+
+			hn.ServeHTTP(res, req)
+
+			is.Equal(test.Expected, res.Header().Get("Server"))
+			is.True(handlerInvoked)
 		})
 	}
 }

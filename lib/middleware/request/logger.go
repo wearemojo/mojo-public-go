@@ -22,15 +22,15 @@ func (rw *responseWriter) WriteHeader(code int) {
 	}
 }
 
-func (rw *responseWriter) Write(b []byte) (int, error) {
+func (rw *responseWriter) Write(bytes []byte) (int, error) {
 	if rw.Status == 0 {
 		rw.Status = http.StatusOK
 		rw.WriteHeader(http.StatusOK)
 	}
 
-	rw.Bytes += int64(len(b))
+	rw.Bytes += int64(len(bytes))
 
-	return rw.ResponseWriter.Write(b)
+	return rw.ResponseWriter.Write(bytes)
 }
 
 // Logger returns a middleware handler that wraps subsequent middleware/handlers and logs
@@ -54,18 +54,16 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			requestID := GetRequestID(r)
+			ctx := r.Context()
 
 			// create a mutable logger instance which will persist for the request
 			// inject pointer to the logger into the request context
-			r = r.WithContext(clog.Set(r.Context(), log))
+			r = r.WithContext(clog.Set(ctx, log))
 
 			// panics inside handlers will be logged to standard before propagation
-			defer clog.HandlePanic(r.Context(), true)
+			defer clog.HandlePanic(ctx, true)
 
-			clog.SetFields(r.Context(), clog.Fields{
-				"request_id": requestID,
-
+			clog.SetFields(ctx, clog.Fields{
 				"http_remote_addr":    r.RemoteAddr,
 				"http_user_agent":     r.UserAgent(),
 				"http_client_version": r.Header.Get("infra-client-version"),
@@ -76,23 +74,23 @@ func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 			})
 
 			// wrap given response writer with one that tracks status code/bytes written
-			rw := &responseWriter{ResponseWriter: w}
+			res := &responseWriter{ResponseWriter: w}
 
-			t1 := time.Now()
-			next.ServeHTTP(rw, r)
-			t2 := time.Now()
+			tStart := time.Now()
+			next.ServeHTTP(res, r)
+			tEnd := time.Now()
 
-			clog.SetFields(r.Context(), clog.Fields{
-				"http_duration":       t2.Sub(t1).String(),
-				"http_duration_us":    int64(t2.Sub(t1) / time.Microsecond),
-				"http_status":         rw.Status,
-				"http_response_bytes": rw.Bytes,
+			clog.SetFields(ctx, clog.Fields{
+				"http_duration":       tEnd.Sub(tStart).String(),
+				"http_duration_us":    int64(tEnd.Sub(tStart) / time.Microsecond),
+				"http_status":         res.Status,
+				"http_response_bytes": res.Bytes,
 			})
 
-			logger := clog.Get(r.Context())
+			logger := clog.Get(ctx)
 
 			err := getError(logger)
-			logger.Log(determineLevel(err, clog.TimeoutsAsErrors(r.Context())), "request")
+			logger.Log(determineLevel(err, clog.TimeoutsAsErrors(ctx)), "request")
 		})
 	}
 }

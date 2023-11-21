@@ -2,13 +2,12 @@ package request
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
 
 	"github.com/blang/semver"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
 const (
@@ -26,9 +25,6 @@ type ClientVersion struct {
 	Build    int
 }
 
-// ClientVersionKey is the key used for holding the parsed client version in the request context map
-const ClientVersionKey ContextKey = "Client-Version"
-
 // GetClientVersion retrieves the parsed version from a request
 func GetClientVersion(r *http.Request) *ClientVersion {
 	return GetClientVersionContext(r.Context())
@@ -36,7 +32,7 @@ func GetClientVersion(r *http.Request) *ClientVersion {
 
 // GetClientVersionContext retrieves the parsed version from a request context
 func GetClientVersionContext(ctx context.Context) *ClientVersion {
-	if clientVersion, ok := ctx.Value(ClientVersionKey).(*ClientVersion); ok {
+	if clientVersion, ok := ctx.Value(clientVersionContextKey).(*ClientVersion); ok {
 		return clientVersion
 	}
 
@@ -47,23 +43,24 @@ func GetClientVersionContext(ctx context.Context) *ClientVersion {
 // it as a struct to the context
 func ParseClientVersion(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		parsedClientVersion, err := parseVersionHeader(r.Header.Get("infra-client-version"))
+		ctx := r.Context()
+		parsedClientVersion, err := parseVersionHeader(ctx, r.Header.Get("infra-client-version"))
 		if err == nil {
-			r = r.WithContext(context.WithValue(r.Context(), ClientVersionKey, parsedClientVersion))
+			r = r.WithContext(context.WithValue(ctx, clientVersionContextKey, parsedClientVersion))
 		}
 
 		next.ServeHTTP(w, r)
 	})
 }
 
-func parseVersionHeader(clientVersionHeader string) (*ClientVersion, error) {
+func parseVersionHeader(ctx context.Context, clientVersionHeader string) (*ClientVersion, error) {
 	if clientVersionHeader == "" {
-		return nil, errors.New("client version header is empty")
+		return nil, merr.New(ctx, "client_version_missing", nil)
 	}
 
 	versionParts := clientHeaderRegexp.FindStringSubmatch(clientVersionHeader)
 	if len(versionParts) != 4 {
-		return nil, errors.New("header did not match client version pattern")
+		return nil, merr.New(ctx, "client_version_invalid", merr.M{"header": clientVersionHeader})
 	}
 
 	platform := versionParts[1]
@@ -72,12 +69,12 @@ func parseVersionHeader(clientVersionHeader string) (*ClientVersion, error) {
 
 	clientSemver, err := semver.Parse(version)
 	if err != nil {
-		return nil, fmt.Errorf("client version header invalid: semver failed: %w", err)
+		return nil, merr.New(ctx, "client_version_invalid", merr.M{"header": clientVersionHeader}, err)
 	}
 
 	build, err := strconv.Atoi(buildStr)
 	if err != nil {
-		return nil, fmt.Errorf("client version header invalid: build number failed: %w", err)
+		return nil, merr.New(ctx, "client_version_invalid", merr.M{"header": clientVersionHeader}, err)
 	}
 
 	return &ClientVersion{

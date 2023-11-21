@@ -26,12 +26,12 @@ func (f *FS) LoadJSONExt(filepath string) gojsonschema.JSONLoader {
 func (f *FS) Load(filepath string) gojsonschema.JSONLoader {
 	file, err := f.raw.Open(filepath)
 	if err != nil {
-		panic(fmt.Errorf("open json schema file: %w", err))
+		panic(err)
 	}
 
 	b, err := io.ReadAll(file)
 	if err != nil {
-		panic(fmt.Errorf("read json schema file: %s", err))
+		panic(err)
 	}
 
 	return gojsonschema.NewBytesLoader(b)

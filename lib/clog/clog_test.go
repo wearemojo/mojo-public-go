@@ -3,17 +3,18 @@ package clog
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"testing"
 
+	"github.com/matryer/is"
 	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 	"github.com/wearemojo/mojo-public-go/lib/cher"
 )
 
 func TestContextLogger(t *testing.T) {
 	t.Run("Set", func(t *testing.T) {
+		is := is.New(t)
+
 		log := logrus.New().WithField("foo", "bar")
 
 		r := &http.Request{}
@@ -21,89 +22,89 @@ func TestContextLogger(t *testing.T) {
 
 		l := Get(r.Context())
 
-		assert.Equal(t, log, l)
+		is.Equal(log, l)
 	})
 
 	t.Run("SetFields", func(t *testing.T) {
+		is := is.New(t)
+
 		log := logrus.New().WithField("foo", "bar")
 
-		r := &http.Request{}
-		r = r.WithContext(Set(r.Context(), log))
+		req := &http.Request{}
+		req = req.WithContext(Set(req.Context(), log))
 
-		err := SetFields(r.Context(), Fields{
+		SetFields(req.Context(), Fields{
 			"foo2": "bar2",
 		})
-		if err != nil {
-			t.Fatal(err)
-		}
 
-		cl := getContextLogger(r.Context()).GetLogger()
-		assert.Equal(t, "bar", cl.Data["foo"])
-		assert.Equal(t, "bar2", cl.Data["foo2"])
+		cl := getContextLogger(req.Context()).GetLogger()
+		is.Equal("bar", cl.Data["foo"])
+		is.Equal("bar2", cl.Data["foo2"])
 	})
 
 	t.Run("SetField", func(t *testing.T) {
+		is := is.New(t)
+
 		log := logrus.New().WithField("foo", "bar")
 
-		r := &http.Request{}
-		r = r.WithContext(Set(r.Context(), log))
+		req := &http.Request{}
+		req = req.WithContext(Set(req.Context(), log))
 
-		err := SetField(r.Context(), "foo2", "bar2")
-		if err != nil {
-			t.Fatal(err)
-		}
+		SetField(req.Context(), "foo2", "bar2")
 
-		cl := getContextLogger(r.Context()).GetLogger()
-		assert.Equal(t, "bar", cl.Data["foo"])
-		assert.Equal(t, "bar2", cl.Data["foo2"])
+		cl := getContextLogger(req.Context()).GetLogger()
+		is.Equal("bar", cl.Data["foo"])
+		is.Equal("bar2", cl.Data["foo2"])
 	})
 
 	t.Run("SetError", func(t *testing.T) {
+		is := is.New(t)
+
 		log := logrus.New().WithField("foo", "bar")
 
-		r := &http.Request{}
-		r = r.WithContext(Set(r.Context(), log))
+		req := &http.Request{}
+		req = req.WithContext(Set(req.Context(), log))
 
-		testError := errors.New("test error")
+		testError := errors.New("test error") //nolint:forbidigo,goerr113 // required for test
 
-		err := SetError(r.Context(), testError)
-		if err != nil {
-			t.Fatal(err)
-		}
+		SetError(req.Context(), testError)
 
-		cl := getContextLogger(r.Context()).GetLogger()
-		assert.Equal(t, testError, cl.Data["error"])
+		cl := getContextLogger(req.Context()).GetLogger()
+		is.Equal(testError, cl.Data["error"])
 	})
 
 	t.Run("Logger when no clog is set", func(t *testing.T) {
+		is := is.New(t)
+
 		r := &http.Request{}
 		l := Get(r.Context())
 
-		assert.NotNil(t, l)
-		assert.IsType(t, &logrus.Entry{}, l)
+		is.True(l != nil)
 	})
 
 	t.Run("SetField when no logger is set", func(t *testing.T) {
-		err := SetField(context.Background(), "foo", "bar")
+		defer func() { _ = recover() }()
 
-		assert.NotNil(t, err)
-		assert.Equal(t, "no clog exists in the context", err.Error())
+		SetField(context.Background(), "foo", "bar")
+
+		t.Error("should have panicked")
 	})
 
 	t.Run("SetFields when no logger is set", func(t *testing.T) {
-		err := SetFields(context.Background(), Fields{"foo": "bar"})
+		defer func() { _ = recover() }()
 
-		assert.NotNil(t, err)
-		assert.Equal(t, "no clog exists in the context", err.Error())
+		SetFields(context.Background(), Fields{"foo": "bar"})
+
+		t.Error("should have panicked")
 	})
 
 	t.Run("SetError when no logger is set", func(t *testing.T) {
-		err := SetError(context.Background(), errors.New("foo"))
+		defer func() { _ = recover() }()
 
-		assert.NotNil(t, err)
-		assert.Equal(t, "no clog exists in the context", err.Error())
+		SetError(context.Background(), errors.New("foo")) //nolint:forbidigo,goerr113 // required for test
+
+		t.Error("should have panicked")
 	})
-
 }
 
 func TestDetermineLevel(t *testing.T) {
@@ -141,19 +142,19 @@ func TestDetermineLevel(t *testing.T) {
 		},
 		{
 			name:             "postgres context cancelled",
-			err:              fmt.Errorf("pq: canceling statement due to user request"),
+			err:              errors.New("pq: canceling statement due to user request"), //nolint:forbidigo,goerr113 // required for test
 			timeoutsAsErrors: false,
 			expected:         logrus.InfoLevel,
 		},
 		{
 			name:             "postgres context cancelled with timeouts as errors",
-			err:              fmt.Errorf("pq: canceling statement due to user request"),
+			err:              errors.New("pq: canceling statement due to user request"), //nolint:forbidigo,goerr113 // required for test
 			timeoutsAsErrors: true,
 			expected:         logrus.ErrorLevel,
 		},
 		{
 			name:             "other error",
-			err:              fmt.Errorf("something something darkside"),
+			err:              errors.New("something, something darkside"), //nolint:forbidigo,goerr113 // required for test
 			timeoutsAsErrors: false,
 			expected:         logrus.ErrorLevel,
 		},
@@ -161,8 +162,10 @@ func TestDetermineLevel(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			is := is.New(t)
+
 			result := DetermineLevel(tc.err, tc.timeoutsAsErrors)
-			assert.Equal(t, tc.expected, result)
+			is.Equal(tc.expected, result)
 		})
 	}
 }

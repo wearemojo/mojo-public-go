@@ -1,50 +1,43 @@
 package config
 
 import (
-	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
-type env map[string]string
+type envGetter map[string]string
 
-func (e env) Get(k string) string {
+func (e envGetter) Get(k string) string {
 	return e[k]
 }
 
 func TestFromEnvironment(t *testing.T) {
-	env := env{ConfigEnvironmentVariable: `{"foo": "bar"}`}
+	is := is.New(t)
 
-	v := struct {
+	env := envGetter{ConfigEnvironmentVariable: `{"foo": "bar"}`}
+
+	dest := struct {
 		Foo string `json:"foo"`
 	}{}
 
-	err := FromEnvironment(env.Get, &v)
-	if assert.NoError(t, err) {
-		assert.Equal(t, "bar", v.Foo)
-	}
-}
-
-func ExampleFromEnvironment() {
-	var config struct {
-		CacheRedis Redis `json:"cache_redis"`
-	}
-
-	err := FromEnvironment(os.Getenv, &config)
-	if err != nil {
-		panic(err)
-	}
+	err := FromEnvironment(env.Get, &dest)
+	is.NoErr(err)
+	is.Equal("bar", dest.Foo)
 }
 
 func TestEnvironmentName(t *testing.T) {
-	env := env{ConfigEnvironmentVariable: `{"env": "prod"}`}
+	is := is.New(t)
 
-	assert.Equal(t, "prod", EnvironmentName(env.Get))
+	env := envGetter{ConfigEnvironmentVariable: `{"env": "prod"}`}
+
+	is.Equal("prod", EnvironmentName(env.Get))
 }
 
 func TestEnvironmentNameDev(t *testing.T) {
-	env := env{}
+	is := is.New(t)
 
-	assert.Equal(t, "local", EnvironmentName(env.Get))
+	env := envGetter{}
+
+	is.Equal("local", EnvironmentName(env.Get))
 }

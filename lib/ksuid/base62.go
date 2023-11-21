@@ -55,15 +55,15 @@ func fastDecodeBase62(dst []byte, src []byte) error {
 		base62Value(src[28]),
 	}
 
-	n := len(dst)
-	bp := parts[:]
-	bq := [encodedLen]byte{}
+	numDst := len(dst)
+	baseParts := parts[:]
+	baseQueue := [encodedLen]byte{}
 
-	for len(bp) > 0 {
-		quotient := bq[:0]
+	for len(baseParts) > 0 {
+		quotient := baseQueue[:0]
 		remainder := uint64(0)
 
-		for _, c := range bp {
+		for _, c := range baseParts {
 			value := uint64(c) + remainder*srcBase
 			digit := value / dstBase
 			remainder = value % dstBase
@@ -73,19 +73,19 @@ func fastDecodeBase62(dst []byte, src []byte) error {
 			}
 		}
 
-		if n < 4 {
+		if numDst < 4 {
 			return &ParseError{"output buffer too short"}
 		}
 
-		dst[n-4] = byte(remainder >> 24)
-		dst[n-3] = byte(remainder >> 16)
-		dst[n-2] = byte(remainder >> 8)
-		dst[n-1] = byte(remainder)
-		n -= 4
-		bp = quotient
+		dst[numDst-4] = byte(remainder >> 24)
+		dst[numDst-3] = byte(remainder >> 16)
+		dst[numDst-2] = byte(remainder >> 8)
+		dst[numDst-1] = byte(remainder)
+		numDst -= 4
+		baseParts = quotient
 	}
 
 	var zero [decodedLen]byte
-	copy(dst[:n], zero[:])
+	copy(dst[:numDst], zero[:])
 	return nil
 }

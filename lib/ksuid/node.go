@@ -8,34 +8,31 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/servicecontext"
 )
 
-var exportedNode *Node
-
-func init() {
-	var iid InstanceID
-	var err error
-
-	iid, err = NewDockerID()
-	if err != nil {
-		iid, err = NewHardwareID()
-		if err != nil {
-			iid = NewRandomID()
-		}
-	}
-
-	exportedNode = NewNode(Production, iid)
-}
-
 // Production is the internal name for production ksuid, but is omitted
 // during marshaling.
 const Production = "prod"
+
+var exportedNode = makeNode(context.Background(), Production)
+
+func makeNode(ctx context.Context, environment string) *Node {
+	if iid, err := NewDockerID(ctx); err == nil {
+		return NewNode(environment, iid)
+	}
+
+	if iid, err := NewHardwareID(ctx); err == nil {
+		return NewNode(environment, iid)
+	}
+
+	return NewNode(environment, NewRandomID())
+}
 
 // Node contains metadata used for ksuid generation for a specific machine.
 type Node struct {
 	InstanceID InstanceID
 
-	ts  uint64
-	seq uint32
-	mu  sync.Mutex
+	timestamp  uint64
+	sequence   uint32
+	sequenceMu sync.Mutex
 }
 
 // NewNode returns a ID generator for the current machine.
@@ -56,20 +53,20 @@ func (n *Node) Generate(ctx context.Context, resource string) (id ID) {
 	id.Resource = resource
 	id.InstanceID = n.InstanceID
 
-	n.mu.Lock()
+	n.sequenceMu.Lock()
 
-	ts := uint64(time.Now().UTC().Unix())
-	if (ts - n.ts) >= 1 {
-		n.ts = ts
-		n.seq = 0
+	timestamp := uint64(time.Now().UTC().Unix())
+	if (timestamp - n.timestamp) >= 1 {
+		n.timestamp = timestamp
+		n.sequence = 0
 	} else {
-		n.seq++
+		n.sequence++
 	}
 
-	id.Timestamp = ts
-	id.SequenceID = n.seq
+	id.Timestamp = timestamp
+	id.SequenceID = n.sequence
 
-	n.mu.Unlock()
+	n.sequenceMu.Unlock()
 
 	return
 }

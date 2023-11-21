@@ -6,8 +6,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/wearemojo/mojo-public-go/lib/clog"
 	"github.com/wearemojo/mojo-public-go/lib/config"
 	"github.com/wearemojo/mojo-public-go/lib/crpc"
@@ -57,22 +55,13 @@ func main() {
 	// add logging middleware
 	hw.Use(crpc.Logger())
 
-	// add default instrumentation
-	hw.Use(crpc.Instrument(prometheus.DefaultRegisterer))
-
 	// register Ping and Greet (version 2017-11-08)
 	hw.Register("ping", "2017-11-08", nil, es.Ping)
 	hw.Register("greet", "2017-11-08", example.GreetRequestSchema, es.Greet)
 
 	mux := chi.NewRouter()
 
-	mux.Use(request.RequestID)
 	mux.Use(request.Logger(log))
-
-	// mount system endpoints for health and monitoring
-	mux.Route("/system", func(mux chi.Router) {
-		mux.Handle("/metrics", promhttp.Handler())
-	})
 
 	mux.With(request.StripPrefix("/v1")).Handle("/v1/*", hw)
 
