@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go v0.110.10
 	cloud.google.com/go/kms v1.15.5
 	cloud.google.com/go/secretmanager v1.11.4
-	github.com/aws/aws-sdk-go v1.48.0
+	github.com/aws/aws-sdk-go v1.48.1
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/chebyrash/promise v0.0.0-20230709133807-42ec49ba1459
 	github.com/deckarep/golang-set/v2 v2.3.1
