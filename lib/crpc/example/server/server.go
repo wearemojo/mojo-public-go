@@ -11,7 +11,9 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/config"
 	"github.com/wearemojo/mojo-public-go/lib/crpc"
 	"github.com/wearemojo/mojo-public-go/lib/crpc/example"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/middleware/request"
+	"github.com/wearemojo/mojo-public-go/lib/mlog"
 )
 
 type ServerConfig struct {
@@ -27,7 +29,7 @@ func (es *ExampleServer) Ping(ctx context.Context) error {
 }
 
 func (es *ExampleServer) Greet(ctx context.Context, req *example.GreetRequest) (*example.GreetResponse, error) {
-	clog.Get(ctx).Info("just an example")
+	mlog.Info(ctx, merr.New(ctx, "example_log", merr.M{"name": req.Name}))
 
 	return &example.GreetResponse{
 		Greeting: fmt.Sprintf("Hello %s!", req.Name),

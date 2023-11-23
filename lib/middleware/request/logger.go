@@ -6,6 +6,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/wearemojo/mojo-public-go/lib/clog"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
+	"github.com/wearemojo/mojo-public-go/lib/mlog"
 )
 
 type responseWriter struct {
@@ -87,10 +89,27 @@ func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 				"http_response_bytes": res.Bytes,
 			})
 
-			logger := clog.Get(ctx)
+			fn := mlog.Info
+			err := getError(clog.Get(ctx))
+			if err != nil {
+				switch clog.DetermineLevel(err, clog.TimeoutsAsErrors(ctx)) {
+				case
+					logrus.PanicLevel,
+					logrus.FatalLevel,
+					logrus.ErrorLevel:
+					fn = mlog.Error
+				case
+					logrus.WarnLevel:
+					fn = mlog.Warn
+				case
+					logrus.InfoLevel,
+					logrus.DebugLevel,
+					logrus.TraceLevel:
+					fn = mlog.Info
+				}
+			}
 
-			err := getError(logger)
-			logger.Log(determineLevel(err, clog.TimeoutsAsErrors(ctx)), "request")
+			fn(ctx, merr.New(ctx, "request", nil))
 		})
 	}
 }
@@ -104,14 +123,4 @@ func getError(l *logrus.Entry) error {
 	}
 
 	return nil
-}
-
-// determineLevel returns a suggested logrus Level type based whether an error is present and what type
-func determineLevel(err error, timeoutsAsErrors bool) logrus.Level {
-	if err != nil {
-		return clog.DetermineLevel(err, timeoutsAsErrors)
-	}
-
-	// no error, default to info level
-	return logrus.InfoLevel
 }
