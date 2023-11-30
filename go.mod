@@ -8,7 +8,7 @@ require (
 	cloud.google.com/go/secretmanager v1.11.4
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/chebyrash/promise v0.0.0-20230709133807-42ec49ba1459
-	github.com/deckarep/golang-set/v2 v2.4.0
+	github.com/deckarep/golang-set/v2 v2.5.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt/v5 v5.1.0
