@@ -1,6 +1,7 @@
 package request
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -90,9 +91,11 @@ func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 				"http_response_bytes": res.Bytes,
 			})
 
-			fn := mlog.Info
 			err := getError(clog.Get(ctx))
-			if err != nil {
+			if err == nil {
+				mlog.Info(ctx, merr.New(ctx, "request_completed", nil))
+			} else {
+				var fn func(context.Context, merr.Merrer)
 				switch clog.DetermineLevel(err, clog.TimeoutsAsErrors(ctx)) {
 				case
 					logrus.PanicLevel,
@@ -108,9 +111,9 @@ func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 					logrus.TraceLevel:
 					fn = mlog.Info
 				}
-			}
 
-			fn(ctx, merr.New(ctx, "request", nil))
+				fn(ctx, merr.New(ctx, "request_failed", nil, err))
+			}
 		})
 	}
 }
