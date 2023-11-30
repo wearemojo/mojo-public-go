@@ -3,7 +3,7 @@ module github.com/wearemojo/mojo-public-go
 go 1.21
 
 require (
-	cloud.google.com/go v0.110.10
+	cloud.google.com/go v0.111.0
 	cloud.google.com/go/kms v1.15.5
 	cloud.google.com/go/secretmanager v1.11.4
 	github.com/blang/semver v3.5.1+incompatible
