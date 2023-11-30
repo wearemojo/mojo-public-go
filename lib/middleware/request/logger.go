@@ -60,7 +60,8 @@ func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 
 			// create a mutable logger instance which will persist for the request
 			// inject pointer to the logger into the request context
-			r = r.WithContext(clog.Set(ctx, log))
+			ctx = clog.Set(ctx, log)
+			r = r.WithContext(ctx)
 
 			// panics inside handlers will be logged to standard before propagation
 			defer clog.HandlePanic(ctx, true)
