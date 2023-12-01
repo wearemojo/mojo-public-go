@@ -6,9 +6,12 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/wearemojo/mojo-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/clog"
+	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog"
+	"github.com/wearemojo/mojo-public-go/lib/slicefn"
 )
 
 type responseWriter struct {
@@ -112,7 +115,13 @@ func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 					fn = mlog.Info
 				}
 
-				fn(ctx, merr.New(ctx, "request_failed", nil, err))
+				if mErr, ok := gerrors.As[merr.E](err); ok {
+					fn(ctx, mErr)
+				} else if cErr, ok := gerrors.As[cher.E](err); ok {
+					fn(ctx, merr.New(ctx, merr.Code(cErr.Code), merr.M(cErr.Meta), slicefn.Map(cErr.Reasons, func(r cher.E) error { return r })...))
+				} else {
+					fn(ctx, merr.New(ctx, "unexpected_request_failure", nil, err))
+				}
 			}
 		})
 	}
