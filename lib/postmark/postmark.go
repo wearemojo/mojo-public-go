@@ -13,6 +13,8 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/secret"
 )
 
+const baseURL = "https://api.postmarkapp.com"
+
 //nolint:tagliatelle // postmark uses title case
 type Response struct {
 	To          string    `json:"To"`
@@ -32,42 +34,24 @@ type EmailWithTemplate struct {
 }
 
 type Client struct {
-	BaseURL string
-
-	secretID string
+	client *jsonclient.Client
 }
 
-func NewClient(ctx context.Context, baseURL, secretID string) (*Client, error) {
-	if _, err := secret.Get(ctx, secretID); err != nil {
+func NewClient(ctx context.Context, serverTokenSecretID string) (*Client, error) {
+	if _, err := secret.Get(ctx, serverTokenSecretID); err != nil {
 		return nil, err
 	}
 
 	return &Client{
-		BaseURL: baseURL,
-
-		secretID: secretID,
+		client: jsonclient.NewClient(
+			baseURL,
+			httpclient.NewClient(5*time.Second, roundTripper{serverTokenSecretID}),
+		),
 	}, nil
 }
 
-func (c *Client) client(ctx context.Context) (*jsonclient.Client, error) {
-	apiKey, err := secret.Get(ctx, c.secretID)
-	if err != nil {
-		return nil, err
-	}
-
-	return jsonclient.NewClient(
-		c.BaseURL,
-		httpclient.NewClient(5*time.Second, roundTripper{apiKey}),
-	), nil
-}
-
 func (c *Client) SendWithTemplate(ctx context.Context, req *EmailWithTemplate) (res *Response, err error) {
-	jsonClient, err := c.client(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	err = jsonClient.Do(ctx, "POST", "email/withTemplate", nil, req, &res)
+	err = c.client.Do(ctx, "POST", "email/withTemplate", nil, req, &res)
 	if cerr, ok := gerrors.As[cher.E](err); ok {
 		cerr.Code = fmt.Sprintf("postmark_%s", cerr.Code)
 		return nil, cerr

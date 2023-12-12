@@ -8,12 +8,14 @@ type roundTripper struct {
 	header http.Header
 }
 
-func (h roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+func (r roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	req = req.Clone(req.Context())
+
 	if req.Header == nil {
 		req.Header = http.Header{}
 	}
 
-	for k, v := range h.header {
+	for k, v := range r.header {
 		req.Header[k] = v
 	}
 
