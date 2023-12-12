@@ -51,7 +51,7 @@ func NewClient(ctx context.Context, serverTokenSecretID string) (*Client, error)
 }
 
 func (c *Client) SendWithTemplate(ctx context.Context, req *EmailWithTemplate) (res *Response, err error) {
-	err = c.client.Do(ctx, "POST", "email/withTemplate", nil, req, &res)
+	err = c.client.Do(ctx, "POST", "/email/withTemplate", nil, req, &res)
 	if cerr, ok := gerrors.As[cher.E](err); ok {
 		cerr.Code = fmt.Sprintf("postmark_%s", cerr.Code)
 		return nil, cerr
