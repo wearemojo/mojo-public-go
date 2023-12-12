@@ -69,7 +69,7 @@ func (c *Client) Do(ctx context.Context, method, path string, params url.Values,
 
 // DoWithHeaders executes an HTTP request against the configured server with custom headers.
 func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers http.Header, params url.Values, src, dst any) error {
-	fullPath := pathlib.Join(c.Prefix, path)
+	fullPath := pathlib.Join("/", c.Prefix, path)
 	req := &http.Request{
 		Method: method,
 		URL: &url.URL{
