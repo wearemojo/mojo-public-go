@@ -41,6 +41,8 @@ func (r roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 
 	// https://web.archive.org/web/20221206045856/https://firebase.google.com/docs/cloud-messaging/auth-server#authorize-http-requests
+	// Deprecated: https://firebase.google.com/support/faq#fcm-depr-features
+	// switch to service account auth: https://firebase.google.com/docs/cloud-messaging/auth-server#provide-credentials-manually
 	req.Header.Set("Authorization", "key="+serverKey)
 
 	// https://developers.google.com/instance-id/reference/server#parameters_5

@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/go-redis/redis"
 	"github.com/matryer/is"
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/writeconcern"
 )

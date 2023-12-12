@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/blang/semver"
+	"github.com/blang/semver/v4"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 

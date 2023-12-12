@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/redis/go-redis/v9"
 	"github.com/wearemojo/mojo-public-go/lib/db/mongodb"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -41,7 +41,7 @@ func (r Redis) Options() (*redis.Options, error) {
 }
 
 // Connect returns a connected redis.Client instance.
-func (r Redis) Connect() (*redis.Client, error) {
+func (r Redis) Connect(ctx context.Context) (*redis.Client, error) {
 	opts, err := r.Options()
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (r Redis) Connect() (*redis.Client, error) {
 
 	client := redis.NewClient(opts)
 
-	if err := client.Ping().Err(); err != nil {
+	if err := client.Ping(ctx).Err(); err != nil {
 		return client, err
 	}
 

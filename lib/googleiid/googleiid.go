@@ -86,6 +86,10 @@ func (c *Client) ImportAPNSTokens(ctx context.Context, req *APNSRequest) (res *A
 	return res, c.client.Do(ctx, "POST", "iid/v1:batchImport", nil, req, &res)
 }
 
+// Deprecated: https://firebase.google.com/support/faq#fcm-depr-features
+//
+// supported equivalent: https://firebase.google.com/docs/cloud-messaging/js/client#access_the_registration_token
+// or rip from: https://github.com/firebase/firebase-js-sdk/blob/master/packages/messaging/src/internals/requests.ts#L39
 func (c *Client) ImportWebPushSubscription(ctx context.Context, req *WebPushRequest) (res *WebPushResponse, err error) {
 	// https://web.archive.org/web/20220407013020/https://developers.google.com/instance-id/reference/server#import_push_subscriptions
 	return res, c.client.Do(ctx, "POST", "v1/web/iid", nil, req, &res)
