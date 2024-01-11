@@ -47,6 +47,7 @@ type Entitlement struct {
 type Subscription struct {
 	PeriodType            PeriodType `json:"period_type"`
 	UnsubscribeDetectedAt *time.Time `json:"unsubscribe_detected_at"`
+	Store                 StoreType  `json:"store"`
 }
 
 type PeriodType string
@@ -55,6 +56,20 @@ const (
 	PeriodTypeTrial  PeriodType = "trial"
 	PeriodTypeIntro  PeriodType = "intro"
 	PeriodTypeNormal PeriodType = "normal"
+)
+
+// Possible values for store:
+// - app_store: The product was purchased through Apple App Store.
+// - play_store: The product was purchased through the Google Play Store.
+// - stripe: The product was purchased through Stripe.
+// - promotional: The product was granted via RevenueCat.
+type StoreType string
+
+const (
+	StoreTypeAppStore StoreType = "app_store"
+	StoreTypePlay     StoreType = "play_store"
+	StoreTypeStripe   StoreType = "stripe"
+	StoreTypePromo    StoreType = "promotional"
 )
 
 // https://www.revenuecat.com/reference/subscribers
