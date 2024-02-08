@@ -28,6 +28,7 @@ linters:
   - nonamedreturns # disagree
   - nosnakecase # deprecated: replaced by revive
   - paralleltest # impractical
+  - perfsprint # disagree: code readability matters more
   - protogetter # disagree
   - revive # disagree
   - scopelint # deprecated: replaced by exportloopref
