@@ -1,6 +1,6 @@
 module github.com/wearemojo/mojo-public-go
 
-go 1.21
+go 1.22.0
 
 require (
 	cloud.google.com/go v0.112.0
@@ -18,7 +18,7 @@ require (
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/xeipuuv/gojsonschema v1.2.0
-	go.mongodb.org/mongo-driver v1.13.1
+	go.mongodb.org/mongo-driver v1.14.0
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.48.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.48.0
 	go.opentelemetry.io/otel/trace v1.23.1
