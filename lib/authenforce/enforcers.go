@@ -56,7 +56,6 @@ func (e Enforcers) Run(ctx context.Context, authState any, req []byte) error {
 	var wg sync.WaitGroup
 
 	for _, enforcer := range e {
-		enforcer := enforcer
 		wg.Add(1)
 
 		go func() {

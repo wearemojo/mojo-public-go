@@ -120,8 +120,6 @@ func TestGetOrigin(t *testing.T) {
 	}, baseTests...)
 
 	for _, test := range tests {
-		test := test
-
 		t.Run(test.Name, func(t *testing.T) {
 			url, err := url.Parse(test.URL)
 			if err != nil {
@@ -145,8 +143,6 @@ func TestGetOrigin(t *testing.T) {
 
 func TestGetWebOrigin(t *testing.T) {
 	for _, test := range baseTests {
-		test := test
-
 		t.Run(test.Name, func(t *testing.T) {
 			url, err := url.Parse(test.URL)
 			if err != nil {

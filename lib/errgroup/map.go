@@ -13,7 +13,6 @@ func GroupMapAndWait[TIn, TOut any](group *Group, inputs []TIn, fn func(ctx cont
 	res = make([]TOut, len(inputs))
 
 	for idx, input := range inputs {
-		idx, input := idx, input
 		group.Go(func(ctx context.Context) (err error) {
 			res[idx], err = fn(ctx, input)
 			return
