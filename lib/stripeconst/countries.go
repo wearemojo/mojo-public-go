@@ -26,12 +26,7 @@ var EuropeanCountries = mapset.NewThreadUnsafeSet(
 	"GI",
 	"GL",
 	"GR",
-	// Stripe has removed Croatia from the list, but
-	// it seems like this might have been a mistake
-	//
-	// TODO: Check with Stripe if this is intentional
-	//
-	// "HR",
+	"HR",
 	"HU",
 	"IE",
 	"IL",
