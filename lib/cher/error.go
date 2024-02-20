@@ -63,9 +63,6 @@ func Errorf(code string, meta M, format string, args ...any) E {
 // worthy of a 500, which will alert.
 func (e E) StatusCode() int {
 	switch e.Code {
-	case BadRequest:
-		return http.StatusBadRequest
-
 	case Unauthorized:
 		return http.StatusUnauthorized
 

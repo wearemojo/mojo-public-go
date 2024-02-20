@@ -208,37 +208,31 @@ func TimeoutsAsErrors(ctx context.Context) bool {
 // DetermineLevel returns a suggested logrus Level type for a given error
 func DetermineLevel(err error, timeoutsAsErrors bool) logrus.Level {
 	if cherError, ok := gerrors.As[cher.E](err); ok {
-		switch cherError.Code {
-		// some cher codes have specific log levels
-		case cher.BadRequest, cher.RequestTimeout:
-			return logrus.WarnLevel
-		case cher.ContextCanceled:
-			if timeoutsAsErrors {
-				return logrus.ErrorLevel
-			}
-			return logrus.InfoLevel
-		case cher.Unknown, cher.CoercionError:
+		if cherError.StatusCode() >= 500 {
 			return logrus.ErrorLevel
+		}
 
-		// default cher errors are "handled" so warrant a warning
+		switch cherError.Code {
+		case cher.ContextCanceled:
+			return levelForContextCancelation(timeoutsAsErrors)
+
 		default:
 			return logrus.WarnLevel
 		}
 	}
 
 	if strings.Contains(err.Error(), "canceling statement due to user request") {
-		if timeoutsAsErrors {
-			return logrus.ErrorLevel
-		}
-		return logrus.InfoLevel
-	}
-
-	// pgx pool request context cancelled while connecting
-	if strings.Contains(err.Error(), "operation was canceled") &&
-		strings.Contains(err.Error(), "failed to connect to") {
-		return logrus.InfoLevel
+		return levelForContextCancelation(timeoutsAsErrors)
 	}
 
 	// non-cher errors are "unhandled" so warrant an error
 	return logrus.ErrorLevel
+}
+
+func levelForContextCancelation(timeoutsAsErrors bool) logrus.Level {
+	if timeoutsAsErrors {
+		return logrus.ErrorLevel
+	}
+
+	return logrus.InfoLevel
 }
