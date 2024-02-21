@@ -3,16 +3,14 @@ package ksuid
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
 	"net"
 	"os"
 
-	"github.com/wearemojo/mojo-public-go/lib/cryptorand"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
-
-var random = cryptorand.New()
 
 const (
 	ErrNoHardwareAddress = merr.Code("no_hardware_address")
@@ -102,7 +100,9 @@ func getDockerID(ctx context.Context) ([]byte, error) {
 // NewRandomID returns a RandomID initialized by a PRNG.
 func NewRandomID() InstanceID {
 	tmp := make([]byte, 8)
-	random.Read(tmp)
+	if _, err := rand.Read(tmp); err != nil {
+		panic(err)
+	}
 
 	var b [8]byte
 	copy(b[:], tmp)

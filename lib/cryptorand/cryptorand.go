@@ -3,11 +3,14 @@ package cryptorand
 import (
 	"crypto/rand"
 	"encoding/binary"
-	mathrand "math/rand"
+
+	mathrand "math/rand/v2"
 )
 
+// TODO: could this be removed entirely now that we have math/rand/v2?
+// the docs do still say "it should not be used for security-sensitive work"
+
 func New() *mathrand.Rand {
-	//nolint:gosec // this is incorrect - it is using crypto/rand
 	return mathrand.New(NewSource())
 }
 
@@ -19,12 +22,11 @@ func NewSource() mathrand.Source {
 
 func (source) Seed(_ int64) {}
 
-func (source) Int63() int64 {
+func (source) Uint64() uint64 {
 	var data [8]byte
 	if _, err := rand.Read(data[:]); err != nil {
 		panic(err)
 	}
 
-	// mask off sign bit to ensure positive number
-	return int64(binary.LittleEndian.Uint64(data[:]) & (1<<63 - 1))
+	return binary.LittleEndian.Uint64(data[:])
 }
