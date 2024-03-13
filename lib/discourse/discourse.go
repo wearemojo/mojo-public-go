@@ -6,7 +6,10 @@ import (
 
 	"github.com/wearemojo/mojo-public-go/lib/httpclient"
 	"github.com/wearemojo/mojo-public-go/lib/jsonclient"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
+
+const ErrEmptyParam = merr.Code("empty_param")
 
 type Client struct {
 	BaseURL string
@@ -22,20 +25,26 @@ func NewClient(baseURL, apiKey string) *Client {
 	}
 }
 
-func (c *Client) client(header http.Header) *jsonclient.Client {
-	return jsonclient.NewClient(
-		c.BaseURL,
-		httpclient.NewClient(10*time.Second, roundTripper{header}),
-	)
+type IdentifiedClient struct {
+	client *jsonclient.Client
 }
 
-func (c *Client) usernameClient(username string) *jsonclient.Client {
-	return c.client(http.Header{
+func (c *Client) identifiedClient(header http.Header) *IdentifiedClient {
+	return &IdentifiedClient{
+		client: jsonclient.NewClient(
+			c.BaseURL,
+			httpclient.NewClient(10*time.Second, roundTripper{header}),
+		),
+	}
+}
+
+func (c *Client) AsUsername(username string) *IdentifiedClient {
+	return c.identifiedClient(http.Header{
 		"Api-Key":      []string{c.apiKey},
 		"Api-Username": []string{username},
 	})
 }
 
-func (c *Client) systemClient() *jsonclient.Client {
-	return c.usernameClient("system")
+func (c *Client) AsSystem() *IdentifiedClient {
+	return c.AsUsername("system")
 }

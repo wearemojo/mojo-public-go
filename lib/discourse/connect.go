@@ -9,18 +9,19 @@ import (
 	"net/url"
 
 	"github.com/wearemojo/mojo-public-go/lib/cher"
+	"github.com/wearemojo/mojo-public-go/lib/jsonclient"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
 type ConnectClient struct {
-	client *Client
+	client *jsonclient.Client
 
 	connectSecret string
 }
 
 func NewConnectClient(client *Client, connectSecret string) *ConnectClient {
 	return &ConnectClient{
-		client: client,
+		client: client.AsSystem().client,
 
 		connectSecret: connectSecret,
 	}
@@ -40,7 +41,7 @@ func (c *ConnectClient) SyncSSO(ctx context.Context, params url.Values) error {
 		"sig": sig,
 	}
 
-	return c.client.systemClient().Do(ctx, "POST", "/admin/users/sync_sso", nil, req, nil)
+	return c.client.Do(ctx, "POST", "/admin/users/sync_sso", nil, req, nil)
 }
 
 func (c *ConnectClient) sign(sso string) string {
