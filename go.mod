@@ -4,8 +4,8 @@ go 1.22.0
 
 require (
 	cloud.google.com/go v0.112.1
-	cloud.google.com/go/kms v1.15.7
-	cloud.google.com/go/secretmanager v1.11.5
+	cloud.google.com/go/kms v1.15.8
+	cloud.google.com/go/secretmanager v1.11.6
 	github.com/blang/semver/v4 v4.0.0
 	github.com/chebyrash/promise v0.0.0-20230709133807-42ec49ba1459
 	github.com/deckarep/golang-set/v2 v2.6.0
@@ -24,7 +24,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.24.0
 	golang.org/x/oauth2 v0.18.0
 	golang.org/x/sync v0.6.0
-	google.golang.org/api v0.169.0
+	google.golang.org/api v0.170.0
 	google.golang.org/grpc v1.62.1
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gopkg.in/ini.v1 v1.67.0
@@ -69,7 +69,7 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20240213162025-012b6fc9bca9 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240221002015-b0ce06bbee7c // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240304161311-37d4d3c04a78 // indirect
-	google.golang.org/protobuf v1.32.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240311132316-a219d84964c2 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240311132316-a219d84964c2 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 )
