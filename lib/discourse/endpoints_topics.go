@@ -13,7 +13,7 @@ type GetTopicOptions struct {
 	Print bool
 }
 
-func (c *IdentifiedClient) GetTopic(ctx context.Context, topicID int, options *GetTopicOptions) (res *PostStreamResult, err error) {
+func (c *IdentifiedClient) GetTopic(ctx context.Context, topicID int, options *GetTopicOptions) (res *TopicResult, err error) {
 	path := fmt.Sprintf("/t/%d", topicID)
 	params := url.Values{}
 	if options != nil && options.Print {
@@ -22,9 +22,16 @@ func (c *IdentifiedClient) GetTopic(ctx context.Context, topicID int, options *G
 	return res, c.client.Do(ctx, "GET", path, params, nil, &res)
 }
 
-func (c *IdentifiedClient) ListTopicPostIDs(ctx context.Context, topicID int) (res *PostIDsResult, err error) {
-	path := fmt.Sprintf("/t/%d/posts_ids", topicID)
-	params := url.Values{"post_number": {"0"}}
+type ListTopicPostIDsOptions struct {
+	PostNumber int
+}
+
+func (c *IdentifiedClient) ListTopicPostIDs(ctx context.Context, topicID int, options *ListTopicPostIDsOptions) (res *PostIDsResult, err error) {
+	path := fmt.Sprintf("/t/%d/post_ids", topicID)
+	params := url.Values{}
+	if options != nil {
+		params.Set("post_number", strconv.Itoa(options.PostNumber))
+	}
 	return res, c.client.Do(ctx, "GET", path, params, nil, &res)
 }
 

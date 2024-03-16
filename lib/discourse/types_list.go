@@ -9,6 +9,7 @@ type CategoryList struct {
 	Categories []Category `json:"categories"`
 }
 
-type PostList struct {
-	Posts []Post `json:"posts"`
+type PostStream struct {
+	Posts  []Post `json:"posts"`
+	Stream []int  `json:"stream"`
 }

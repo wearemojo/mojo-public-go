@@ -13,8 +13,15 @@ type CategoryListResult struct {
 	CategoryList CategoryList `json:"category_list"`
 }
 
+type TopicResult struct {
+	PostStreamResult
+	Topic
+
+	UserID int `json:"user_id"`
+}
+
 type PostStreamResult struct {
-	PostStream PostList `json:"post_stream"`
+	PostStream PostStream `json:"post_stream"`
 }
 
 type PostIDsResult struct {

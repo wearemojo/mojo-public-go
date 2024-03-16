@@ -28,6 +28,29 @@ type Category struct {
 	SubcategoryList []Category `json:"subcategory_list"`
 }
 
+type Topic struct {
+	ID                int        `json:"id"`
+	Title             string     `json:"title"`
+	FancyTitle        string     `json:"fancy_title"`
+	Slug              string     `json:"slug"`
+	PostsCount        int        `json:"posts_count"`
+	ReplyCount        int        `json:"reply_count"`
+	HighestPostNumber int        `json:"highest_post_number"`
+	ImageURL          *string    `json:"image_url"`
+	CreatedAt         time.Time  `json:"created_at"`
+	LastPostedAt      *time.Time `json:"last_posted_at"`
+	Archetype         Archetype  `json:"archetype"`
+	Pinned            bool       `json:"pinned"`
+	Unpinned          *time.Time `json:"unpinned"`
+	Visible           bool       `json:"visible"`
+	Closed            bool       `json:"closed"`
+	Archived          bool       `json:"archived"`
+	Tags              []string   `json:"tags"`
+	CategoryID        int        `json:"category_id"`
+	PinnedGlobally    bool       `json:"pinned_globally"`
+	FeaturedLink      *string    `json:"featured_link"`
+}
+
 type PostNew struct {
 	Title             *string `json:"title"`
 	Raw               string  `json:"raw"`
@@ -55,6 +78,6 @@ type Post struct {
 	Wiki              bool       `json:"wiki"`
 
 	// Discourse Reactions plugin
-	Reactions           []PluginDiscourseReactionsPostReaction           `json:"reactions"`
-	CurrentUserReaction *PluginDiscourseReactionsPostReactionCurrentUser `json:"current_user_reaction"`
+	Reactions           []PluginDCReactionsPostReaction           `json:"reactions"`
+	CurrentUserReaction *PluginDCReactionsPostReactionCurrentUser `json:"current_user_reaction"`
 }
