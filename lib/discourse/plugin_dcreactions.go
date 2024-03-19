@@ -32,6 +32,6 @@ func (c *IdentifiedClient) PluginDCReactionsToggleReaction(ctx context.Context, 
 		return nil, merr.New(ctx, ErrEmptyParam, merr.M{"param": "reactionID"})
 	}
 
-	path := fmt.Sprintf("/discourse-reactions/posts/%d/custom-reactions/%s/toggle", postID, url.PathEscape(reactionID))
-	return res, c.client.Do(ctx, "GET", path, nil, nil, &res)
+	path := fmt.Sprintf("/discourse-reactions/posts/%d/custom-reactions/%s/toggle.json", postID, url.PathEscape(reactionID))
+	return res, c.client.Do(ctx, "PUT", path, nil, nil, &res)
 }
