@@ -2,6 +2,7 @@ package discourse
 
 import (
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/wearemojo/mojo-public-go/lib/httpclient"
@@ -12,12 +13,12 @@ import (
 const ErrEmptyParam = merr.Code("empty_param")
 
 type Client struct {
-	BaseURL string
+	BaseURL *url.URL
 
 	apiKey string
 }
 
-func NewClient(baseURL, apiKey string) *Client {
+func NewClient(baseURL *url.URL, apiKey string) *Client {
 	return &Client{
 		BaseURL: baseURL,
 
@@ -32,7 +33,7 @@ type IdentifiedClient struct {
 func (c *Client) identifiedClient(header http.Header) *IdentifiedClient {
 	return &IdentifiedClient{
 		client: jsonclient.NewClient(
-			c.BaseURL,
+			c.BaseURL.String(),
 			httpclient.NewClient(10*time.Second, roundTripper{header}),
 		),
 	}
