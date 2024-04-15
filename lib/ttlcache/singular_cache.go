@@ -16,6 +16,10 @@ func NewSingular[T any](ttl time.Duration) *SingularCache[T] {
 	}
 }
 
+func (c *SingularCache[T]) TTL() time.Duration {
+	return c.cache.TTL()
+}
+
 func (c *SingularCache[T]) Get() (item CachedItem[T], ok bool) {
 	return c.cache.Get(singularCacheKey)
 }

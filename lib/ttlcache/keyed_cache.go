@@ -25,12 +25,31 @@ func NewKeyed[TKey comparable, TVal any](ttl time.Duration) *KeyedCache[TKey, TV
 	}
 }
 
+func (c *KeyedCache[TKey, TVal]) TTL() time.Duration {
+	return c.ttl
+}
+
 func (c *KeyedCache[TKey, TVal]) Get(key TKey) (item CachedItem[TVal], ok bool) {
 	c.lock.RLock()
 	defer c.lock.RUnlock()
 
 	item, ok = c.items[key]
 	return
+}
+
+func (c *KeyedCache[TKey, TVal]) GetMany(keys []TKey) map[TKey]CachedItem[TVal] {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
+
+	res := make(map[TKey]CachedItem[TVal], len(keys))
+
+	for _, key := range keys {
+		if item, ok := c.items[key]; ok {
+			res[key] = item
+		}
+	}
+
+	return res
 }
 
 func (c *KeyedCache[TKey, TVal]) Set(key TKey, value TVal) {
@@ -40,6 +59,20 @@ func (c *KeyedCache[TKey, TVal]) Set(key TKey, value TVal) {
 	c.items[key] = CachedItem[TVal]{
 		Value: value,
 		SetAt: time.Now(),
+	}
+}
+
+func (c *KeyedCache[TKey, TVal]) SetMany(items map[TKey]TVal) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	now := time.Now()
+
+	for key, item := range items {
+		c.items[key] = CachedItem[TVal]{
+			Value: item,
+			SetAt: now,
+		}
 	}
 }
 
