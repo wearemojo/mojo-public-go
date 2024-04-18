@@ -35,19 +35,24 @@ type UserInfoResponse struct {
 }
 
 type Subscriber struct {
-	Entitlements  map[string]Entitlement  `json:"entitlements"`
-	Subscriptions map[string]Subscription `json:"subscriptions"`
+	Entitlements     map[string]Entitlement       `json:"entitlements"`
+	Subscriptions    map[string]Subscription      `json:"subscriptions"`
+	NonSubscriptions map[string][]NonSubscription `json:"non_subscriptions"`
 }
 
 type Entitlement struct {
-	ExpiresDate       time.Time `json:"expires_date"`
-	ProductIdentifier string    `json:"product_identifier"`
+	ExpiresDate       *time.Time `json:"expires_date"`
+	ProductIdentifier string     `json:"product_identifier"`
 }
 
 type Subscription struct {
 	PeriodType            PeriodType `json:"period_type"`
 	UnsubscribeDetectedAt *time.Time `json:"unsubscribe_detected_at"`
 	Store                 StoreType  `json:"store"`
+}
+
+type NonSubscription struct {
+	Store StoreType `json:"store"`
 }
 
 type PeriodType string
