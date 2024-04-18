@@ -10,6 +10,7 @@ type SingularCache[T any] struct {
 	cache *KeyedCache[struct{}, T]
 }
 
+// a TTL of -1 means that items never expire
 func NewSingular[T any](ttl time.Duration) *SingularCache[T] {
 	return &SingularCache[T]{
 		cache: NewKeyed[struct{}, T](ttl),
