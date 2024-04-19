@@ -39,7 +39,8 @@ func processDB() processedDB {
 			Code string `json:"code"`
 			Name string `json:"name"`
 		} `json:"emojis"`
-		TonableEmojis []string `json:"tonableEmojis"`
+		TonableEmojis []string            `json:"tonableEmojis"`
+		Aliases       map[string][]string `json:"aliases"`
 	}
 	if err := json.Unmarshal(dbJSON, &raw); err != nil {
 		panic(err)
@@ -49,13 +50,27 @@ func processDB() processedDB {
 	tonable := mapset.NewThreadUnsafeSet(raw.TonableEmojis...)
 
 	for _, emoji := range raw.Emojis {
+		aliases := raw.Aliases[emoji.Name]
 		base := slicefn.Map(strings.Split(emoji.Code, "-"), hexToRune)
+
 		emojis[emoji.Name] = string(base)
+		for _, alias := range aliases {
+			if _, ok := emojis[alias]; !ok {
+				emojis[alias] = string(base)
+			}
+		}
 
 		if tonable.Contains(emoji.Name) {
 			for i, tone := range fitzpatrickScale {
-				name := fmt.Sprintf("%s:t%d", emoji.Name, i+2)
-				emojis[name] = string(append([]rune{base[0], tone}, base[1:]...))
+				toned := string(append([]rune{base[0], tone}, base[1:]...))
+
+				emojis[fmt.Sprintf("%s:t%d", emoji.Name, i+2)] = toned
+				for _, alias := range aliases {
+					alias = fmt.Sprintf("%s:t%d", alias, i+2)
+					if _, ok := emojis[alias]; !ok {
+						emojis[alias] = toned
+					}
+				}
 			}
 		}
 	}

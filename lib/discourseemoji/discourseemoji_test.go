@@ -21,6 +21,13 @@ func TestShortcodeToEmoji(t *testing.T) {
 		{"woman_pilot:t4", "👩🏽‍✈️"},
 		{"woman_pilot:t5", "👩🏾‍✈️"},
 		{"woman_pilot:t6", "👩🏿‍✈️"},
+		{"slightly_smiling_face", "🙂"},
+		{"slight_smile", "🙂"},     // alias of slightly_smiling_face
+		{"slightly_smiling", "🙂"}, // alias of slightly_smiling_face
+		{"raising_hand_woman", "🙋‍♀️"},
+		{"raising_hand", "🙋‍♀️"}, // alias of raising_hand_woman
+		{"raising_hand_woman:t2", "🙋🏻‍♀️"},
+		{"raising_hand:t5", "🙋🏾‍♀️"}, // alias of raising_hand_woman:t5
 	}
 
 	for _, test := range tests {
