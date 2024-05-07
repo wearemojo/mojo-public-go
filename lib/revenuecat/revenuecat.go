@@ -38,6 +38,7 @@ type Subscriber struct {
 	Entitlements     map[string]Entitlement       `json:"entitlements"`
 	Subscriptions    map[string]Subscription      `json:"subscriptions"`
 	NonSubscriptions map[string][]NonSubscription `json:"non_subscriptions"`
+	ManagementURL    *string                      `json:"management_url"`
 }
 
 type Entitlement struct {
@@ -71,10 +72,10 @@ const (
 type StoreType string
 
 const (
-	StoreTypeAppStore StoreType = "app_store"
-	StoreTypePlay     StoreType = "play_store"
-	StoreTypeStripe   StoreType = "stripe"
-	StoreTypePromo    StoreType = "promotional"
+	StoreTypeAppStore    StoreType = "app_store"
+	StoreTypePlayStore   StoreType = "play_store"
+	StoreTypeStripe      StoreType = "stripe"
+	StoreTypePromotional StoreType = "promotional"
 )
 
 // https://www.revenuecat.com/reference/subscribers
@@ -85,4 +86,20 @@ func (c *Client) GetOrCreateSubscriberInfo(ctx context.Context, appUserID string
 	escapedAppUserID := url.PathEscape(appUserID)
 	path := fmt.Sprintf("/subscribers/%s", escapedAppUserID)
 	return res, c.client.Do(ctx, "GET", path, nil, nil, &res)
+}
+
+func (s *Subscriber) ActiveSubscriptionCount() int {
+	activeNonSubCount := len(s.NonSubscriptions) // always active
+	activeSubCount := 0
+	now := time.Now()
+
+	for _, e := range s.Entitlements {
+		if e.ExpiresDate.Before(now) {
+			continue
+		}
+
+		activeSubCount++
+	}
+
+	return activeNonSubCount + activeSubCount
 }
