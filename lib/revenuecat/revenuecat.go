@@ -94,7 +94,7 @@ func (s *Subscriber) ActiveSubscriptionCount() int {
 	now := time.Now()
 
 	for _, e := range s.Entitlements {
-		if e.ExpiresDate.Before(now) {
+		if e.ExpiresDate != nil && e.ExpiresDate.Before(now) {
 			continue
 		}
 
