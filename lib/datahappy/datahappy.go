@@ -16,16 +16,18 @@ var library = &Library{
 type Client struct {
 	client *jsonclient.Client
 
+	ProjectID string
 	AuthToken string
 }
 
-func NewClient(baseURL, authToken string) *Client {
+func NewClient(baseURL, projectID, authToken string) *Client {
 	return &Client{
 		client: jsonclient.NewClient(
 			baseURL,
 			httpclient.NewClient(5*time.Second, nil),
 		),
 
+		ProjectID: projectID,
 		AuthToken: authToken,
 	}
 }

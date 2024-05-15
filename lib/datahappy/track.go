@@ -17,6 +17,7 @@ const (
 )
 
 type TrackRequest struct {
+	ProjectID    string         `json:"projectId"`
 	Type         RequestType    `json:"type"`
 	AnonymousID  string         `json:"anonymousId,omitempty"`
 	UserID       string         `json:"userId,omitempty"`
@@ -33,6 +34,10 @@ type TrackRequest struct {
 func (c *Client) Track(ctx context.Context, req *TrackRequest) error {
 	// ensure no mutation of the original request
 	req = ptr.ShallowCopy(req)
+
+	if req.ProjectID == "" {
+		req.ProjectID = c.ProjectID
+	}
 
 	if req.Type == "" {
 		req.Type = RequestTypeTrack
