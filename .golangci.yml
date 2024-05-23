@@ -24,6 +24,7 @@ linters:
   - ireturn # disagree
   - lll # impractical
   - maligned # deprecated: replaced by govet
+  - mnd # disagree
   - nlreturn # disagree
   - nonamedreturns # disagree
   - nosnakecase # deprecated: replaced by revive
@@ -43,6 +44,9 @@ severity:
 
 issues:
   exclude-rules:
+  - linters:
+    - contextcheck
+    source: "ctx, opts, func\\(ctx mongo\\.SessionContext\\)"
   - linters:
     - gomoddirectives
     text: "local replacement are not allowed: github.com/wearemojo/mojo-public-go"

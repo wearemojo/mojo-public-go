@@ -3,7 +3,6 @@ package cryptorand
 import (
 	"crypto/rand"
 	"encoding/binary"
-
 	mathrand "math/rand/v2"
 )
 
@@ -11,6 +10,7 @@ import (
 // the docs do still say "it should not be used for security-sensitive work"
 
 func New() *mathrand.Rand {
+	//nolint:gosec // this is using crypto/rand
 	return mathrand.New(NewSource())
 }
 

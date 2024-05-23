@@ -73,7 +73,7 @@ func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 			clog.SetFields(ctx, clog.Fields{
 				"http_remote_addr":    r.RemoteAddr,
 				"http_user_agent":     r.UserAgent(),
-				"http_client_version": r.Header.Get("infra-client-version"),
+				"http_client_version": r.Header.Get("Infra-Client-Version"),
 				"http_path":           r.URL.Path,
 				"http_method":         r.Method,
 				"http_proto":          r.Proto,

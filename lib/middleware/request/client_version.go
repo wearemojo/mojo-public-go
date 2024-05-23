@@ -44,7 +44,7 @@ func GetClientVersionContext(ctx context.Context) *ClientVersion {
 func ParseClientVersion(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		parsedClientVersion, err := parseVersionHeader(ctx, r.Header.Get("infra-client-version"))
+		parsedClientVersion, err := parseVersionHeader(ctx, r.Header.Get("Infra-Client-Version"))
 		if err == nil {
 			r = r.WithContext(context.WithValue(ctx, clientVersionContextKey, parsedClientVersion))
 		}
