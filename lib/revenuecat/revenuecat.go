@@ -6,9 +6,11 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/samber/lo"
 	"github.com/wearemojo/mojo-public-go/lib/httpclient"
 	"github.com/wearemojo/mojo-public-go/lib/jsonclient"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
+	"golang.org/x/exp/maps"
 )
 
 const baseURL = "https://api.revenuecat.com/v1"
@@ -50,6 +52,7 @@ type Subscription struct {
 	PeriodType            PeriodType `json:"period_type"`
 	UnsubscribeDetectedAt *time.Time `json:"unsubscribe_detected_at"`
 	Store                 StoreType  `json:"store"`
+	ExpiresDate           *time.Time `json:"expires_date"`
 }
 
 type NonSubscription struct {
@@ -89,12 +92,12 @@ func (c *Client) GetOrCreateSubscriberInfo(ctx context.Context, appUserID string
 }
 
 func (s *Subscriber) ActiveSubscriptionCount() int {
-	activeNonSubCount := len(s.NonSubscriptions) // always active
+	activeNonSubCount := len(lo.Flatten(maps.Values(s.NonSubscriptions))) // always active
 	activeSubCount := 0
 	now := time.Now()
 
-	for _, e := range s.Entitlements {
-		if e.ExpiresDate != nil && e.ExpiresDate.Before(now) {
+	for _, sub := range s.Subscriptions {
+		if sub.ExpiresDate != nil && sub.ExpiresDate.Before(now) {
 			continue
 		}
 
