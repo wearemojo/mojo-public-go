@@ -3,7 +3,7 @@ module github.com/wearemojo/mojo-public-go
 go 1.22.0
 
 require (
-	cloud.google.com/go v0.113.0
+	cloud.google.com/go v0.114.0
 	cloud.google.com/go/kms v1.17.1
 	cloud.google.com/go/secretmanager v1.13.1
 	github.com/blang/semver/v4 v4.0.0
@@ -16,6 +16,7 @@ require (
 	github.com/matryer/is v1.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.5.1
+	github.com/samber/lo v1.39.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stripe/stripe-go/v78 v78.7.0
 	github.com/xeipuuv/gojsonschema v1.2.0
@@ -23,6 +24,7 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.52.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.52.0
 	go.opentelemetry.io/otel/trace v1.27.0
+	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
 	golang.org/x/net v0.25.0
 	golang.org/x/oauth2 v0.20.0
 	golang.org/x/sync v0.7.0
