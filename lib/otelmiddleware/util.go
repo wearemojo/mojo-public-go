@@ -36,7 +36,7 @@ func getGCPTraceURL(gcpProjectID, traceID string) string {
 	return fmt.Sprintf("%s/traces/list?%s", gcpBaseURL, params.Encode())
 }
 
-func getGCPTraceLogsURL(gcpProjectID, traceID string, refTime time.Time) string {
+func GetGCPTraceLogsURL(gcpProjectID, traceID string, refTime time.Time) string {
 	tracePath := getGCPTracePath(gcpProjectID, traceID)
 	query := fmt.Sprintf("(trace=\"%s\" OR labels.\"appengine.googleapis.com/trace_id\"=\"%s\")", tracePath, traceID)
 	timeRange := fmt.Sprintf("%s/%s--PT15M", refTime.Format(time.RFC3339), refTime.Format(time.RFC3339))

@@ -31,7 +31,7 @@ func TraceIDWithGCPURLs(gcpProjectID string) func(next http.Handler) http.Handle
 			if traceID != "" {
 				res.Header().Set(headerKeyID, traceID)
 				res.Header().Set(headerKeyURL, getGCPTraceURL(gcpProjectID, traceID))
-				res.Header().Set(headerKeyLogsURL, getGCPTraceLogsURL(gcpProjectID, traceID, time.Now()))
+				res.Header().Set(headerKeyLogsURL, GetGCPTraceLogsURL(gcpProjectID, traceID, time.Now()))
 			}
 
 			next.ServeHTTP(res, req)
