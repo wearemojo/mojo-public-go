@@ -45,7 +45,9 @@ func TestResolveReferencesNormal(t *testing.T) {
 	ctx := context.Background()
 	is := is.New(t)
 
-	documentMap, missingDocumentIDs, err := ResolveReferences(ctx, testInput)
+	copiedTestInput := inefficientlyDeepCopy(testInput)
+
+	documentMap, missingDocumentIDs, err := ResolveReferences(ctx, copiedTestInput)
 	is.NoErr(err)
 	is.Equal(documentMap, testOutput)
 	is.True(missingDocumentIDs != nil)
@@ -54,11 +56,17 @@ func TestResolveReferencesNormal(t *testing.T) {
 	// ensures no infinite recursion
 	_, err = json.Marshal(documentMap)
 	is.NoErr(err)
+
+	// ensures no mutation
+	is.Equal(copiedTestInput, testInput)
 }
 
 func TestResolveReferencesInfiniteRecursion(t *testing.T) {
 	// this is not exactly recommended, but it's technically valid and supported
 	// by Sanity, and therefore also supported by this package
+
+	// this test also helps prove we're mutating rather than copying anything, as
+	// any cycles would break or cause a stack overflow
 
 	ctx := context.Background()
 	is := is.New(t)
@@ -67,15 +75,33 @@ func TestResolveReferencesInfiniteRecursion(t *testing.T) {
 		{
 			"_id": "id1",
 			"ref": map[string]any{
+				"_ref": "id2",
+			},
+		},
+		{
+			"_id": "id2",
+			"ref": map[string]any{
 				"_ref": "id1",
+			},
+		},
+		{
+			"_id": "id3",
+			"ref": map[string]any{
+				"_ref": "id3",
 			},
 		},
 	})
 	is.NoErr(err)
-	is.Equal(len(documentMap), 1)
+	is.Equal(len(documentMap), 3)
 	is.True(documentMap["id1"] != nil)
 	is.Equal(documentMap["id1"]["_id"], "id1")
-	is.Equal(documentMap["id1"]["ref"], documentMap["id1"])
+	is.Equal(documentMap["id1"]["ref"], documentMap["id2"])
+	is.True(documentMap["id2"] != nil)
+	is.Equal(documentMap["id2"]["_id"], "id2")
+	is.Equal(documentMap["id2"]["ref"], documentMap["id1"])
+	is.True(documentMap["id3"] != nil)
+	is.Equal(documentMap["id3"]["_id"], "id3")
+	is.Equal(documentMap["id3"]["ref"], documentMap["id3"])
 	is.True(missingDocumentIDs != nil)
 	is.Equal(missingDocumentIDs.ToSlice(), []string{})
 

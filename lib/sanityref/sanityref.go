@@ -103,20 +103,28 @@ func ResolveReferences(ctx context.Context, documents []Document) (
 	return documentMap, missingDocumentIDs, nil
 }
 
-// Only works with types that `json` will unmarshal to when targeting `any`
+// Mutates `data` in-place, replacing any `_ref` fields with the actual
+// documents they reference
+//
+// Only accepts types that `json` will unmarshal to when targeting `any`
 // (https://pkg.go.dev/encoding/json#Unmarshal) - like `[]any`,
 // `map[string]any`, and some primitives
 //
-// Providing e.g. `[]map[string]any` will not work - map to `[]any` first
+// Container types with values that are not `any` will be rejected. Including
+// `[]map[string]any`, `map[string]string`, `map[string]map[string]any`, etc.
 func recursivelyResolve(
 	ctx context.Context,
 	data any,
 	documentMap map[string]Document,
 	missingDocumentIDs mapset.Set[string],
 ) (replacementValue any, err error) {
-	// this function must always mutate, never return new slices/maps, as we're
-	// making use of the existing pointers to ensure everything gets updated,
-	// even with potentially-infinite recursion
+	// This function must always mutate and update things in-place, never return
+	// new slices/maps. When we point to a document, we need to be referring to
+	// the memory location of the existing document, not a copy of it.
+	//
+	// We're walking the whole tree exactly once, so any nested/recursive
+	// references need to be fully resolved in one pass. Otherwise, it'd be
+	// inefficient at best, and run forever at worst.
 
 	switch data := data.(type) {
 	case map[string]any:
