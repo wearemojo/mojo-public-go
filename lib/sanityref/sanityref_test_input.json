@@ -1,0 +1,1056 @@
+[
+	{
+		"_createdAt": "2024-02-26T14:41:40Z",
+		"_id": "022b02df-c4a2-4066-9db1-277f2bbe495b",
+		"_rev": "goLk0XsDDQxPwHP2lIL3MB",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-02-26T14:41:40Z",
+		"poll": {
+			"id": "poll_000000CndqmJVNFa4RkQm308ApQXM"
+		},
+		"std_published": true
+	},
+	{
+		"_createdAt": "2024-02-26T12:41:31Z",
+		"_id": "0797eb6b-00c6-4d00-9c98-4d20ccecbeaf",
+		"_rev": "AhQsd13Ciq0lSu1Flpn7ZJ",
+		"_type": "ExpressionReusableBoolean",
+		"_updatedAt": "2024-02-26T12:41:31Z",
+		"operand": [
+			{
+				"_key": "6c0915d93aea",
+				"_type": "ExpressionArrayContainsString",
+				"arrayOperand": [
+					{
+						"_key": "35bb5b69a8d1",
+						"_ref": "b06322fb-9c3b-4129-a0f8-19ae5e3adc94",
+						"_type": "reference"
+					}
+				],
+				"stringOperand": [
+					{
+						"_key": "52dac915a009",
+						"_type": "ExpressionConstantString",
+						"value": "erection_issues"
+					}
+				]
+			}
+		],
+		"std_editorNote": "If user selected they wanted to work on erection issues in want_to_achieve",
+		"std_published": true
+	},
+	{
+		"_id": "0ca718c7-3a96-44a9-87c6-716739dacb34",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "7a2289942985",
+				"_ref": "30ee1989-a2b2-46b6-8e52-daa865fe5f8a",
+				"_type": "reference"
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-02-26T14:40:27Z",
+		"_id": "0f67314e-2bfa-444c-a211-8c183f2ef327",
+		"_rev": "goLk0XsDDQxPwHP2lIKjIR",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-02-26T14:40:27Z",
+		"poll": {
+			"id": "poll_000000CndqTALqdOwIPxnmqptZZMe"
+		},
+		"std_published": true
+	},
+	{
+		"_id": "1b56f088-90c4-48df-8dd5-c90f200c7e09",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "c025c765bf38",
+				"_ref": "b3e24566-7b2b-4416-ad3d-3fb7b2ef3702",
+				"_type": "reference"
+			}
+		]
+	},
+	{
+		"_id": "1d9f4d39-8faa-439d-b7b5-429a42b1b93d",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "70bc13f99391",
+				"_ref": "0797eb6b-00c6-4d00-9c98-4d20ccecbeaf",
+				"_type": "reference"
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-05-02T13:30:10Z",
+		"_id": "26c498db-d9bc-4cd3-ba26-d833f24a20e2",
+		"_rev": "c0pfQy22Z0bu07Aq0aO0JS",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-05-02T13:31:29Z",
+		"poll": {
+			"id": "poll_000000CemdnuZgEqFlSQxjlzQs7IA"
+		},
+		"std_editorNote": "Onboarding - relationship_status",
+		"std_published": true
+	},
+	{
+		"_id": "27b9c3af-d3f6-4ec9-ac02-6252b4382149",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "e0c35fda351c",
+				"_type": "ExpressionLogicalAnd",
+				"operands": [
+					{
+						"_key": "4e3130da9f80",
+						"_type": "ExpressionAppHasMinimumVersion",
+						"minimumVersion": "1.70.1"
+					},
+					{
+						"_key": "ff437238fadf",
+						"_type": "ExpressionStringIsEqual",
+						"operands": [
+							{
+								"_key": "ea1580b80594",
+								"_type": "ExpressionFeatureValueString",
+								"featureKeyOperand": [
+									{
+										"_key": "1d65de407567",
+										"_type": "ExpressionConstantString",
+										"value": "register_preface_variant"
+									}
+								]
+							},
+							{
+								"_key": "a9f32784a195",
+								"_type": "ExpressionConstantString",
+								"value": "start_screen"
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-05-02T13:26:16Z",
+		"_id": "30ee1989-a2b2-46b6-8e52-daa865fe5f8a",
+		"_rev": "c0pfQy22Z0bu07Aq0aOPiS",
+		"_type": "ExpressionReusableBoolean",
+		"_updatedAt": "2024-05-02T13:32:24Z",
+		"operand": [
+			{
+				"_key": "8062a520d551",
+				"_type": "ExpressionLogicalOr",
+				"operands": [
+					{
+						"_key": "57f2032b6d5d",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "5199a7d61cbd",
+								"_ref": "26c498db-d9bc-4cd3-ba26-d833f24a20e2",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "206d2c035350",
+								"_type": "ExpressionConstantString",
+								"value": "new_relationship"
+							}
+						]
+					},
+					{
+						"_key": "b96ebbc1ef2696ebe2fc0ac2ddd94e60",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "5199a7d61cbd",
+								"_ref": "26c498db-d9bc-4cd3-ba26-d833f24a20e2",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "206d2c035350",
+								"_type": "ExpressionConstantString",
+								"value": "long_term"
+							}
+						]
+					}
+				]
+			}
+		],
+		"std_editorNote": "Onboarding - relationship status - new or long term",
+		"std_published": true
+	},
+	{
+		"_id": "3b5c1ffa-8f11-4a71-9383-bcb182ee8bb2",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "f929009cf984",
+				"_ref": "0797eb6b-00c6-4d00-9c98-4d20ccecbeaf",
+				"_type": "reference"
+			}
+		]
+	},
+	{
+		"_id": "47c37892-017b-497f-b169-c6540d465de0",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "4a1c26f698b3",
+				"_ref": "d9eeb6e1-eafe-4cc8-b3ec-bd3537ffcbcb",
+				"_type": "reference"
+			}
+		]
+	},
+	{
+		"_id": "4978115c-b783-405e-8604-02c2dafa2846",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "9de68b062596",
+				"_type": "ExpressionLogicalAnd",
+				"operands": [
+					{
+						"_key": "bea2f9045aa2",
+						"_type": "ExpressionAppHasMinimumVersion",
+						"minimumVersion": "1.70.0"
+					},
+					{
+						"_key": "ba9fd9669cae",
+						"_type": "ExpressionLogicalOr",
+						"operands": [
+							{
+								"_key": "f49f7c160984",
+								"_type": "ExpressionLogicalAnd",
+								"operands": [
+									{
+										"_key": "12513c7f190d",
+										"_type": "ExpressionFeatureIsEnabled",
+										"featureKeyOperand": [
+											{
+												"_key": "141552ddaeaf",
+												"_type": "ExpressionConstantString",
+												"value": "force_24h_trial_allowed"
+											}
+										]
+									},
+									{
+										"_key": "a728b4755205",
+										"_type": "ExpressionArrayContainsString",
+										"arrayOperand": [
+											{
+												"_key": "bea9f50cdb41",
+												"_ref": "52faa539-5b12-42bf-bcc5-cb82e9ff566d",
+												"_type": "reference"
+											}
+										],
+										"stringOperand": [
+											{
+												"_key": "16a62e75fbac",
+												"_type": "ExpressionConstantString",
+												"value": "24h"
+											}
+										]
+									}
+								]
+							},
+							{
+								"_key": "fd45f2351590",
+								"_type": "ExpressionFeatureIsEnabled",
+								"featureKeyOperand": [
+									{
+										"_key": "933fdefde8ed",
+										"_type": "ExpressionConstantString",
+										"value": "24h_trial"
+									}
+								]
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	{
+		"_id": "4b024a02-fc84-401d-aedd-9e6b1f90f8c2",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "0362ae8f4998",
+				"_ref": "fd946c3d-3fc1-4ba6-82fc-f2cca44b717d",
+				"_type": "reference"
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-05-07T09:53:21Z",
+		"_id": "52faa539-5b12-42bf-bcc5-cb82e9ff566d",
+		"_rev": "D7vB9OkcEm2Q5QYimGoygi",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-05-08T07:38:18Z",
+		"poll": {
+			"id": "poll_000000CqHSPJ3ASHKyzTEn9sKM89c"
+		},
+		"std_editorNote": "Force trial duration - e.g. 24h trial",
+		"std_published": true
+	},
+	{
+		"_id": "55633999-88b3-4133-a612-1c03163243e1",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "12e453ee592a",
+				"_ref": "fd946c3d-3fc1-4ba6-82fc-f2cca44b717d",
+				"_type": "reference"
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-01-10T14:11:49Z",
+		"_id": "56a36ab2-8c8c-4aec-8c59-8a0babdb8b71",
+		"_rev": "hK0rPAxntJQBqYVPAhkejC",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-02-22T12:42:59Z",
+		"poll": {
+			"id": "poll_000000CemdnuZgEqFlSQxjlzQs7I8"
+		},
+		"std_editorNote": "Onboarding - porn_masturbating",
+		"std_published": true
+	},
+	{
+		"_createdAt": "2024-02-26T14:42:14Z",
+		"_id": "5f416ef8-e68f-43e9-afcb-dae5ae199bc8",
+		"_rev": "goLk0XsDDQxPwHP2lILBiP",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-02-26T14:42:14Z",
+		"poll": {
+			"id": "poll_000000CndrNAbWdFvPHNPLXn5hFHE"
+		},
+		"std_published": true
+	},
+	{
+		"_createdAt": "2023-11-28T10:21:07Z",
+		"_id": "60e31386-4443-4a72-9e94-edf21636d5e9",
+		"_rev": "hK0rPAxntJQBqYVPAhkejC",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-02-22T12:42:59Z",
+		"poll": {
+			"id": "poll_000000CkLbnPOqkWljHrpZ5HlY5xc"
+		},
+		"std_editorNote": "Red flags - pelvic injury",
+		"std_published": true
+	},
+	{
+		"_id": "63f5a326-e72c-4b0d-b120-14fe1b121b96",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "bbf99db4a7c2",
+				"_type": "ExpressionFeatureIsEnabled",
+				"featureKeyOperand": [
+					{
+						"_key": "b6bb87ff6e7c",
+						"_type": "ExpressionConstantString",
+						"value": "rp_personalization"
+					}
+				]
+			}
+		]
+	},
+	{
+		"_id": "6ee97a7e-71bd-47ee-aae2-40ad8f209388",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "77969b2ea415",
+				"_type": "ExpressionLogicalOr",
+				"operands": [
+					{
+						"_key": "4177eef084d5",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "d070cc745d9c",
+								"_ref": "26c498db-d9bc-4cd3-ba26-d833f24a20e2",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "9d0558af14c8",
+								"_type": "ExpressionConstantString",
+								"value": "single"
+							}
+						]
+					},
+					{
+						"_key": "03dc8da8b9a0",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "8ba672b231eb",
+								"_ref": "26c498db-d9bc-4cd3-ba26-d833f24a20e2",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "811c31752378",
+								"_type": "ExpressionConstantString",
+								"value": "not_dating"
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	{
+		"_id": "75d0d055-417f-44df-93c2-989ecad7a8eb",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "1fe8990aea60",
+				"_type": "ExpressionPlatformHasCapability",
+				"operand": "notifications"
+			}
+		]
+	},
+	{
+		"_id": "7c7de311-9ad1-4c43-9e17-95bf95ba63de",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "8f8acb3ece01",
+				"_ref": "0797eb6b-00c6-4d00-9c98-4d20ccecbeaf",
+				"_type": "reference"
+			}
+		]
+	},
+	{
+		"_id": "83cf316d-a6de-4973-bcc6-86492acc3a79",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "2ca0695f6adb",
+				"_ref": "d9eeb6e1-eafe-4cc8-b3ec-bd3537ffcbcb",
+				"_type": "reference"
+			}
+		]
+	},
+	{
+		"_id": "8b5ab1c1-cdf9-40f1-bec9-5a887b38aa74",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "838143b5f052",
+				"_ref": "fd946c3d-3fc1-4ba6-82fc-f2cca44b717d",
+				"_type": "reference"
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-05-02T13:38:27Z",
+		"_id": "9ea67b0f-3a2f-43e3-af55-a03c0b3b0748",
+		"_rev": "c0pfQy22Z0bu07Aq0aQ8FI",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-05-02T13:38:27Z",
+		"poll": {
+			"id": "poll_000000CemdnuZgEqFlSQxjlzQs7IG"
+		},
+		"std_editorNote": "Onboarding - pelvic_floor",
+		"std_published": true
+	},
+	{
+		"_id": "ab8b7c81-9b05-4f01-84e6-5364517aac29",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "e1a6c8f85511",
+				"_type": "ExpressionStringIsEqual",
+				"operands": [
+					{
+						"_key": "547de0baa11d",
+						"_type": "ExpressionContextString",
+						"contextPathOperand": [
+							{
+								"_key": "2984427330e3",
+								"_type": "ExpressionConstantString",
+								"value": "showEntireFlow"
+							}
+						]
+					},
+					{
+						"_key": "503bd5cecf9f",
+						"_type": "ExpressionConstantString",
+						"value": "true"
+					}
+				]
+			}
+		]
+	},
+	{
+		"_id": "afdd5134-8f73-4500-bc2e-0b4818801daf",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "5f8787a116ad",
+				"_ref": "d9eeb6e1-eafe-4cc8-b3ec-bd3537ffcbcb",
+				"_type": "reference"
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-02-26T12:40:30Z",
+		"_id": "b06322fb-9c3b-4129-a0f8-19ae5e3adc94",
+		"_rev": "goLk0XsDDQxPwHP2lIJji1",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-02-26T14:35:11Z",
+		"poll": {
+			"id": "poll_000000CndgwuS9oUV264EX1lVoyaO"
+		},
+		"std_published": true
+	},
+	{
+		"_createdAt": "2024-01-23T18:27:34Z",
+		"_id": "b3e24566-7b2b-4416-ad3d-3fb7b2ef3702",
+		"_rev": "hK0rPAxntJQBqYVPAhkejC",
+		"_type": "ExpressionReusableBoolean",
+		"_updatedAt": "2024-02-22T12:42:59Z",
+		"operand": [
+			{
+				"_key": "8062a520d551",
+				"_type": "ExpressionLogicalOr",
+				"operands": [
+					{
+						"_key": "4b9a85d70a08",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "014c9e3e5909",
+								"_ref": "56a36ab2-8c8c-4aec-8c59-8a0babdb8b71",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "da13708b9e71",
+								"_type": "ExpressionConstantString",
+								"value": "always"
+							}
+						]
+					},
+					{
+						"_key": "8f83251dc295ac550ba2fd07ba186ea9",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "014c9e3e5909",
+								"_ref": "56a36ab2-8c8c-4aec-8c59-8a0babdb8b71",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "da13708b9e71",
+								"_type": "ExpressionConstantString",
+								"value": "often"
+							}
+						]
+					},
+					{
+						"_key": "d97bcacd51276ed2beb9bded5b46f2b8",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "014c9e3e5909",
+								"_ref": "56a36ab2-8c8c-4aec-8c59-8a0babdb8b71",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "da13708b9e71",
+								"_type": "ExpressionConstantString",
+								"value": "sometimes"
+							}
+						]
+					},
+					{
+						"_key": "85b162b9c0f437258e99e07a9db6b949",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "014c9e3e5909",
+								"_ref": "56a36ab2-8c8c-4aec-8c59-8a0babdb8b71",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "da13708b9e71",
+								"_type": "ExpressionConstantString",
+								"value": "unsure"
+							}
+						]
+					}
+				]
+			}
+		],
+		"std_editorNote": "Onboarding - porn-positive",
+		"std_published": true
+	},
+	{
+		"_id": "b4ed85d7-17e8-49cd-b441-8858a69005fe",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "54661a4ffe15",
+				"_type": "ExpressionArrayContainsString",
+				"arrayOperand": [
+					{
+						"_key": "e43f1302c0ad",
+						"_ref": "9ea67b0f-3a2f-43e3-af55-a03c0b3b0748",
+						"_type": "reference"
+					}
+				],
+				"stringOperand": [
+					{
+						"_key": "ca7890cd60f1",
+						"_type": "ExpressionConstantString",
+						"value": "yes"
+					}
+				]
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-05-23T16:32:49Z",
+		"_id": "c2f-14ef007e-e072-4a71-98d6-5f72f5ed457f-v2-expression",
+		"_rev": "Dm0cv2b9l41z4DtaRIjQTt",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-05-23T16:32:50Z",
+		"poll": {
+			"id": "poll_000000CK1u5npZ8YcwotXzWN7P6NE"
+		},
+		"std_editorNote": "Confidence check",
+		"std_published": true
+	},
+	{
+		"_id": "c2f-1f05a3a8-52f7-4ba4-856e-96b8787d1a58",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "3e70af8d38b3",
+				"_type": "ExpressionPlatformHasCapability",
+				"operand": "notifications"
+			}
+		]
+	},
+	{
+		"_id": "c2f-33bb979f-e390-4b4e-961e-a850ff3f8688",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "hiRREm3n",
+				"_type": "ExpressionLogicalAnd",
+				"operands": [
+					{
+						"_key": "gf1XAmGQ",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "0F0w4RIn",
+								"_ref": "c2f-53e57dd8-b994-46b3-ab36-b909eae85a30-v2-expression",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "NYQICGmf",
+								"_type": "ExpressionConstantString",
+								"value": "no"
+							}
+						]
+					},
+					{
+						"_key": "tdx1hLlc",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "kEqnBrDl",
+								"_ref": "c2f-14ef007e-e072-4a71-98d6-5f72f5ed457f-v2-expression",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "A53ZJRIu",
+								"_type": "ExpressionConstantString",
+								"value": "never"
+							}
+						]
+					},
+					{
+						"_key": "EUzmIQFR",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "ro3c3RLv",
+								"_ref": "c2f-e25cb547-3234-415e-988e-5b5fb5f609f7-v2-expression",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "mu5zakK9",
+								"_type": "ExpressionConstantString",
+								"value": "no"
+							}
+						]
+					}
+				]
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-05-23T16:32:49Z",
+		"_id": "c2f-53e57dd8-b994-46b3-ab36-b909eae85a30-v2-expression",
+		"_rev": "Dm0cv2b9l41z4DtaRIjQTt",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-05-23T16:32:50Z",
+		"poll": {
+			"id": "poll_000000CK1uFJybNEiQu3I4gMt2sfQ"
+		},
+		"std_editorNote": "Confidence check",
+		"std_published": true
+	},
+	{
+		"_createdAt": "2024-05-23T16:32:49Z",
+		"_id": "c2f-e25cb547-3234-415e-988e-5b5fb5f609f7-v2-expression",
+		"_rev": "Dm0cv2b9l41z4DtaRIjQTt",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-05-23T16:32:50Z",
+		"poll": {
+			"id": "poll_000000CK1txVAWSv2RXQ8wShVScVs"
+		},
+		"std_editorNote": "Confidence check",
+		"std_published": true
+	},
+	{
+		"_id": "d5f7ec0f-63ee-4b5f-82a5-98a404701c7d",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "be4fd48cded1",
+				"_type": "ExpressionStringIsEqual",
+				"operands": [
+					{
+						"_key": "3f2f7fc87ada",
+						"_type": "ExpressionContextString",
+						"contextPathOperand": [
+							{
+								"_key": "a293b0f84fe0",
+								"_type": "ExpressionConstantString",
+								"value": "hasTrial"
+							}
+						]
+					},
+					{
+						"_key": "22d8c99bc63d",
+						"_type": "ExpressionConstantString",
+						"value": "true"
+					}
+				]
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-02-26T14:35:31Z",
+		"_id": "d9eeb6e1-eafe-4cc8-b3ec-bd3537ffcbcb",
+		"_rev": "d2giYjEzfVVwslCJ2TeWK6",
+		"_type": "ExpressionReusableBoolean",
+		"_updatedAt": "2024-04-10T09:26:08Z",
+		"operand": [
+			{
+				"_key": "75772649e2c6",
+				"_type": "ExpressionArrayContainsString",
+				"arrayOperand": [
+					{
+						"_key": "bc02d2d07416",
+						"_ref": "b06322fb-9c3b-4129-a0f8-19ae5e3adc94",
+						"_type": "reference"
+					}
+				],
+				"stringOperand": [
+					{
+						"_key": "940650014919",
+						"_type": "ExpressionConstantString",
+						"value": "rapid_ejaculation"
+					}
+				]
+			}
+		],
+		"std_editorNote": "If user selected they wanted to work on early climax in want_to_achieve",
+		"std_published": true
+	},
+	{
+		"_id": "dbf6c8c2-ba87-4b43-bc05-ab9fd7c47aee",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "951573459cb9",
+				"_type": "ExpressionFeatureIsEnabled",
+				"featureKeyOperand": [
+					{
+						"_key": "72006ed429a3",
+						"_type": "ExpressionConstantString",
+						"value": "rp_personalization"
+					}
+				]
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-02-26T14:43:07Z",
+		"_id": "dc23e269-e72e-4c60-b404-8f32d6e36f7f",
+		"_rev": "goLk0XsDDQxPwHP2lILNwp",
+		"_type": "ExpressionPollAnswerKeys",
+		"_updatedAt": "2024-02-26T14:43:07Z",
+		"poll": {
+			"id": "poll_000000CndrjCAqwnsErp03CweEtea"
+		},
+		"std_published": true
+	},
+	{
+		"_createdAt": "2024-01-23T18:27:34Z",
+		"_id": "drafts.b3e24566-7b2b-4416-ad3d-3fb7b2ef3702",
+		"_rev": "474cf94e-177f-46db-8fd1-0e48961d81c1",
+		"_type": "ExpressionReusableBoolean",
+		"_updatedAt": "2024-05-02T13:26:16Z",
+		"operand": [
+			{
+				"_key": "8062a520d551",
+				"_type": "ExpressionLogicalOr",
+				"operands": [
+					{
+						"_key": "4b9a85d70a08",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "014c9e3e5909",
+								"_ref": "56a36ab2-8c8c-4aec-8c59-8a0babdb8b71",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "da13708b9e71",
+								"_type": "ExpressionConstantString",
+								"value": "always"
+							}
+						]
+					},
+					{
+						"_key": "8f83251dc295ac550ba2fd07ba186ea9",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "014c9e3e5909",
+								"_ref": "56a36ab2-8c8c-4aec-8c59-8a0babdb8b71",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "da13708b9e71",
+								"_type": "ExpressionConstantString",
+								"value": "often"
+							}
+						]
+					},
+					{
+						"_key": "d97bcacd51276ed2beb9bded5b46f2b8",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "014c9e3e5909",
+								"_ref": "56a36ab2-8c8c-4aec-8c59-8a0babdb8b71",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "da13708b9e71",
+								"_type": "ExpressionConstantString",
+								"value": "sometimes"
+							}
+						]
+					},
+					{
+						"_key": "85b162b9c0f437258e99e07a9db6b949",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "014c9e3e5909",
+								"_ref": "56a36ab2-8c8c-4aec-8c59-8a0babdb8b71",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "da13708b9e71",
+								"_type": "ExpressionConstantString",
+								"value": "unsure"
+							}
+						]
+					}
+				]
+			}
+		],
+		"std_editorNote": "Onboarding - porn-positive",
+		"std_published": true
+	},
+	{
+		"_id": "drafts.d5f7ec0f-63ee-4b5f-82a5-98a404701c7d",
+		"_type": "FlowGroup",
+		"condition": [
+			{
+				"_key": "be4fd48cded1",
+				"_type": "ExpressionStringIsEqual",
+				"operands": [
+					{
+						"_key": "3f2f7fc87ada",
+						"_type": "ExpressionContextString",
+						"contextPathOperand": [
+							{
+								"_key": "a293b0f84fe0",
+								"_type": "ExpressionConstantString",
+								"value": "hasTrial"
+							}
+						]
+					},
+					{
+						"_key": "22d8c99bc63d",
+						"_type": "ExpressionConstantString",
+						"value": "true"
+					}
+				]
+			}
+		]
+	},
+	{
+		"_createdAt": "2024-02-26T14:43:26Z",
+		"_id": "fd946c3d-3fc1-4ba6-82fc-f2cca44b717d",
+		"_rev": "goLk0XsDDQxPwHP2lILbLd",
+		"_type": "ExpressionReusableBoolean",
+		"_updatedAt": "2024-02-26T14:43:49Z",
+		"operand": [
+			{
+				"_key": "5807c9eaf7e1",
+				"_type": "ExpressionLogicalOr",
+				"operands": [
+					{
+						"_key": "0d5d8de5b9bb",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "0deb90a0db7f",
+								"_ref": "0f67314e-2bfa-444c-a211-8c183f2ef327",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "e415debf432e",
+								"_type": "ExpressionConstantString",
+								"value": "yes"
+							}
+						]
+					},
+					{
+						"_key": "6b9190fbeba7",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "d886889d8be8",
+								"_ref": "60e31386-4443-4a72-9e94-edf21636d5e9",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "25f3ab98675c",
+								"_type": "ExpressionConstantString",
+								"value": "yes"
+							}
+						]
+					},
+					{
+						"_key": "965dac7aa2b9",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "1b01cef7304d",
+								"_ref": "022b02df-c4a2-4066-9db1-277f2bbe495b",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "d028fbb3b360",
+								"_type": "ExpressionConstantString",
+								"value": "yes"
+							}
+						]
+					},
+					{
+						"_key": "0218ff24cd61",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "97dc9f17b24b",
+								"_ref": "5f416ef8-e68f-43e9-afcb-dae5ae199bc8",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "0265b17a782d",
+								"_type": "ExpressionConstantString",
+								"value": "yes"
+							}
+						]
+					},
+					{
+						"_key": "bc47c9457946",
+						"_type": "ExpressionArrayContainsString",
+						"arrayOperand": [
+							{
+								"_key": "3a44777dd5e5",
+								"_ref": "dc23e269-e72e-4c60-b404-8f32d6e36f7f",
+								"_type": "reference"
+							}
+						],
+						"stringOperand": [
+							{
+								"_key": "4dbaf6272893",
+								"_type": "ExpressionConstantString",
+								"value": "yes"
+							}
+						]
+					}
+				]
+			}
+		],
+		"std_editorNote": "If any red flags were yes EI / RE / EI+RE",
+		"std_published": true
+	}
+]

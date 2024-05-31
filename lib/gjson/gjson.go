@@ -10,3 +10,11 @@ import (
 func Unmarshal[T any](data []byte) (res T, err error) {
 	return res, json.Unmarshal(data, &res)
 }
+
+func MustUnmarshal[T any](data []byte) T {
+	res, err := Unmarshal[T](data)
+	if err != nil {
+		panic(err)
+	}
+	return res
+}
