@@ -27,7 +27,7 @@ func TestUnmarshalToConcrete(t *testing.T) {
 func TestUnmarshalToInterface(t *testing.T) {
 	is := is.New(t)
 
-	var res interface{}
+	var res any
 	res, err := Unmarshal[testStruct]([]byte(`{"foo":"2"}`))
 	is.NoErr(err)
 	is.Equal(res, testStruct{"2"})

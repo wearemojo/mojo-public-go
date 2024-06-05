@@ -34,6 +34,7 @@ const (
 type Document = map[string]any
 
 type StrictOptions struct {
+	// TODO: maybe this should be more opt-in than opt-out? Go/backend doesn't often expect to work with images anyway
 	RejectMissingImages bool
 }
 
