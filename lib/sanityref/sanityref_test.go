@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
+	"slices"
 	"testing"
 
 	"github.com/matryer/is"
@@ -284,5 +285,13 @@ func TestResolveReferencesStrictMissingImagesReject(t *testing.T) {
 	err2, ok := gerrors.As[merr.E](err)
 	is.True(ok)
 	is.Equal(err2.Code, ErrReferencedDocumentMissing)
-	is.Equal(err2.Meta, merr.M{"missing_ids": []string{"image-id2", "image-id4"}})
+	is.Equal(len(err2.Meta), 1)
+
+	missingIDs, ok := err2.Meta["missing_ids"].([]string)
+	is.True(ok)
+
+	missingIDs = slices.Clone(missingIDs)
+	slices.Sort(missingIDs)
+
+	is.Equal(missingIDs, []string{"image-id2", "image-id4"})
 }
