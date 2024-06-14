@@ -154,7 +154,7 @@ func (e E) Value() (driver.Value, error) {
 
 // WrapIfNotCher will not wrap the error if it is any cher except unknown.
 //
-// Unless you don't know the codes you could get back, you should use WrapIfNotCherCodes.
+// If you know the codes you could get back, you should use WrapIfNotCherCodes.
 func WrapIfNotCher(err error, msg string) error {
 	if err == nil {
 		return nil
