@@ -210,7 +210,7 @@ func checkResponseType(ctx context.Context, typ reflect.Type) error {
 	case reflect.Ptr:
 		elem := typ.Elem()
 
-		if elem.Kind() != reflect.Struct {
+		if elem.Kind() != reflect.Struct && elem.Kind() != reflect.String {
 			err := checkResponseType(ctx, elem)
 			if err != nil {
 				return err

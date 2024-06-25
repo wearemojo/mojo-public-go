@@ -71,10 +71,6 @@ func TestWrap(t *testing.T) {
 			"OutputNotPointer", func(ctx context.Context) (out testOutput, err error) { return },
 			"response_type_invalid",
 		},
-		{
-			"OutputNotStructSlice", func(ctx context.Context) (out *string, err error) { return },
-			"response_type_invalid",
-		},
 	}
 
 	for _, test := range tests {
