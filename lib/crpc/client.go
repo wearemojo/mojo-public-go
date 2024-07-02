@@ -20,7 +20,7 @@ const (
 // Client represents a crpc client. It builds on top of jsonclient, so error
 // variables/structs and the authenticated round tripper live there.
 type Client struct {
-	*jsonclient.Client
+	client *jsonclient.Client
 }
 
 // NewClient returns a client configured with a transport scheme, remote host
@@ -40,7 +40,7 @@ func NewClient(ctx context.Context, baseURL string, c *http.Client) *Client {
 
 // Do executes an RPC request against the configured server.
 func (c *Client) Do(ctx context.Context, method, version string, src, dst any) error {
-	err := c.Client.Do(ctx, "POST", path.Join(version, method), nil, src, dst)
+	err := c.client.Do(ctx, "POST", path.Join(version, method), nil, src, dst)
 
 	if err == nil {
 		return nil
