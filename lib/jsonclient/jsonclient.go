@@ -72,7 +72,7 @@ func (c *Client) Do(ctx context.Context, method, path string, params url.Values,
 // DoWithHeaders executes an HTTP request against the configured server with custom headers.
 func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers http.Header, params url.Values, src, dst any) error {
 	if strings.Contains(c.Host, "community") {
-		mlog.Debug(ctx, merr.New(ctx, "discourse_api_log", merr.M{
+		mlog.Info(ctx, merr.New(ctx, "discourse_api_log", merr.M{
 			"method": method,
 			"path":   path,
 			"params": params,
