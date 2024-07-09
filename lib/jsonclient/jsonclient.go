@@ -16,6 +16,8 @@ import (
 
 	"github.com/wearemojo/mojo-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
+	"github.com/wearemojo/mojo-public-go/lib/merr"
+	"github.com/wearemojo/mojo-public-go/lib/mlog"
 	"github.com/wearemojo/mojo-public-go/lib/version"
 )
 
@@ -69,6 +71,14 @@ func (c *Client) Do(ctx context.Context, method, path string, params url.Values,
 
 // DoWithHeaders executes an HTTP request against the configured server with custom headers.
 func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers http.Header, params url.Values, src, dst any) error {
+	if c.Host == "community.mojo.so" {
+		mlog.Debug(ctx, merr.New(ctx, "discourse_api_log", merr.M{
+			"method": method,
+			"path":   path,
+			"params": params,
+		}))
+	}
+
 	fullPath := pathlib.Join("/", c.Prefix, path)
 	req := &http.Request{
 		Method: method,
