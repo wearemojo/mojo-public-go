@@ -4,8 +4,8 @@ go 1.22.0
 
 require (
 	cloud.google.com/go v0.115.0
-	cloud.google.com/go/kms v1.18.2
-	cloud.google.com/go/secretmanager v1.13.3
+	cloud.google.com/go/kms v1.18.3
+	cloud.google.com/go/secretmanager v1.13.4
 	github.com/blang/semver/v4 v4.0.0
 	github.com/chebyrash/promise v0.0.0-20230709133807-42ec49ba1459
 	github.com/deckarep/golang-set/v2 v2.6.0
