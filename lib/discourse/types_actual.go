@@ -29,26 +29,37 @@ type Category struct {
 }
 
 type Topic struct {
-	ID                int        `json:"id"`
-	Title             string     `json:"title"`
-	FancyTitle        string     `json:"fancy_title"`
-	Slug              string     `json:"slug"`
-	PostsCount        int        `json:"posts_count"`
-	ReplyCount        int        `json:"reply_count"`
-	HighestPostNumber int        `json:"highest_post_number"`
-	ImageURL          *string    `json:"image_url"`
-	CreatedAt         time.Time  `json:"created_at"`
-	LastPostedAt      *time.Time `json:"last_posted_at"`
-	Archetype         Archetype  `json:"archetype"`
-	Pinned            bool       `json:"pinned"`
-	Unpinned          *time.Time `json:"unpinned"`
-	Visible           bool       `json:"visible"`
-	Closed            bool       `json:"closed"`
-	Archived          bool       `json:"archived"`
-	Tags              []string   `json:"tags"`
-	CategoryID        int        `json:"category_id"`
-	PinnedGlobally    bool       `json:"pinned_globally"`
-	FeaturedLink      *string    `json:"featured_link"`
+	ID                int          `json:"id"`
+	Title             string       `json:"title"`
+	FancyTitle        string       `json:"fancy_title"`
+	Slug              string       `json:"slug"`
+	PostsCount        int          `json:"posts_count"`
+	ReplyCount        int          `json:"reply_count"`
+	HighestPostNumber int          `json:"highest_post_number"`
+	ImageURL          *string      `json:"image_url"`
+	CreatedAt         time.Time    `json:"created_at"`
+	LastPostedAt      *time.Time   `json:"last_posted_at"`
+	Archetype         Archetype    `json:"archetype"`
+	Pinned            bool         `json:"pinned"`
+	Unpinned          *time.Time   `json:"unpinned"`
+	Visible           bool         `json:"visible"`
+	Closed            bool         `json:"closed"`
+	Archived          bool         `json:"archived"`
+	Tags              []string     `json:"tags"`
+	CategoryID        int          `json:"category_id"`
+	PinnedGlobally    bool         `json:"pinned_globally"`
+	FeaturedLink      *string      `json:"featured_link"`
+	Details           TopicDetails `json:"details"`
+}
+
+type TopicDetails struct {
+	CreatedBy TopicCreatedBy `json:"created_by"`
+}
+
+type TopicCreatedBy struct {
+	ID             int    `json:"id"`
+	Username       string `json:"username"`
+	AvatarTemplate string `json:"avatar_template"`
 }
 
 type PostNew struct {
