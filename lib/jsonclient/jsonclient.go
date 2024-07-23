@@ -128,15 +128,14 @@ func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers
 
 func setRequestBody(req *http.Request, src any) error {
 	if src != nil {
-		var buf bytes.Buffer
-
-		err := json.NewEncoder(&buf).Encode(src)
+		data, err := json.Marshal(src)
 		if err != nil {
 			return err
 		}
 
-		req.Body = io.NopCloser(&buf)
-		req.ContentLength = int64(buf.Len())
+		req.Body = io.NopCloser(bytes.NewReader(data))
+		req.GetBody = func() (io.ReadCloser, error) { return io.NopCloser(bytes.NewReader(data)), nil }
+		req.ContentLength = int64(len(data))
 
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	}
