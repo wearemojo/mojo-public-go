@@ -15,7 +15,7 @@ require (
 	github.com/jamescun/basex v0.0.0-20180407124237-e1bcb39ab18e
 	github.com/matryer/is v1.4.1
 	github.com/pkg/errors v0.9.1
-	github.com/redis/go-redis/v9 v9.6.0
+	github.com/redis/go-redis/v9 v9.6.1
 	github.com/samber/lo v1.46.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stripe/stripe-go/v78 v78.12.0
