@@ -7,35 +7,25 @@ linters:
 
   disable:
   - cyclop # alternative: gocognit - could add if we start unit testing heavily
-  - deadcode # deprecated: replaced by unused
   - depguard # impractical
   - execinquery # broken: triggers on non-SQL queries
-  - exhaustivestruct # deprecated: replaced by exhaustruct
   - exhaustruct  # disagree - also not the intended use
   - funlen # alternative: gocognit
   - gochecknoglobals # impractical
   - godot # disagree
   - godox # disagree
-  - golint # deprecated: replaced by revive
   - gomnd # disagree
-  - ifshort # deprecated
   - inamedparam # disagree
-  - interfacer # deprecated
   - ireturn # disagree
   - lll # impractical
-  - maligned # deprecated: replaced by govet
   - mnd # disagree
   - nlreturn # disagree
   - nonamedreturns # disagree
-  - nosnakecase # deprecated: replaced by revive
   - paralleltest # impractical
   - perfsprint # disagree: code readability matters more
   - protogetter # disagree
   - revive # disagree
-  - scopelint # deprecated: replaced by exportloopref
-  - structcheck # deprecated: replaced by unused
   - testpackage # disagree
-  - varcheck # deprecated: replaced by unused
   - wrapcheck # disagree
   - wsl # disagree
 
