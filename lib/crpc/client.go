@@ -30,7 +30,7 @@ func NewClient(ctx context.Context, baseURL string, c *http.Client) *Client {
 
 	svc := servicecontext.GetContext(ctx)
 	if svc != nil {
-		jcc.UserAgent = fmt.Sprintf(userAgentTemplateWithService, version.Truncated, svc.Name, svc.Environment)
+		jcc.UserAgent = fmt.Sprintf(userAgentTemplateWithService, version.Truncated, svc.Service, svc.Env)
 	} else {
 		jcc.UserAgent = fmt.Sprintf(userAgentTemplate, version.Truncated)
 	}

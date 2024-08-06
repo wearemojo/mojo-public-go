@@ -13,6 +13,8 @@ import (
 )
 
 func GetProjectID(ctx context.Context) (string, error) {
+	// TODO: change to just using the system?
+
 	credentials, err := google.FindDefaultCredentials(ctx, compute.ComputeScope)
 	if err != nil {
 		mlog.Warn(ctx, merr.New(ctx, "gcp_default_credentials_unavailable", nil, err))

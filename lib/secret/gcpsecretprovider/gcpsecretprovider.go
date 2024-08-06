@@ -49,7 +49,7 @@ func (p *GCPSecretProvider) load(ctx context.Context, secretID string) (_ string
 		return
 	}
 
-	env := servicecontext.GetContext(ctx).Environment
+	env := servicecontext.GetContext(ctx).Env
 	res, err := smClient.AccessSecretVersion(ctx, &secretmanagerpb.AccessSecretVersionRequest{
 		Name: fmt.Sprintf("projects/%s/secrets/%s-%s/versions/latest", p.projectID, env, secretID),
 	})

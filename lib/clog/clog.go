@@ -56,7 +56,7 @@ type Config struct {
 func (c Config) Configure(ctx context.Context) *logrus.Entry {
 	var serviceName string
 	if svc := servicecontext.GetContext(ctx); svc != nil {
-		serviceName = svc.Name
+		serviceName = svc.Service
 	}
 
 	log := logrus.WithFields(logrus.Fields{
