@@ -3,7 +3,7 @@ module github.com/wearemojo/mojo-public-go
 go 1.22.0
 
 require (
-	cloud.google.com/go v0.115.0
+	cloud.google.com/go v0.115.1
 	cloud.google.com/go/kms v1.18.5
 	cloud.google.com/go/secretmanager v1.13.6
 	github.com/blang/semver/v4 v4.0.0
@@ -16,7 +16,7 @@ require (
 	github.com/matryer/is v1.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.6.1
-	github.com/samber/lo v1.46.0
+	github.com/samber/lo v1.47.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stripe/stripe-go/v78 v78.12.0
 	github.com/xeipuuv/gojsonschema v1.2.0
@@ -28,14 +28,14 @@ require (
 	golang.org/x/net v0.28.0
 	golang.org/x/oauth2 v0.22.0
 	golang.org/x/sync v0.8.0
-	google.golang.org/api v0.191.0
+	google.golang.org/api v0.192.0
 	google.golang.org/grpc v1.65.0
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gopkg.in/ini.v1 v1.67.0
 )
 
 require (
-	cloud.google.com/go/auth v0.8.0 // indirect
+	cloud.google.com/go/auth v0.8.1 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.3 // indirect
 	cloud.google.com/go/compute/metadata v0.5.0 // indirect
 	cloud.google.com/go/iam v1.1.12 // indirect
