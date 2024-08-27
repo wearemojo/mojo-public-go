@@ -201,7 +201,9 @@ func TestResolveReferencesMissingImages(t *testing.T) {
 		},
 	})
 
-	is.Equal(missingDocumentIDs.ToSlice(), []string{"image-id2", "image-id4"})
+	missingDocumentIDsSlice := missingDocumentIDs.ToSlice()
+	slices.Sort(missingDocumentIDsSlice)
+	is.Equal(missingDocumentIDsSlice, []string{"image-id2", "image-id4"})
 
 	// ensures no infinite recursion
 	_, err = json.Marshal(documentMap)
