@@ -46,8 +46,6 @@ func TestResponseWriter(t *testing.T) {
 }
 
 func TestLogger(t *testing.T) {
-	ctx := context.Background()
-
 	tests := []struct {
 		Name     string
 		Status   int
@@ -60,6 +58,7 @@ func TestLogger(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
+			ctx := context.Background()
 			is := is.New(t)
 
 			log := logrus.New().WithField("foo", "bar")
