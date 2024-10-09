@@ -1,6 +1,7 @@
 package cher
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -204,6 +205,77 @@ func TestWrapIfNotCherCodes(t *testing.T) {
 
 			result := WrapIfNotCher(tc.err, tc.msg)
 			tc.expect(is, result)
+		})
+	}
+}
+
+func TestAsCherWithCode(t *testing.T) {
+	type testCase struct {
+		name   string
+		err    error
+		codes  []string
+		expect func(is *is.I, cErr E, ok bool)
+	}
+
+	tests := []testCase{
+		{
+			name:  "nil",
+			err:   nil,
+			codes: []string{"code_1"},
+			expect: func(is *is.I, cErr E, ok bool) {
+				is.Equal(ok, false)
+			},
+		},
+		{
+			name:  "normal error",
+			err:   fmt.Errorf("nope"), //nolint:forbidigo,err113 // required for test
+			codes: []string{"code_1"},
+			expect: func(is *is.I, cErr E, ok bool) {
+				is.Equal(ok, false)
+			},
+		},
+		{
+			name:  "normal error with same string",
+			err:   fmt.Errorf("code_1"), //nolint:forbidigo,err113 // required for test
+			codes: []string{"code_1"},
+			expect: func(is *is.I, cErr E, ok bool) {
+				is.Equal(ok, false)
+			},
+		},
+		{
+			name:  "cher specified code",
+			err:   New("code_1", nil),
+			codes: []string{"code_1"},
+			expect: func(is *is.I, cErr E, ok bool) {
+				is.True(ok)
+				is.Equal(cErr.Code, "code_1")
+			},
+		},
+		{
+			name:  "cher other code",
+			err:   New("unknown", nil),
+			codes: []string{"code_1"},
+			expect: func(is *is.I, cErr E, ok bool) {
+				is.Equal(ok, false)
+			},
+		},
+		{
+			name:  "wrapped cher",
+			err:   errors.Wrap(New("code_1", nil), "wrapped"),
+			codes: []string{"code_1"},
+			expect: func(is *is.I, cErr E, ok bool) {
+				is.True(ok)
+				is.Equal(cErr.Code, "code_1")
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			is := is.New(t)
+
+			cErr, ok := AsCherWithCode(tc.err, tc.codes...)
+			tc.expect(is, cErr, ok)
 		})
 	}
 }

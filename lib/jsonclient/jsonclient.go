@@ -65,12 +65,12 @@ func NewClient(baseURL string, client *http.Client) *Client {
 }
 
 // Do executes an HTTP request against the configured server.
-func (c *Client) Do(ctx context.Context, method, path string, params url.Values, src, dst any) error {
-	return c.DoWithHeaders(ctx, method, path, nil, params, src, dst)
+func (c *Client) Do(ctx context.Context, method, path string, params url.Values, src, dst any, requestModifiers ...func(r *http.Request)) error {
+	return c.DoWithHeaders(ctx, method, path, nil, params, src, dst, requestModifiers...)
 }
 
 // DoWithHeaders executes an HTTP request against the configured server with custom headers.
-func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers http.Header, params url.Values, src, dst any) error {
+func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers http.Header, params url.Values, src, dst any, requestModifiers ...func(r *http.Request)) error {
 	// semi-temp logging for discourse request volumes.  Consider improving or removing if found.
 	if c.Host == "community.mojo.so" || c.Host == "discourse.mojo-nonprod.dev" {
 		mlog.Info(ctx, merr.New(ctx, "discourse_api_log", merr.M{
@@ -101,6 +101,10 @@ func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers
 
 	for key, value := range headers {
 		req.Header[key] = value
+	}
+
+	for _, modifier := range requestModifiers {
+		modifier(req)
 	}
 
 	err := setRequestBody(req, src)
