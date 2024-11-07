@@ -28,14 +28,14 @@ require (
 	golang.org/x/net v0.30.0
 	golang.org/x/oauth2 v0.23.0
 	golang.org/x/sync v0.8.0
-	google.golang.org/api v0.204.0
+	google.golang.org/api v0.205.0
 	google.golang.org/grpc v1.67.1
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gopkg.in/ini.v1 v1.67.0
 )
 
 require (
-	cloud.google.com/go/auth v0.10.0 // indirect
+	cloud.google.com/go/auth v0.10.1 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.5 // indirect
 	cloud.google.com/go/compute/metadata v0.5.2 // indirect
 	cloud.google.com/go/iam v1.2.1 // indirect
