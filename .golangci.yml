@@ -24,6 +24,7 @@ linters:
   - paralleltest # impractical
   - perfsprint # disagree: code readability matters more
   - protogetter # disagree
+  - recvcheck # disagree
   - revive # disagree
   - testpackage # disagree
   - wrapcheck # disagree
