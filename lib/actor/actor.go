@@ -22,6 +22,7 @@ var (
 	TypeSession            Type = "session"
 	TypeExternalCloudAuth  Type = "external_cloud_auth" // non-Mojo system
 	TypeExternalUser       Type = "external_user"       // non-Mojo user
+	TypeExternalLanggraph  Type = "external_langgraph"
 	TypeExternalRevenuecat Type = "external_revenuecat"
 )
 
@@ -103,6 +104,15 @@ func NewExternalUser(typ, id, reference string) Actor {
 			"type":      typ,
 			"id":        id,
 			"reference": reference,
+		},
+	}
+}
+
+func NewExternalLanggraph(userID ksuid.ID) Actor {
+	return Actor{
+		Type: TypeExternalLanggraph,
+		Params: map[string]any{
+			"user_id": userID.String(),
 		},
 	}
 }
