@@ -8,13 +8,11 @@ linters:
   disable:
   - cyclop # alternative: gocognit - could add if we start unit testing heavily
   - depguard # impractical
-  - execinquery # broken: triggers on non-SQL queries
   - exhaustruct  # disagree - also not the intended use
   - funlen # alternative: gocognit
   - gochecknoglobals # impractical
   - godot # disagree
   - godox # disagree
-  - gomnd # disagree
   - inamedparam # disagree
   - ireturn # disagree
   - lll # impractical
@@ -29,6 +27,7 @@ linters:
   - testpackage # disagree
   - wrapcheck # disagree
   - wsl # disagree
+  - exportloopref # No longer applies aftwer go 1.22
 
 severity:
   default-severity: error
