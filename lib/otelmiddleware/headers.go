@@ -11,18 +11,6 @@ const (
 	headerKeyLogsURL = "Trace-Logs-Url"
 )
 
-func TraceID(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		traceID := getTraceID(req)
-
-		if traceID != "" {
-			res.Header().Set(headerKeyID, traceID)
-		}
-
-		next.ServeHTTP(res, req)
-	})
-}
-
 func TraceIDWithGCPURLs(gcpProjectID string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
