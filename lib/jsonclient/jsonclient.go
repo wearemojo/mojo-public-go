@@ -105,7 +105,7 @@ func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers
 	if err != nil {
 		if netErr, ok := gerrors.As[net.Error](err); ok {
 			if netErr.Timeout() {
-				return cher.New(cher.RequestTimeout, cher.M{"method": method, "path": fullPath, "host": c.Host, "scheme": c.Scheme, "timeout_error": netErr})
+				return cher.New(cher.RequestTimeout, cher.M{"method": method, "path": fullPath, "host": c.Host, "scheme": c.Scheme, "timeout_error": netErr.Error()})
 			}
 
 			return ClientTransportError{method, path, "request failed", netErr}
