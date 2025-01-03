@@ -1,4 +1,3 @@
-//nolint:bodyclose // incorrect
 package crpc
 
 import (

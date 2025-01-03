@@ -44,7 +44,7 @@ var (
 )
 
 func BenchmarkParse(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		Check(testID, userID, 5000)
 	}
 }

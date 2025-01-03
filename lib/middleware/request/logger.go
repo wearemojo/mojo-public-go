@@ -97,36 +97,35 @@ func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 			err := getError(clog.Get(ctx))
 			if err == nil {
 				mlog.Info(ctx, merr.New(ctx, "request_completed", nil))
-			} else {
-				var fn func(context.Context, merr.Merrer)
-				switch clog.DetermineLevel(err, clog.TimeoutsAsErrors(ctx)) {
-				case
-					logrus.PanicLevel,
-					logrus.FatalLevel,
-					logrus.ErrorLevel:
-					fn = mlog.Error
-				case
-					logrus.WarnLevel:
-					fn = mlog.Warn
-				case
-					logrus.InfoLevel,
-					logrus.DebugLevel,
-					logrus.TraceLevel:
-					fn = mlog.Info
-				}
+				return
+			}
+			var fn func(context.Context, merr.Merrer)
+			switch clog.DetermineLevel(err, clog.TimeoutsAsErrors(ctx)) {
+			case
+				logrus.PanicLevel,
+				logrus.FatalLevel,
+				logrus.ErrorLevel:
+				fn = mlog.Error
+			case logrus.WarnLevel:
+				fn = mlog.Warn
+			case
+				logrus.InfoLevel,
+				logrus.DebugLevel,
+				logrus.TraceLevel:
+				fn = mlog.Info
+			}
 
-				if mErr, ok := gerrors.As[merr.E](err); ok {
-					fn(ctx, mErr)
-				} else if cErr, ok := gerrors.As[cher.E](err); ok {
-					reasons := slicefn.Map(cErr.Reasons, func(r cher.E) error { return r })
-					// If the cher error has no reasons, add the cher error itself
-					if len(reasons) == 0 {
-						reasons = append(reasons, cErr)
-					}
-					fn(ctx, merr.New(ctx, merr.Code(cErr.Code), merr.M(cErr.Meta), reasons...))
-				} else {
-					fn(ctx, merr.New(ctx, "unexpected_request_failure", nil, err))
+			if mErr, ok := gerrors.As[merr.E](err); ok {
+				fn(ctx, mErr)
+			} else if cErr, ok := gerrors.As[cher.E](err); ok {
+				reasons := slicefn.Map(cErr.Reasons, func(r cher.E) error { return r })
+				// If the cher error has no reasons, add the cher error itself
+				if len(reasons) == 0 {
+					reasons = append(reasons, cErr)
 				}
+				fn(ctx, merr.New(ctx, merr.Code(cErr.Code), merr.M(cErr.Meta), reasons...))
+			} else {
+				fn(ctx, merr.New(ctx, "unexpected_request_failure", nil, err))
 			}
 		})
 	}

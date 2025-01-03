@@ -6,7 +6,7 @@ import (
 )
 
 func BenchmarkGenerate(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		Generate(context.Background(), "user")
 	}
 }
