@@ -3,9 +3,9 @@ module github.com/wearemojo/mojo-public-go
 go 1.23
 
 require (
-	cloud.google.com/go v0.117.0
-	cloud.google.com/go/kms v1.20.3
-	cloud.google.com/go/secretmanager v1.14.2
+	cloud.google.com/go v0.118.0
+	cloud.google.com/go/kms v1.20.4
+	cloud.google.com/go/secretmanager v1.14.3
 	github.com/blang/semver/v4 v4.0.0
 	github.com/chebyrash/promise v0.0.0-20230709133807-42ec49ba1459
 	github.com/deckarep/golang-set/v2 v2.7.0
