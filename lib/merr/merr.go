@@ -16,6 +16,10 @@ var _ interface {
 	Unwrap() []error
 } = E{}
 
+type StackError interface {
+	GetStack() []stacktrace.Frame
+}
+
 // Merrer (merr-er) represents a merr-compatible error
 //
 // It primarily exists to allow `Wrap` to return nil without forcing us to use
@@ -47,7 +51,14 @@ func New(ctx context.Context, code Code, meta M, reasons ...error) E {
 			panic("merr.New: nil reason provided for " + code.String())
 		}
 	}
-
+	stack := stacktrace.GetCallerFrames(2)
+	// For errors with only one reason, we can merge stack traces so we can actually see where the error originally came from
+	if len(reasons) == 1 {
+		if stackErr, ok := reasons[0].(StackError); ok {
+			rootStack := stackErr.GetStack()
+			stack = stacktrace.MergeStacks(rootStack, stack)
+		}
+	}
 	return E{
 		Code: code,
 		Meta: meta,
@@ -55,7 +66,7 @@ func New(ctx context.Context, code Code, meta M, reasons ...error) E {
 		TraceID: spanContext.TraceID(),
 		SpanID:  spanContext.SpanID(),
 
-		Stack: stacktrace.GetCallerFrames(2),
+		Stack: stack,
 
 		Reasons: reasons,
 	}
@@ -121,4 +132,8 @@ func (e E) Is(err error) bool {
 // Unwrap enables the use of `errors.Unwrap`
 func (e E) Unwrap() []error {
 	return e.Reasons
+}
+
+func (e E) GetStack() []stacktrace.Frame {
+	return e.Stack
 }

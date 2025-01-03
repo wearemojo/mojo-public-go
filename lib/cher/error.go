@@ -8,6 +8,7 @@ import (
 	"slices"
 
 	"github.com/pkg/errors"
+	"github.com/wearemojo/mojo-public-go/lib/stacktrace"
 )
 
 // errors that are expected to be common across services
@@ -32,16 +33,24 @@ const (
 
 // E implements the official CHER structure
 type E struct {
-	Code    string `json:"code"`
-	Meta    M      `json:"meta,omitempty"`
-	Reasons []E    `json:"reasons,omitempty"`
+	Code    string             `json:"code"`
+	Meta    M                  `json:"meta,omitempty"`
+	stack   []stacktrace.Frame `json:"-"`
+	Reasons []E                `json:"reasons,omitempty"`
 }
 
 // New returns a new E structure with code, meta, and optional reasons.
 func New(code string, meta M, reasons ...E) E {
+	// For errors with only one reason, we can merge stack traces so we can actually see where the error originally came from
+	stack := stacktrace.GetCallerFrames(2)
+	if len(reasons) == 1 {
+		rootStack := reasons[0].stack
+		stack = stacktrace.MergeStacks(rootStack, stack)
+	}
 	return E{
 		Code:    code,
 		Meta:    meta,
+		stack:   stack,
 		Reasons: reasons,
 	}
 }
@@ -101,6 +110,10 @@ func (e E) Serialize() string {
 	}
 
 	return string(output)
+}
+
+func (e E) GetStack() []stacktrace.Frame {
+	return e.stack
 }
 
 // M it an alias type for map[string]any

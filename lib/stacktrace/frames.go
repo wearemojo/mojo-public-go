@@ -60,3 +60,29 @@ func FormatFrames(frames []Frame) string {
 
 	return sb.String()
 }
+
+// insert will put frame u into slice s at index at
+func insert(s []Frame, u Frame, at int) []Frame {
+	return append(s[:at], append([]Frame{u}, s[at:]...)...)
+}
+
+func MergeStacks(root []Frame, wrapped []Frame) []Frame {
+	if len(wrapped) == 0 {
+		return root
+	}
+	if len(wrapped) == 1 {
+		return append(root, wrapped[0])
+	}
+
+	for idx, f := range root {
+		if f == wrapped[0] {
+			// root already contains the first frame of wrapped
+			return root
+		}
+		if f == wrapped[1] {
+			// Insert the first frame into the stack if the second frame is found
+			return insert(root, wrapped[0], idx)
+		}
+	}
+	return root
+}

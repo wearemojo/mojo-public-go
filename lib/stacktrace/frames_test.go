@@ -65,3 +65,51 @@ func TestFormatFrames(t *testing.T) {
 
 	is.Equal(FormatFrames(frames), expectedFormat)
 }
+
+func TestMergeFrames(t *testing.T) {
+	is := is.New(t)
+
+	root := []Frame{
+		{
+			File:     "/lib/foo/foo.go",
+			Line:     123,
+			Function: "github.com/wearemojo/mojo-public-go/lib/foo.doFoo",
+		},
+		{
+			File:     "/lib/foo/bar.go",
+			Line:     456,
+			Function: "github.com/wearemojo/mojo-public-go/lib/foo.barThing",
+		},
+	}
+
+	wrapped := []Frame{
+		{
+			File:     "/lib/foo/baz.go",
+			Line:     789,
+			Function: "github.com/wearemojo/mojo-public-go/lib/foo.bazThing",
+		},
+		{
+			File:     "/lib/foo/foo.go",
+			Line:     123,
+			Function: "github.com/wearemojo/mojo-public-go/lib/foo.doFoo",
+		},
+	}
+
+	is.Equal(MergeStacks(root, wrapped), []Frame{
+		{
+			File:     "/lib/foo/baz.go",
+			Line:     789,
+			Function: "github.com/wearemojo/mojo-public-go/lib/foo.bazThing",
+		},
+		{
+			File:     "/lib/foo/foo.go",
+			Line:     123,
+			Function: "github.com/wearemojo/mojo-public-go/lib/foo.doFoo",
+		},
+		{
+			File:     "/lib/foo/bar.go",
+			Line:     456,
+			Function: "github.com/wearemojo/mojo-public-go/lib/foo.barThing",
+		},
+	})
+}

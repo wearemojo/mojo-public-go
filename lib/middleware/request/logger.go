@@ -118,7 +118,12 @@ func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 				if mErr, ok := gerrors.As[merr.E](err); ok {
 					fn(ctx, mErr)
 				} else if cErr, ok := gerrors.As[cher.E](err); ok {
-					fn(ctx, merr.New(ctx, merr.Code(cErr.Code), merr.M(cErr.Meta), slicefn.Map(cErr.Reasons, func(r cher.E) error { return r })...))
+					reasons := slicefn.Map(cErr.Reasons, func(r cher.E) error { return r })
+					// If the cher error has no reasons, add the cher error itself
+					if len(reasons) == 0 {
+						reasons = append(reasons, cErr)
+					}
+					fn(ctx, merr.New(ctx, merr.Code(cErr.Code), merr.M(cErr.Meta), reasons...))
 				} else {
 					fn(ctx, merr.New(ctx, "unexpected_request_failure", nil, err))
 				}
