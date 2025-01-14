@@ -40,6 +40,5 @@ func MustGetWebOrigin(ctx context.Context, in *url.URL) string {
 	if err != nil {
 		panic(err)
 	}
-
 	return webOrigin
 }
