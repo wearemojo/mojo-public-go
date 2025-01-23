@@ -9,6 +9,7 @@ linters:
   - cyclop # alternative: gocognit - could add if we start unit testing heavily
   - depguard # impractical
   - exhaustruct  # disagree - also not the intended use
+  - exportloopref # No longer applies after go 1.22
   - funlen # alternative: gocognit
   - gochecknoglobals # impractical
   - godot # disagree
@@ -27,7 +28,6 @@ linters:
   - testpackage # disagree
   - wrapcheck # disagree
   - wsl # disagree
-  - exportloopref # No longer applies aftwer go 1.22
 
 severity:
   default-severity: error
@@ -53,7 +53,9 @@ issues:
 
 linters-settings:
   forbidigo:
+    analyze-types: true
     forbid:
+    - 'domain\.Identifier\.Value' # use domain.Identifier.GetValue()
     - 'errors\.New' # use merr
     - 'fmt\.Error.*' # use mlog
     - 'fmt\.Print.*' # nolint for structured stdout logging, otherwise use mlog
