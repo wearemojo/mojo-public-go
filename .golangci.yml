@@ -63,6 +63,14 @@ linters-settings:
     - 'pretty\.Print.*' # shouldn't be committed
     - 'reflect\.DeepEqual' # use go-cmp
 
+  gocritic:
+    enabled-checks:
+    - ruleguard
+    settings:
+      ruleguard:
+        failOn: all
+        rules: '${configDir}/rules.go'
+
   govet:
     enable-all: true
     disable:

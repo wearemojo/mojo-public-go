@@ -19,7 +19,7 @@ type Parser struct {
 
 func (a Parser) Check(ctx context.Context, authorizationHeader string) (any, error) {
 	if authorizationHeader == "" {
-		return nil, ErrNoAuthorization
+		return nil, merr.New(ctx, ErrNoAuthorization, nil)
 	}
 
 	parts := strings.SplitN(authorizationHeader, " ", 2)

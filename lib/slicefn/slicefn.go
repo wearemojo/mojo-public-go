@@ -201,6 +201,7 @@ func FindPtrE[T any](slice []T, fn func(T) (bool, error)) (*T, error) {
 		return &slice[i], nil
 	}
 
+	//nolint:gocritic // we don't have a context here
 	return nil, ErrNotFound
 }
 
@@ -239,5 +240,6 @@ func FindLastPtrE[T any](slice []T, fn func(T) (bool, error)) (*T, error) {
 		return &slice[i], nil
 	}
 
+	//nolint:gocritic // we don't have a context here
 	return nil, ErrNotFound
 }
