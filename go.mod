@@ -17,7 +17,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22
 	github.com/redis/go-redis/v9 v9.7.0
-	github.com/samber/lo v1.49.0
+	github.com/samber/lo v1.49.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stripe/stripe-go/v78 v78.12.0
 	github.com/xeipuuv/gojsonschema v1.2.0
@@ -28,7 +28,7 @@ require (
 	golang.org/x/net v0.34.0
 	golang.org/x/oauth2 v0.25.0
 	golang.org/x/sync v0.10.0
-	google.golang.org/api v0.218.0
+	google.golang.org/api v0.219.0
 	google.golang.org/grpc v1.70.0
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gopkg.in/ini.v1 v1.67.0
@@ -73,6 +73,6 @@ require (
 	golang.org/x/time v0.9.0 // indirect
 	google.golang.org/genproto v0.0.0-20241118233622-e639e219e697 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250115164207-1a7da9e5054f // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250124145028-65684f501c47 // indirect
 	google.golang.org/protobuf v1.36.4 // indirect
 )
