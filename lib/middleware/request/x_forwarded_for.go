@@ -6,25 +6,33 @@ import (
 	"strings"
 )
 
-// ClientIPHeader is the customer header, set by our network edge,
-// that is expected to be the clients real IP address when X-Forwarded-For
-// cannot be trusted.
-const ClientIPHeader = `Infra-Client-Ip`
-
-// ClientIP respects the infra-client-ip header containing the clients
-// real IP address.
+// ClientIP overrides the RemoteAddr field of the request with data from the
+// relevant headers, if present.
 func ClientIP(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cci := strings.TrimSpace(r.Header.Get(ClientIPHeader))
-		if cci != "" {
-			// assert valid IP address
-			ip := net.ParseIP(cci)
-			if ip != nil {
-				// marshal from parse string to restrict to supported encoding
-				r.RemoteAddr = ip.String()
-			}
+		if ip := extractIP(r); ip != nil {
+			r.RemoteAddr = ip.String()
 		}
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+// we use infra-client-ip primarily, to avoid issues where we need to figure out
+// who owns each IP address in the X-Forwarded-For header
+//
+// but, as a backup, we'll also accept the first in the X-Forwarded-For chain
+func extractIP(r *http.Request) net.IP {
+	strIP := strings.TrimSpace(r.Header.Get("Infra-Client-Ip"))
+	if ip := net.ParseIP(strIP); ip != nil {
+		return ip
+	}
+
+	strIP, _, _ = strings.Cut(r.Header.Get("X-Forwarded-For"), ",")
+	strIP = strings.TrimSpace(strIP)
+	if ip := net.ParseIP(strIP); ip != nil {
+		return ip
+	}
+
+	return nil
 }
