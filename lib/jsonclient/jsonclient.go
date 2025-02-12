@@ -19,6 +19,8 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/version"
 )
 
+type ResponseBodyHandler func(res *http.Response) error
+
 // ErrNoResponse is returned when a client request is given a body to
 // unmarshal to however the server does not return any content (HTTP 204).
 var ErrNoResponse = ClientRequestError{"no response to unmarshal to body", nil}
@@ -64,11 +66,37 @@ func NewClient(baseURL string, client *http.Client) *Client {
 
 // Do executes an HTTP request against the configured server.
 func (c *Client) Do(ctx context.Context, method, path string, params url.Values, src, dst any, requestModifiers ...func(r *http.Request)) error {
-	return c.DoWithHeaders(ctx, method, path, nil, params, src, dst, requestModifiers...)
+	return c.do(ctx, method, path, nil, params, src, defaultJSONHandler(dst, method, path), requestModifiers...)
 }
 
 // DoWithHeaders executes an HTTP request against the configured server with custom headers.
 func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers http.Header, params url.Values, src, dst any, requestModifiers ...func(r *http.Request)) error {
+	return c.do(ctx, method, path, headers, params, src, defaultJSONHandler(dst, method, path), requestModifiers...)
+}
+
+// DoWithHandler executes an HTTP request against the configured server,
+// and runs the response body through `responseHandler`. Useful for when
+// having access to the response body is useful, such as streaming the response.
+func (c *Client) DoWithHandler(
+	ctx context.Context,
+	method, path string,
+	params url.Values,
+	src any,
+	responseHandler ResponseBodyHandler,
+	requestModifiers ...func(r *http.Request),
+) error {
+	return c.do(ctx, method, path, nil, params, src, responseHandler, requestModifiers...)
+}
+
+func (c *Client) do(
+	ctx context.Context,
+	method, path string,
+	headers http.Header,
+	params url.Values,
+	src any,
+	responseHandler ResponseBodyHandler,
+	requestModifiers ...func(r *http.Request),
+) error {
 	fullPath := pathlib.Join("/", c.Prefix, path)
 	req := &http.Request{
 		Method: method,
@@ -116,7 +144,7 @@ func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers
 
 	defer res.Body.Close()
 
-	return handleResponse(res, method, path, dst)
+	return handleResponseWith(res, method, path, responseHandler)
 }
 
 func setRequestBody(req *http.Request, src any) error {
@@ -136,24 +164,12 @@ func setRequestBody(req *http.Request, src any) error {
 	return nil
 }
 
-func handleResponse(res *http.Response, method, path string, dst any) error {
+func handleResponseWith(res *http.Response,
+	method, path string,
+	responseHandler ResponseBodyHandler,
+) error {
 	if res.StatusCode >= 200 && res.StatusCode < 300 {
-		if dst == nil {
-			return nil
-		}
-
-		if res.StatusCode == http.StatusNoContent || res.Body == nil {
-			return ErrNoResponse
-		}
-
-		err := json.NewDecoder(res.Body).Decode(dst)
-		if errors.Is(err, io.EOF) {
-			return ErrNoResponse
-		} else if err != nil {
-			return ClientTransportError{method, path, "could not unmarshal", err}
-		}
-
-		return nil
+		return responseHandler(res)
 	}
 
 	resBody, err := io.ReadAll(res.Body)
@@ -190,6 +206,24 @@ func handleResponse(res *http.Response, method, path string, dst any) error {
 		"method":     res.Request.Method,
 		"url":        res.Request.URL.String(),
 	})
+}
+
+func defaultJSONHandler(dst any, method, path string) ResponseBodyHandler {
+	return func(res *http.Response) error {
+		if dst == nil {
+			return nil
+		}
+		if res.StatusCode == http.StatusNoContent || res.Body == nil {
+			return ErrNoResponse
+		}
+		err := json.NewDecoder(res.Body).Decode(dst)
+		if errors.Is(err, io.EOF) {
+			return ErrNoResponse
+		} else if err != nil {
+			return ClientTransportError{method, path, "could not unmarshal", err}
+		}
+		return nil
+	}
 }
 
 // ClientRequestError is returned when an error related to
