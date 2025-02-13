@@ -1,7 +1,6 @@
 package request
 
 import (
-	"context"
 	"testing"
 
 	"github.com/blang/semver/v4"
@@ -12,7 +11,7 @@ func TestParseVersionHeader(t *testing.T) {
 	t.Run("empty should error", func(t *testing.T) {
 		is := is.New(t)
 
-		parsed, err := parseVersionHeader(context.Background(), "")
+		parsed, err := parseVersionHeader(t.Context(), "")
 		is.True(err != nil)
 		is.Equal(parsed, nil)
 	})
@@ -20,7 +19,7 @@ func TestParseVersionHeader(t *testing.T) {
 	t.Run("invalid should error", func(t *testing.T) {
 		is := is.New(t)
 
-		parsed, err := parseVersionHeader(context.Background(), "a-1-")
+		parsed, err := parseVersionHeader(t.Context(), "a-1-")
 		is.True(err != nil)
 		is.Equal(parsed, nil)
 	})
@@ -28,7 +27,7 @@ func TestParseVersionHeader(t *testing.T) {
 	t.Run("ios should work", func(t *testing.T) {
 		is := is.New(t)
 
-		parsed, err := parseVersionHeader(context.Background(), "ios-3.6.8-1337")
+		parsed, err := parseVersionHeader(t.Context(), "ios-3.6.8-1337")
 		is.NoErr(err)
 		is.Equal(parsed.Platform, ClientPlatformIOS)
 		is.Equal(parsed.Version, semver.MustParse("3.6.8"))
@@ -38,7 +37,7 @@ func TestParseVersionHeader(t *testing.T) {
 	t.Run("android should work", func(t *testing.T) {
 		is := is.New(t)
 
-		parsed, err := parseVersionHeader(context.Background(), "android-0.0.1-1")
+		parsed, err := parseVersionHeader(t.Context(), "android-0.0.1-1")
 		is.NoErr(err)
 		is.Equal(parsed.Platform, ClientPlatformAndroid)
 		is.Equal(parsed.Version, semver.MustParse("0.0.1"))

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"context"
 	"testing"
 
 	"github.com/matryer/is"
@@ -16,7 +15,7 @@ func TestMongoDBOptions(t *testing.T) {
 		URI: "mongodb://foo:bar@127.0.0.1/demo?authSource=admin",
 	}
 
-	opts, dbName, err := m.Options(context.Background())
+	opts, dbName, err := m.Options(t.Context())
 
 	is.NoErr(err)
 	is.Equal(dbName, "demo")

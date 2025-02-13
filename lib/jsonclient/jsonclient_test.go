@@ -1,7 +1,6 @@
 package jsonclient
 
 import (
-	"context"
 	"net/http"
 	"net/url"
 	"testing"
@@ -23,7 +22,7 @@ func TestGetHTTPMethod(t *testing.T) {
 	client := NewClient("http://coo.va/", nil)
 	gock.InterceptClient(client.Client)
 
-	err := client.Do(context.Background(), "GET", "test", nil, nil, nil)
+	err := client.Do(t.Context(), "GET", "test", nil, nil, nil)
 
 	is.NoErr(err)
 	is.True(gock.IsDone())
@@ -41,7 +40,7 @@ func TestPutHTTPMethod(t *testing.T) {
 	client := NewClient("http://coo.va/", nil)
 	gock.InterceptClient(client.Client)
 
-	err := client.Do(context.Background(), "PUT", "test", nil, nil, nil)
+	err := client.Do(t.Context(), "PUT", "test", nil, nil, nil)
 	is.NoErr(err)
 	is.True(gock.IsDone())
 }
@@ -58,7 +57,7 @@ func TestPostHTTPMethod(t *testing.T) {
 	client := NewClient("http://coo.va/", nil)
 	gock.InterceptClient(client.Client)
 
-	err := client.Do(context.Background(), "POST", "test", nil, nil, nil)
+	err := client.Do(t.Context(), "POST", "test", nil, nil, nil)
 	is.NoErr(err)
 	is.True(gock.IsDone())
 }
@@ -75,7 +74,7 @@ func TestDeleteHTTPMethod(t *testing.T) {
 	client := NewClient("http://coo.va/", nil)
 	gock.InterceptClient(client.Client)
 
-	err := client.Do(context.Background(), "DELETE", "test", nil, nil, nil)
+	err := client.Do(t.Context(), "DELETE", "test", nil, nil, nil)
 	is.NoErr(err)
 	is.True(gock.IsDone())
 }
@@ -96,7 +95,7 @@ func TestRequestQuery(t *testing.T) {
 	client := NewClient("http://coo.va/", nil)
 	gock.InterceptClient(client.Client)
 
-	err := client.Do(context.Background(), "GET", "test", url.Values{paramKey: {paramValue}}, nil, nil)
+	err := client.Do(t.Context(), "GET", "test", url.Values{paramKey: {paramValue}}, nil, nil)
 	is.NoErr(err)
 	is.True(gock.IsDone())
 }
@@ -117,7 +116,7 @@ func TestRequestBody(t *testing.T) {
 	client := NewClient("http://coo.va/", nil)
 	gock.InterceptClient(client.Client)
 
-	err := client.Do(context.Background(), "POST", "test", nil, testJSON, nil)
+	err := client.Do(t.Context(), "POST", "test", nil, testJSON, nil)
 	is.NoErr(err)
 	is.True(gock.IsDone())
 }
@@ -143,7 +142,7 @@ func TestRequestModifier(t *testing.T) {
 	client := NewClient("http://coo.va/", nil)
 	gock.InterceptClient(client.Client)
 
-	err := client.Do(context.Background(), "POST", "test", nil, testJSON, nil, modifier)
+	err := client.Do(t.Context(), "POST", "test", nil, testJSON, nil, modifier)
 	is.NoErr(err)
 	is.True(gock.IsDone())
 }
@@ -163,7 +162,7 @@ func TestResponseBody(t *testing.T) {
 	gock.InterceptClient(client.Client)
 
 	var response map[string]bool
-	err := client.Do(context.Background(), "GET", "test", nil, nil, &response)
+	err := client.Do(t.Context(), "GET", "test", nil, nil, &response)
 	is.NoErr(err)
 	is.True(response["testing"])
 	is.True(gock.IsDone())
@@ -184,7 +183,7 @@ func TestErrorUnmarshaling(t *testing.T) {
 	client := NewClient("http://coo.va/", nil)
 	gock.InterceptClient(client.Client)
 
-	err := client.Do(context.Background(), "GET", "test", nil, nil, nil)
+	err := client.Do(t.Context(), "GET", "test", nil, nil, nil)
 	is.True(err != nil)
 	is.Equal(responseError.Code, err.(cher.E).Code) //nolint:errorlint,forcetypeassert // required for test
 	is.True(gock.IsDone())
@@ -202,7 +201,7 @@ func TestErrorCatching(t *testing.T) {
 	client := NewClient("http://coo.va/", nil)
 	gock.InterceptClient(client.Client)
 
-	err := client.Do(context.Background(), "GET", "test", nil, nil, nil)
+	err := client.Do(t.Context(), "GET", "test", nil, nil, nil)
 	is.True(err != nil)
 	is.Equal("internal_server_error", err.(cher.E).Code) //nolint:errorlint,forcetypeassert // required for test
 	is.True(gock.IsDone())

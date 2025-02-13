@@ -2,7 +2,6 @@ package request
 
 import (
 	"bytes"
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -58,7 +57,7 @@ func TestLogger(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
-			ctx := context.Background()
+			ctx := t.Context()
 			is := is.New(t)
 
 			log := logrus.New().WithField("foo", "bar")

@@ -328,7 +328,7 @@ func TestPanicIfMethodDeclaredTwice(t *testing.T) {
 }
 
 func TestMiddlewareIsLoadedInOrder(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	rpc := NewServer(UnsafeNoAuthentication)
 
 	rpc.Register("foo", "preview", nil, makeRPCCall("called foo!"))
@@ -355,7 +355,7 @@ func TestMiddlewareIsLoadedInOrder(t *testing.T) {
 }
 
 func TestMiddlewareRunsGlobalInOrderAndRequestSpecific(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	rpc := NewServer(UnsafeNoAuthentication)
 
 	rpc.Use(addHeaderMiddleware("X-Present-On-Both", "win!"))

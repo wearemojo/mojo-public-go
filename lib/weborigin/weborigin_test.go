@@ -1,7 +1,6 @@
 package weborigin
 
 import (
-	"context"
 	"net/url"
 	"testing"
 
@@ -126,7 +125,7 @@ func TestGetOrigin(t *testing.T) {
 				t.Errorf("unexpected error: %s", err)
 			}
 
-			actual, err := GetOrigin(context.Background(), url)
+			actual, err := GetOrigin(t.Context(), url)
 			if err != nil && test.Err != "" {
 				if merr.IsCode(err, test.Err) {
 					return
@@ -149,7 +148,7 @@ func TestGetWebOrigin(t *testing.T) {
 				t.Errorf("unexpected error: %s", err)
 			}
 
-			actual, err := GetWebOrigin(context.Background(), url)
+			actual, err := GetWebOrigin(t.Context(), url)
 			if err != nil && test.Err != "" {
 				if merr.IsCode(err, test.Err) {
 					return

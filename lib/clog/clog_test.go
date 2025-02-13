@@ -1,7 +1,6 @@
 package clog
 
 import (
-	"context"
 	"errors"
 	"net/http"
 	"testing"
@@ -85,7 +84,7 @@ func TestContextLogger(t *testing.T) {
 	t.Run("SetField when no logger is set", func(t *testing.T) {
 		defer func() { _ = recover() }()
 
-		SetField(context.Background(), "foo", "bar")
+		SetField(t.Context(), "foo", "bar")
 
 		t.Error("should have panicked")
 	})
@@ -93,7 +92,7 @@ func TestContextLogger(t *testing.T) {
 	t.Run("SetFields when no logger is set", func(t *testing.T) {
 		defer func() { _ = recover() }()
 
-		SetFields(context.Background(), Fields{"foo": "bar"})
+		SetFields(t.Context(), Fields{"foo": "bar"})
 
 		t.Error("should have panicked")
 	})
@@ -101,7 +100,7 @@ func TestContextLogger(t *testing.T) {
 	t.Run("SetError when no logger is set", func(t *testing.T) {
 		defer func() { _ = recover() }()
 
-		SetError(context.Background(), errors.New("foo")) //nolint:forbidigo,goerr113 // required for test
+		SetError(t.Context(), errors.New("foo")) //nolint:forbidigo,goerr113 // required for test
 
 		t.Error("should have panicked")
 	})

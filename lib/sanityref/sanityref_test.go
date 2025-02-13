@@ -1,7 +1,6 @@
 package sanityref
 
 import (
-	"context"
 	_ "embed"
 	"encoding/json"
 	"slices"
@@ -43,7 +42,7 @@ var testOutputRaw []byte
 var testOutput = gjson.MustUnmarshal[map[string]Document](testOutputRaw)
 
 func TestResolveReferencesNormal(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	is := is.New(t)
 
 	copiedTestInput := inefficientlyDeepCopy(testInput)
@@ -69,7 +68,7 @@ func TestResolveReferencesInfiniteRecursion(t *testing.T) {
 	// this test also helps prove we're mutating rather than copying anything, as
 	// any cycles would break or cause a stack overflow
 
-	ctx := context.Background()
+	ctx := t.Context()
 	is := is.New(t)
 
 	documentMap, missingDocumentIDs, err := ResolveReferences(ctx, []Document{
@@ -111,7 +110,7 @@ func TestResolveReferencesInfiniteRecursion(t *testing.T) {
 }
 
 func TestResolveReferencesMissingDocuments(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	is := is.New(t)
 
 	documentMap, missingDocumentIDs, err := ResolveReferences(ctx, []Document{
@@ -138,7 +137,7 @@ func TestResolveReferencesMissingDocuments(t *testing.T) {
 }
 
 func TestResolveReferencesStrictMissingDocuments(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	is := is.New(t)
 
 	documentMap, err := ResolveReferencesStrict(ctx, []Document{
@@ -158,7 +157,7 @@ func TestResolveReferencesStrictMissingDocuments(t *testing.T) {
 }
 
 func TestResolveReferencesMissingImages(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	is := is.New(t)
 
 	documentMap, missingDocumentIDs, err := ResolveReferences(ctx, []Document{
@@ -211,7 +210,7 @@ func TestResolveReferencesMissingImages(t *testing.T) {
 }
 
 func TestResolveReferencesStrictMissingImagesDefault(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	is := is.New(t)
 
 	documentMap, err := ResolveReferencesStrict(ctx, []Document{
@@ -260,7 +259,7 @@ func TestResolveReferencesStrictMissingImagesDefault(t *testing.T) {
 }
 
 func TestResolveReferencesStrictMissingImagesReject(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 	is := is.New(t)
 
 	documentMap, err := ResolveReferencesStrict(ctx, []Document{
