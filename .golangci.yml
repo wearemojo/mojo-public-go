@@ -9,7 +9,6 @@ linters:
   - cyclop # alternative: gocognit - could add if we start unit testing heavily
   - depguard # impractical
   - exhaustruct  # disagree - also not the intended use
-  - exportloopref # No longer applies after go 1.22
   - funlen # alternative: gocognit
   - gochecknoglobals # impractical
   - godot # disagree
