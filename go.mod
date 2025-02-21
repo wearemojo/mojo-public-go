@@ -3,8 +3,8 @@ module github.com/wearemojo/mojo-public-go
 go 1.24
 
 require (
-	cloud.google.com/go v0.118.2
-	cloud.google.com/go/kms v1.20.5
+	cloud.google.com/go v0.118.3
+	cloud.google.com/go/kms v1.21.0
 	cloud.google.com/go/secretmanager v1.14.5
 	github.com/blang/semver/v4 v4.0.0
 	github.com/chebyrash/promise v0.0.0-20230709133807-42ec49ba1459
@@ -38,7 +38,7 @@ require (
 	cloud.google.com/go/auth v0.14.1 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.7 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
-	cloud.google.com/go/iam v1.3.1 // indirect
+	cloud.google.com/go/iam v1.4.0 // indirect
 	cloud.google.com/go/longrunning v0.6.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -71,7 +71,7 @@ require (
 	golang.org/x/text v0.22.0 // indirect
 	golang.org/x/time v0.10.0 // indirect
 	google.golang.org/genproto v0.0.0-20250122153221-138b5a5a4fd4 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250207221924-e9438ea467c6 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250212204824-5a70512c5d8b // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250219182151-9fdb1cabc7b2 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
 )
