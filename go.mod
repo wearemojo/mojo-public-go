@@ -21,7 +21,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stripe/stripe-go/v78 v78.12.0
 	github.com/xeipuuv/gojsonschema v1.2.0
-	go.mongodb.org/mongo-driver v1.17.2
+	go.mongodb.org/mongo-driver v1.17.3
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.59.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.59.0
 	go.opentelemetry.io/otel/trace v1.34.0
