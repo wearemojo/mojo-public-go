@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/wearemojo/mojo-public-go/lib/merr"
-	mlog "github.com/wearemojo/mojo-public-go/lib/mlog/indirect"
 	"golang.org/x/oauth2/google"
 	compute "google.golang.org/api/compute/v1"
 	ini "gopkg.in/ini.v1"
@@ -17,9 +16,7 @@ func GetProjectID(ctx context.Context) (string, error) {
 
 	credentials, err := google.FindDefaultCredentials(ctx, compute.ComputeScope)
 	if err != nil {
-		mlog.Warn(ctx, merr.New(ctx, "gcp_default_credentials_unavailable", nil, err))
-
-		return "", err
+		return "", merr.New(ctx, "gcp_default_credentials_unavailable", nil, err)
 	}
 
 	if credentials.ProjectID != "" {
