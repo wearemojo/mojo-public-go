@@ -4,8 +4,8 @@ go 1.24
 
 require (
 	cloud.google.com/go v0.119.0
-	cloud.google.com/go/kms v1.21.0
-	cloud.google.com/go/secretmanager v1.14.5
+	cloud.google.com/go/kms v1.21.1
+	cloud.google.com/go/secretmanager v1.14.6
 	github.com/blang/semver/v4 v4.0.0
 	github.com/chebyrash/promise v0.0.0-20230709133807-42ec49ba1459
 	github.com/deckarep/golang-set/v2 v2.7.0
@@ -28,7 +28,7 @@ require (
 	golang.org/x/net v0.37.0
 	golang.org/x/oauth2 v0.28.0
 	golang.org/x/sync v0.12.0
-	google.golang.org/api v0.225.0
+	google.golang.org/api v0.226.0
 	google.golang.org/grpc v1.71.0
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gopkg.in/ini.v1 v1.67.0
@@ -38,8 +38,8 @@ require (
 	cloud.google.com/go/auth v0.15.0 // indirect
 	cloud.google.com/go/auth/oauth2adapt v0.2.7 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
-	cloud.google.com/go/iam v1.4.0 // indirect
-	cloud.google.com/go/longrunning v0.6.4 // indirect
+	cloud.google.com/go/iam v1.4.1 // indirect
+	cloud.google.com/go/longrunning v0.6.5 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
