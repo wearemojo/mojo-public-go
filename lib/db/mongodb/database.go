@@ -7,6 +7,8 @@ import (
 	"io"
 	"io/fs"
 
+	"github.com/wearemojo/mojo-public-go/lib/merr"
+	"github.com/wearemojo/mojo-public-go/lib/slicefn"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -20,9 +22,29 @@ func (db Database) Collection(name string, opts ...*options.CollectionOptions) *
 	return &Collection{db.Database.Collection(name, opts...)}
 }
 
-func (db Database) SetupSchemas(ctx context.Context, fs fs.FS, collectionNames []string) error {
-	for _, colName := range collectionNames {
-		file, err := fs.Open(fmt.Sprintf("%s.json", colName))
+func (db Database) SetupSchemas(ctx context.Context, schemaFS fs.FS, collectionNames []string) error {
+	// Keep a map of all used collection names to make sure every single collection has a schema defined
+	usedCollectionNames := make(map[string]struct{})
+	// walk through the filesystem to make sure every single schema defined is being used
+	if err := fs.WalkDir(schemaFS, ".", func(_ string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if entry.IsDir() {
+			return nil
+		}
+
+		schemaFileName := entry.Name()
+
+		colName, ok := slicefn.Find(collectionNames, func(colName string) bool {
+			return fmt.Sprintf("%s.json", colName) == schemaFileName
+		})
+		if !ok {
+			return merr.New(ctx, "schema_defined_but_not_used", merr.M{"schema": schemaFileName}, nil)
+		}
+
+		file, err := schemaFS.Open(schemaFileName)
 		if err != nil {
 			return err
 		}
@@ -46,6 +68,18 @@ func (db Database) SetupSchemas(ctx context.Context, fs fs.FS, collectionNames [
 			}},
 		}).Err(); err != nil {
 			return err
+		}
+
+		// mark collection as used
+		usedCollectionNames[colName] = struct{}{}
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	for _, colName := range collectionNames {
+		if _, ok := usedCollectionNames[colName]; !ok {
+			return merr.New(ctx, "collection_defined_but_no_matching_schema_defined", merr.M{"collection": colName}, nil)
 		}
 	}
 

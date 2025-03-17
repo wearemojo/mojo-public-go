@@ -2,7 +2,9 @@ package mongodb
 
 import (
 	"context"
+	"fmt"
 	"io/fs"
+	"reflect"
 	"time"
 
 	"github.com/wearemojo/mojo-public-go/lib/config"
@@ -21,7 +23,10 @@ func New(uriSecretID string) *MongoDB {
 	return &MongoDB{uriSecretID: uriSecretID}
 }
 
-func (m *MongoDB) Connect(ctx context.Context, schemaFS fs.FS, collectionNames []string) (*mongodb.Database, error) {
+func (m *MongoDB) Connect(ctx context.Context, dbStruct any, schemaFS fs.FS) (*mongodb.Database, error) {
+	// dbStruct looks like: struct{ Blah *BlahCollection `mongocol:"blah" }{}
+	collectionNames := extractCollectionNames(dbStruct)
+
 	uri, err := secret.Get(ctx, m.uriSecretID)
 	if err != nil {
 		return nil, err
@@ -45,6 +50,32 @@ func (m *MongoDB) Connect(ctx context.Context, schemaFS fs.FS, collectionNames [
 	}
 
 	return db, nil
+}
+
+func extractCollectionNames(dbStruct any) []string {
+	val := reflect.ValueOf(dbStruct).Type()
+	if val.Kind() != reflect.Struct {
+		panic("dbStruct must be a struct")
+	}
+
+	numFields := val.NumField()
+	collectionNames := make([]string, 0, numFields)
+
+	for idx := range numFields {
+		field := val.Field(idx)
+		if !field.IsExported() {
+			continue
+		}
+
+		name, ok := field.Tag.Lookup("mongocol")
+		if !ok {
+			panic(fmt.Sprintf("missing mongocol tag on field %s", field.Name))
+		}
+
+		collectionNames = append(collectionNames, name)
+	}
+
+	return collectionNames
 }
 
 func connect(ctx context.Context, uri string) (*mongodb.Database, error) {
