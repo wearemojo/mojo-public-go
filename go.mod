@@ -3,7 +3,7 @@ module github.com/wearemojo/mojo-public-go
 go 1.24
 
 require (
-	cloud.google.com/go v0.119.0
+	cloud.google.com/go v0.120.0
 	cloud.google.com/go/kms v1.21.1
 	cloud.google.com/go/secretmanager v1.14.6
 	github.com/blang/semver/v4 v4.0.0
