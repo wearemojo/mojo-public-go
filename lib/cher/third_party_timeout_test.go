@@ -37,7 +37,7 @@ func TestCoerceThirdPartyTimeout(t *testing.T) {
 		},
 		{
 			name: "other error",
-			err:  errors.New("any error"), //nolint:forbidigo,goerr113 // required for test
+			err:  errors.New("any error"), //nolint:forbidigo,err113 // required for test
 			expect: func(is *is.I, err error) {
 				is.Equal(err.Error(), "any error")
 			},

@@ -32,7 +32,7 @@ func NewClient(timeout time.Duration, transport http.RoundTripper) *http.Client 
 // new request to be materially different, and stop following redirects.
 func CheckRedirect(req *http.Request, via []*http.Request) error {
 	if len(via) >= 10 {
-		//nolint:forbidigo,goerr113 // ripped directly from stdlib
+		//nolint:forbidigo,err113 // ripped directly from stdlib
 		return errors.New("stopped after 10 redirects")
 	}
 

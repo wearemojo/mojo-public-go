@@ -64,7 +64,7 @@ func TestContextLogger(t *testing.T) {
 		req := &http.Request{}
 		req = req.WithContext(Set(req.Context(), log))
 
-		testError := errors.New("test error") //nolint:forbidigo,goerr113 // required for test
+		testError := errors.New("test error") //nolint:forbidigo,err113 // required for test
 
 		SetError(req.Context(), testError)
 
@@ -100,7 +100,7 @@ func TestContextLogger(t *testing.T) {
 	t.Run("SetError when no logger is set", func(t *testing.T) {
 		defer func() { _ = recover() }()
 
-		SetError(t.Context(), errors.New("foo")) //nolint:forbidigo,goerr113 // required for test
+		SetError(t.Context(), errors.New("foo")) //nolint:forbidigo,err113 // required for test
 
 		t.Error("should have panicked")
 	})
@@ -141,19 +141,19 @@ func TestDetermineLevel(t *testing.T) {
 		},
 		{
 			name:             "postgres context cancelled",
-			err:              errors.New("pq: canceling statement due to user request"), //nolint:forbidigo,goerr113 // required for test
+			err:              errors.New("pq: canceling statement due to user request"), //nolint:forbidigo,err113 // required for test
 			timeoutsAsErrors: false,
 			expected:         logrus.InfoLevel,
 		},
 		{
 			name:             "postgres context cancelled with timeouts as errors",
-			err:              errors.New("pq: canceling statement due to user request"), //nolint:forbidigo,goerr113 // required for test
+			err:              errors.New("pq: canceling statement due to user request"), //nolint:forbidigo,err113 // required for test
 			timeoutsAsErrors: true,
 			expected:         logrus.ErrorLevel,
 		},
 		{
 			name:             "other error",
-			err:              errors.New("something, something darkside"), //nolint:forbidigo,goerr113 // required for test
+			err:              errors.New("something, something darkside"), //nolint:forbidigo,err113 // required for test
 			timeoutsAsErrors: false,
 			expected:         logrus.ErrorLevel,
 		},
