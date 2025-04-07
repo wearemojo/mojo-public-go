@@ -2,9 +2,11 @@ package ksuid
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/servicecontext"
 )
 
@@ -44,6 +46,12 @@ func NewNode(environment string, instanceID InstanceID) *Node {
 
 // Generate returns a new ID for the machine and resource configured.
 func (n *Node) Generate(ctx context.Context, resource string) (id ID) {
+	if strings.ContainsRune(resource, '_') {
+		panic(merr.New(ctx, "ksuid_resource_contains_underscore", merr.M{
+			"resource": resource,
+		}))
+	}
+
 	if info := servicecontext.GetContext(ctx); info != nil {
 		id.Environment = info.Env
 	} else {
@@ -69,7 +77,7 @@ func (n *Node) Generate(ctx context.Context, resource string) (id ID) {
 
 	n.sequenceMu.Unlock()
 
-	return
+	return id
 }
 
 // SetInstanceID overrides the default instance id in the exported node.

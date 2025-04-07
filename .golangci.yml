@@ -69,6 +69,7 @@ linters:
         - g *errgroup.Group
         - g errgroup.SettledGroup
         - is *is.I
+        - m dsl.Matcher
         - r *http.Request
         - sb strings.Builder
         - w http.ResponseWriter

@@ -13,3 +13,18 @@ func mustWrapMerrCodes(m dsl.Matcher) {
 		Report(`should wrap errors with merr.New`).
 		Suggest(`return $x, merr.New(ctx, $y, nil)`)
 }
+
+func ksuidResourcePattern(m dsl.Matcher) {
+	m.Import("github.com/wearemojo/mojo-public-go/lib/ksuid")
+
+	m.Match(`ksuid.Generate($x, $y)`).
+		Where(m["y"].Text.Matches(`_`)).
+		Report(`ksuid resource name must not contain underscores`)
+
+	m.Match(`$z.Generate($x, $y)`).
+		Where(
+			m["z"].Type.Is("*ksuid.Node") &&
+				m["y"].Text.Matches(`_`),
+		).
+		Report(`ksuid resource name must not contain underscores`)
+}
