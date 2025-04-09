@@ -6,7 +6,7 @@ import (
 
 // Unmarshal parses BSON-encoded data and returns a value of the type T.
 //
-// Just a generic, type-safe wrapper around json.Unmarshal.
+// Just a generic, type-safe wrapper around bson.Unmarshal.
 func Unmarshal[T any](data []byte) (res T, err error) {
 	return res, bson.Unmarshal(data, &res)
 }
