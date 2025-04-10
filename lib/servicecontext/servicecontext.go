@@ -9,6 +9,7 @@ type Info struct {
 	System  string
 	Env     string
 	Service string
+	Tag     string
 }
 
 type contextKey string
