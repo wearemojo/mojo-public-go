@@ -25,6 +25,7 @@ linters:
     - testpackage # disagree
     - wrapcheck # disagree
     - wsl # disagree
+    - funcorder # disagree -- locality of code matters more than exported/unexported
   settings:
     forbidigo:
       forbid:
