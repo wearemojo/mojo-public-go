@@ -206,7 +206,8 @@ func Wrap(fn any) (*WrappedFunc, error) {
 }
 
 func checkResponseType(ctx context.Context, typ reflect.Type) error {
-	switch typ.Kind() { //nolint:exhaustive // we only accept a few types
+	//nolint:exhaustive // we only need to validate these types
+	switch typ.Kind() {
 	case reflect.Ptr:
 		elem := typ.Elem()
 
