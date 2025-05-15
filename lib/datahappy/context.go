@@ -17,7 +17,7 @@ type Context struct {
 	// Location   *Location `json:"location,omitempty"`
 	// Network    *Network  `json:"network,omitempty"`
 	// OS         *OS       `json:"os,omitempty"`
-	// Page       *Page     `json:"page,omitempty"`
+	Page *Page `json:"page,omitempty"`
 	// Referrer   *Referrer `json:"referrer,omitempty"`
 	// Screen     *Screen   `json:"screen,omitempty"`
 	Timezone   string  `json:"timezone,omitempty"`
@@ -36,6 +36,10 @@ type App struct {
 	Name    string `json:"name,omitempty"`
 	Version string `json:"version,omitempty"`
 	Build   string `json:"build,omitempty"`
+}
+
+type Page struct {
+	URL string `json:"url,omitempty"`
 }
 
 type Traits struct {
