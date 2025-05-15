@@ -29,7 +29,7 @@ require (
 	golang.org/x/oauth2 v0.30.0
 	golang.org/x/sync v0.14.0
 	google.golang.org/api v0.233.0
-	google.golang.org/grpc v1.72.0
+	google.golang.org/grpc v1.72.1
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gopkg.in/ini.v1 v1.67.0
 )
