@@ -1,7 +1,7 @@
 package gbson
 
 import (
-	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // Unmarshal parses BSON-encoded data and returns a value of the type T.

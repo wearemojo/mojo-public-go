@@ -9,16 +9,16 @@ import (
 
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/slicefn"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type Database struct {
 	*mongo.Database
 }
 
-func (db Database) Collection(name string, opts ...*options.CollectionOptions) *Collection {
+func (db Database) Collection(name string, opts ...options.Lister[options.CollectionOptions]) *Collection {
 	return &Collection{db.Database.Collection(name, opts...)}
 }
 
@@ -86,13 +86,14 @@ func (db Database) SetupSchemas(ctx context.Context, schemaFS fs.FS, collectionN
 	return nil
 }
 
-func (db *Database) DoTx(ctx context.Context, fn func(ctx mongo.SessionContext) error) error {
+func (db *Database) DoTx(ctx context.Context, fn func(ctx context.Context) error) error {
 	return db.DoTxWithOptions(ctx, options.Session(), fn)
 }
 
-func (db *Database) DoTxWithOptions(ctx context.Context, opts *options.SessionOptions, fn func(ctx mongo.SessionContext) error) error {
-	return db.Client().UseSessionWithOptions(ctx, opts, func(ctx mongo.SessionContext) error {
-		_, err := ctx.WithTransaction(ctx, func(ctx mongo.SessionContext) (any, error) {
+func (db *Database) DoTxWithOptions(ctx context.Context, opts *options.SessionOptionsBuilder, fn func(ctx context.Context) error) error {
+	return db.Client().UseSessionWithOptions(ctx, opts, func(ctx context.Context) error {
+		sess := mongo.SessionFromContext(ctx)
+		_, err := sess.WithTransaction(ctx, func(ctx context.Context) (any, error) {
 			return nil, fn(ctx)
 		})
 		return err

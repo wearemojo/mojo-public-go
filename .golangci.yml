@@ -91,10 +91,10 @@ linters:
         text: 'local replacement are not allowed: github.com/wearemojo/mojo-public-go'
       - linters:
           - govet
-        text: 'composites: `go.mongodb.org/mongo-driver/bson/primitive.E` composite literal uses unkeyed fields'
+        text: 'composites: `go.mongodb.org/mongo-driver/v2/bson.E` composite literal uses unkeyed fields'
       - linters:
           - govet
-        text: 'composites: go.mongodb.org/mongo-driver/bson/primitive.E struct literal uses unkeyed fields'
+        text: 'composites: go.mongodb.org/mongo-driver/v2/bson.E struct literal uses unkeyed fields'
       - linters:
           - gocognit
           - nestif

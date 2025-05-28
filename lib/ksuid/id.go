@@ -7,9 +7,7 @@ import (
 	"encoding/json"
 
 	"github.com/jamescun/basex"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/bsonrw"
-	"go.mongodb.org/mongo-driver/bson/bsontype"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // ID is an optionally prefixed, k-sortable globally unique ID.
@@ -176,14 +174,15 @@ func (id *ID) UnmarshalJSON(b []byte) (err error) {
 }
 
 // MarshalBSONValue implements bson.ValueMarshaler
-func (id ID) MarshalBSONValue() (bsontype.Type, []byte, error) {
-	return bson.MarshalValue(id.String())
+func (id ID) MarshalBSONValue() (byte, []byte, error) {
+	typ, data, err := bson.MarshalValue(id.String())
+	return byte(typ), data, err
 }
 
 // UnmarshalBSONValue implements bson.ValueUnmarshaler
-func (id *ID) UnmarshalBSONValue(t bsontype.Type, raw []byte) (err error) {
-	str, err := bsonrw.NewBSONValueReader(t, raw).ReadString()
-	if err != nil {
+func (id *ID) UnmarshalBSONValue(t byte, raw []byte) (err error) {
+	var str string
+	if err = bson.UnmarshalValue(bson.Type(t), raw, &str); err != nil {
 		return
 	}
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type Collection struct {
@@ -20,7 +20,7 @@ func (c Collection) SetupIndexes(models []mongo.IndexModel) (err error) {
 	return
 }
 
-func (c Collection) FindAll(ctx context.Context, filter, results any, opts ...*options.FindOptions) (err error) {
+func (c Collection) FindAll(ctx context.Context, filter, results any, opts ...options.Lister[options.FindOptions]) (err error) {
 	cur, err := c.Find(ctx, filter, opts...)
 	if err == nil {
 		err = cur.All(ctx, results)
