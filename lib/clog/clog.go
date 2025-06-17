@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/kr/pretty"
 	"github.com/sirupsen/logrus"
 	"github.com/wearemojo/mojo-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
@@ -86,6 +87,10 @@ func (c Config) Configure(ctx context.Context) *logrus.Entry {
 		log.Logger.Formatter = &logrus.TextFormatter{}
 	}
 
+	log.Logger.Formatter = &fallbackFormatter{
+		baseFormatter: log.Logger.Formatter,
+	}
+
 	if c.Debug {
 		log.Logger.Level = logrus.DebugLevel
 		log.Debug("debug logging enabled")
@@ -94,6 +99,29 @@ func (c Config) Configure(ctx context.Context) *logrus.Entry {
 	}
 
 	return log
+}
+
+type fallbackFormatter struct {
+	baseFormatter logrus.Formatter
+}
+
+func (f *fallbackFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+	// try to use the normal one
+	output, err := f.baseFormatter.Format(entry)
+	if err == nil {
+		return output, nil
+	}
+
+	// fall back to pretty printing the entry data
+	entry = entry.Dup()
+	entry.Data = logrus.Fields{"_fallback_data": pretty.Sprint(entry.Data)}
+	output, err = f.baseFormatter.Format(entry)
+	if err == nil {
+		return output, nil
+	}
+
+	// then fall back to pretty printing the entire entry
+	return []byte(pretty.Sprint(entry)), nil
 }
 
 // ContextLogger wraps logrus Entry to allow field mutation, which means the
