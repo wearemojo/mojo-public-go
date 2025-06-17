@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/kr/pretty"
 	"github.com/sirupsen/logrus"
@@ -32,13 +33,10 @@ const (
 	VersionKey = "_commit_hash"
 
 	// LevelKey is the log entry key for the log level
-	LevelKey = "_level"
+	LevelKey = "severity"
 
-	// MessageKey is the log entry key for a generic message
-	MessageKey = "_message"
-
-	// TimestampKey is the log entry key for the timestamp
-	TimestampKey = "_timestamp"
+	// TimeKey is the log entry key for the timestamp
+	TimeKey = "time"
 )
 
 // Config allows services to configure the logging format, level and storage options
@@ -75,20 +73,22 @@ func (c Config) Configure(ctx context.Context) *logrus.Entry {
 
 	switch c.Format {
 	case "json", "logstash":
-		log.Logger.Formatter = &logrus.JSONFormatter{
-			FieldMap: logrus.FieldMap{
-				logrus.FieldKeyLevel: LevelKey,
-				logrus.FieldKeyMsg:   MessageKey,
-				logrus.FieldKeyTime:  TimestampKey,
+		log.Logger.Formatter = &fallbackFormatter{
+			baseFormatter: &logrus.JSONFormatter{
+				DisableHTMLEscape: true,
+				TimestampFormat:   time.RFC3339Nano,
+				FieldMap: logrus.FieldMap{
+					logrus.FieldKeyTime:  TimeKey,
+					logrus.FieldKeyLevel: LevelKey,
+					// msg isn't overridden because it's not usually useful
+					// and makes other data fields harder to find
+					// logrus.FieldKeyMsg:   "message",
+				},
 			},
 		}
 
 	default:
 		log.Logger.Formatter = &logrus.TextFormatter{}
-	}
-
-	log.Logger.Formatter = &fallbackFormatter{
-		baseFormatter: log.Logger.Formatter,
 	}
 
 	if c.Debug {
