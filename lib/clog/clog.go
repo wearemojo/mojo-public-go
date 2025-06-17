@@ -2,8 +2,6 @@ package clog
 
 import (
 	"context"
-	"errors"
-	"os"
 	"strings"
 	"time"
 
@@ -25,9 +23,6 @@ const loggerKey contextKey = "clog"
 const (
 	// ServiceKey is the log entry key for the name of the crpc service
 	ServiceKey = "_service"
-
-	// HostKey is the log entry key for the hostname / container ID
-	HostKey = "_hostname"
 
 	// VersionKey is the log entry key for the current version of the codebase
 	VersionKey = "_commit_hash"
@@ -62,14 +57,6 @@ func (c Config) Configure(ctx context.Context) *logrus.Entry {
 		ServiceKey: serviceName,
 		VersionKey: version.Revision,
 	})
-
-	hostname, err := os.Hostname()
-	if err != nil {
-		log.WithError(err).Warn("logger hostname configuration failed")
-		hostname = "unknown"
-	}
-
-	log = log.WithField(HostKey, hostname)
 
 	switch c.Format {
 	case "json", "logstash":
@@ -210,18 +197,6 @@ func SetError(ctx context.Context, err error) {
 	ctxLogger := mustGetContextLogger(ctx)
 
 	ctxLogger.SetError(err)
-
-	cherErr := cher.E{}
-	if errors.As(err, &cherErr) {
-		ctxLogger.SetField("error_code", cherErr.Code)
-		if len(cherErr.Reasons) > 0 {
-			ctxLogger.SetField("error_reasons", cherErr.Reasons)
-		}
-
-		if cherErr.Meta != nil {
-			ctxLogger.SetField("error_meta", cherErr.Meta)
-		}
-	}
 }
 
 // ConfigureTimeoutsAsErrors changes to default behaviour of logging timeouts as info, to log them as errors

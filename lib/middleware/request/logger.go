@@ -3,7 +3,6 @@ package request
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/wearemojo/mojo-public-go/lib/cher"
@@ -71,28 +70,15 @@ func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 			defer clog.HandlePanic(ctx, true)
 
 			clog.SetFields(ctx, clog.Fields{
-				"http_remote_addr":    r.RemoteAddr,
-				"http_user_agent":     r.UserAgent(),
-				"http_client_version": r.Header.Get("Infra-Client-Version"),
-				"http_path":           r.URL.Path,
-				"http_method":         r.Method,
-				"http_proto":          r.Proto,
-				"http_referer":        r.Referer(),
+				"http_origin":            r.Header.Get("Origin"),
+				"http_referer":           r.Header.Get("Referer"),
+				"mojo_rn_client_version": r.Header.Get("Mojo-Rn-Client-Version"),
 			})
 
 			// wrap given response writer with one that tracks status code/bytes written
 			res := &responseWriter{ResponseWriter: w}
 
-			tStart := time.Now()
 			next.ServeHTTP(res, r)
-			tEnd := time.Now()
-
-			clog.SetFields(ctx, clog.Fields{
-				"http_duration":       tEnd.Sub(tStart).String(),
-				"http_duration_us":    int64(tEnd.Sub(tStart) / time.Microsecond),
-				"http_status":         res.Status,
-				"http_response_bytes": res.Bytes,
-			})
 
 			err := getError(clog.Get(ctx))
 			if err == nil {
