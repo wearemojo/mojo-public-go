@@ -25,7 +25,9 @@ linters:
     - testpackage # disagree
     - wrapcheck # disagree
     - wsl # disagree
+    - wsl_v5 # disagree (as this is the replacement for wsl)
     - funcorder # disagree -- locality of code matters more than exported/unexported
+    - noinlineerr # disagree -- inline errors are fine
   settings:
     forbidigo:
       forbid:
