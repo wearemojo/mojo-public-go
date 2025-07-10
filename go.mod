@@ -12,6 +12,7 @@ require (
 	github.com/go-chi/chi/v5 v5.2.2
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/go-cmp v0.7.0
+	github.com/igrmk/decimal v0.0.0-20181101202222-f7eca216a71d
 	github.com/jamescun/basex v0.0.0-20180407124237-e1bcb39ab18e
 	github.com/kr/pretty v0.3.1
 	github.com/matryer/is v1.4.1
@@ -29,7 +30,7 @@ require (
 	golang.org/x/net v0.41.0
 	golang.org/x/oauth2 v0.30.0
 	golang.org/x/sync v0.15.0
-	google.golang.org/api v0.240.0
+	google.golang.org/api v0.241.0
 	google.golang.org/grpc v1.73.0
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gopkg.in/ini.v1 v1.67.0
