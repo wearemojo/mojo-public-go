@@ -10,7 +10,7 @@ require (
 	github.com/chebyrash/promise v0.0.0-20230709133807-42ec49ba1459
 	github.com/deckarep/golang-set/v2 v2.8.0
 	github.com/go-chi/chi/v5 v5.2.2
-	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/golang-jwt/jwt/v5 v5.2.3
 	github.com/google/go-cmp v0.7.0
 	github.com/igrmk/decimal v0.0.0-20181101202222-f7eca216a71d
 	github.com/jamescun/basex v0.0.0-20180407124237-e1bcb39ab18e
