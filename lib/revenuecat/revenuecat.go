@@ -8,6 +8,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/igrmk/decimal"
 	"github.com/samber/lo"
 	"github.com/wearemojo/mojo-public-go/lib/httpclient"
 	"github.com/wearemojo/mojo-public-go/lib/jsonclient"
@@ -45,20 +46,50 @@ type Subscriber struct {
 }
 
 type Entitlement struct {
-	ExpiresDate       *time.Time `json:"expires_date"`
-	ProductIdentifier string     `json:"product_identifier"`
+	ExpiresDate            *time.Time `json:"expires_date"`
+	GracePeriodExpiresDate *time.Time `json:"grace_period_expires_date"`
+	ProductIdentifier      string     `json:"product_identifier"`
+	PurchaseDate           time.Time  `json:"purchase_date"`
 }
 
 type Subscription struct {
-	PeriodType            PeriodType `json:"period_type"`
-	UnsubscribeDetectedAt *time.Time `json:"unsubscribe_detected_at"`
-	Store                 StoreType  `json:"store"`
-	ExpiresDate           *time.Time `json:"expires_date"`
+	AutoResumeDate          *time.Time    `json:"auto_resume_date"`
+	BillingIssuesDetectedAt *time.Time    `json:"billing_issues_detected_at"`
+	DisplayName             string        `json:"display_name"`
+	ExpiresDate             time.Time     `json:"expires_date"`
+	GracePeriodExpiresDate  *time.Time    `json:"grace_period_expires_date"`
+	IsSandbox               bool          `json:"is_sandbox"`
+	OriginalPurchaseDate    time.Time     `json:"original_purchase_date"`
+	OwnershipType           OwnershipType `json:"ownership_type"`
+	PeriodType              PeriodType    `json:"period_type"`
+	Price                   Price         `json:"price"`
+	PurchaseDate            time.Time     `json:"purchase_date"`
+	RefundedAt              *time.Time    `json:"refunded_at"`
+	Store                   StoreType     `json:"store"`
+	StoreTransactionID      string        `json:"store_transaction_id"`
+	UnsubscribeDetectedAt   *time.Time    `json:"unsubscribe_detected_at"`
 }
 
 type NonSubscription struct {
-	Store StoreType `json:"store"`
+	DisplayName  string    `json:"display_name"`
+	ID           string    `json:"id"`
+	IsSandbox    bool      `json:"is_sandbox"`
+	Price        Price     `json:"price"`
+	PurchaseDate time.Time `json:"purchase_date"`
+	Store        StoreType `json:"store"`
 }
+
+type Price struct {
+	Amount   decimal.Decimal `json:"amount"`
+	Currency string          `json:"currency"`
+}
+
+type OwnershipType string
+
+const (
+	OwnershipTypePurchased    OwnershipType = "PURCHASED"
+	OwnershipTypeFamilyShared OwnershipType = "FAMILY_SHARED"
+)
 
 type PeriodType string
 
@@ -92,18 +123,14 @@ func (c *Client) GetOrCreateSubscriberInfo(ctx context.Context, appUserID string
 	return res, c.client.Do(ctx, "GET", path, nil, nil, &res)
 }
 
-func (s *Subscriber) ActiveSubscriptionCount() int {
-	activeNonSubCount := len(lo.Flatten(slices.Collect(maps.Values(s.NonSubscriptions)))) // always active
-	activeSubCount := 0
+func (s *Subscriber) ActiveSubscriptions() map[string]Subscription {
 	now := time.Now()
+	return lo.PickBy(s.Subscriptions, func(key string, value Subscription) bool {
+		return value.ExpiresDate.After(now)
+	})
+}
 
-	for _, sub := range s.Subscriptions {
-		if sub.ExpiresDate != nil && sub.ExpiresDate.Before(now) {
-			continue
-		}
-
-		activeSubCount++
-	}
-
-	return activeNonSubCount + activeSubCount
+func (s *Subscriber) ActiveCount() int {
+	nonSub := lo.Flatten(slices.Collect(maps.Values(s.NonSubscriptions)))
+	return len(nonSub) + len(s.ActiveSubscriptions())
 }
