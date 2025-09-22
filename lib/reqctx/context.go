@@ -13,7 +13,7 @@ const (
 
 func GetRequest(ctx context.Context) (req *http.Request) {
 	req, _ = ctx.Value(contextKeyRequest).(*http.Request)
-	return
+	return req
 }
 
 func SetRequest(ctx context.Context, val *http.Request) context.Context {

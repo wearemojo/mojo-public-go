@@ -18,7 +18,7 @@ func (d *Decimal) UnmarshalJSON(data []byte) (err error) {
 	if err = dec.UnmarshalJSON(data); err == nil {
 		*d = Decimal(dec)
 	}
-	return
+	return err
 }
 
 type Order struct {

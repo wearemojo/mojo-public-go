@@ -21,12 +21,12 @@ func NewClient(ctx context.Context, serverKeySecretID, vapidPublicKeySecretID st
 
 	g.Go(func(ctx context.Context) (err error) {
 		_, err = secret.Get(ctx, serverKeySecretID)
-		return
+		return err
 	})
 
 	g.Go(func(ctx context.Context) (err error) {
 		_, err = secret.Get(ctx, vapidPublicKeySecretID)
-		return
+		return err
 	})
 
 	if err := g.Wait(); err != nil {

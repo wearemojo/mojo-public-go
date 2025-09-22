@@ -26,7 +26,7 @@ func MapE[T1, T2 any](slice []T1, fn func(T1) (T2, error)) (res []T2, err error)
 		}
 	}
 
-	return
+	return res, err
 }
 
 func Filter[T any](slice []T, fn func(T) bool) []T {
@@ -41,8 +41,8 @@ func Filter[T any](slice []T, fn func(T) bool) []T {
 	return res
 }
 
-func FilterE[T any](slice []T, fn func(T) (bool, error)) (res []T, err error) {
-	res = make([]T, 0, len(slice))
+func FilterE[T any](slice []T, fn func(T) (bool, error)) ([]T, error) {
+	res := make([]T, 0, len(slice))
 
 	for _, v := range slice {
 		if ok, err := fn(v); err != nil {
@@ -52,7 +52,7 @@ func FilterE[T any](slice []T, fn func(T) (bool, error)) (res []T, err error) {
 		}
 	}
 
-	return
+	return res, nil
 }
 
 func Reduce[T1, T2 any](slice []T1, fn func(acc T2, item T1) T2, initial T2) T2 {
@@ -71,11 +71,11 @@ func ReduceE[T1, T2 any](slice []T1, fn func(acc T2, item T1) (T2, error), initi
 	for _, v := range slice {
 		acc, err = fn(acc, v)
 		if err != nil {
-			return
+			return acc, err
 		}
 	}
 
-	return
+	return acc, err
 }
 
 func Some[T any](slice []T, fn func(T) bool) bool {
@@ -171,18 +171,18 @@ func Find[T any](slice []T, fn func(T) bool) (res T, ok bool) {
 		return slice[i], true
 	}
 
-	return
+	return res, ok
 }
 
 func FindE[T any](slice []T, fn func(T) (bool, error)) (res T, ok bool, err error) {
 	i, err := FindIndexE(slice, fn)
 	if err != nil {
-		return
+		return res, ok, err
 	} else if i >= 0 {
 		return slice[i], true, nil
 	}
 
-	return
+	return res, ok, err
 }
 
 func FindPtr[T any](slice []T, fn func(T) bool) *T {
@@ -210,18 +210,18 @@ func FindLast[T any](slice []T, fn func(T) bool) (res T, ok bool) {
 		return slice[i], true
 	}
 
-	return
+	return res, ok
 }
 
 func FindLastE[T any](slice []T, fn func(T) (bool, error)) (res T, ok bool, err error) {
 	i, err := FindLastIndexE(slice, fn)
 	if err != nil {
-		return
+		return res, ok, err
 	} else if i >= 0 {
 		return slice[i], true, nil
 	}
 
-	return
+	return res, ok, err
 }
 
 func FindLastPtr[T any](slice []T, fn func(T) bool) *T {

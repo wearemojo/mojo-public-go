@@ -54,7 +54,7 @@ func (c *ConnectClient) StringifyAndSign(params url.Values) (sso, sig string) {
 	sso = base64.StdEncoding.EncodeToString([]byte(params.Encode()))
 	sig = c.sign(sso)
 
-	return
+	return sso, sig
 }
 
 func (c *ConnectClient) ParseAndVerify(ctx context.Context, sso, sig string) (url.Values, error) {

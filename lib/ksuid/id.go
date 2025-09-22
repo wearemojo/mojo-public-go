@@ -46,17 +46,17 @@ func Parse(str string) (id ID, err error) {
 
 	if len(src) < encodedLen {
 		err = &ParseError{"ksuid too short"}
-		return
+		return id, err
 	} else if len(src) > encodedLen {
 		err = &ParseError{"ksuid too long"}
-		return
+		return id, err
 	}
 
 	dst := make([]byte, decodedLen)
 	err = fastDecodeBase62(dst, src)
 	if err != nil {
 		err = &ParseError{"invalid base62: " + err.Error()}
-		return
+		return id, err
 	}
 
 	id.Timestamp = binary.BigEndian.Uint64(dst[:8])
@@ -64,7 +64,7 @@ func Parse(str string) (id ID, err error) {
 	copy(id.InstanceID.BytesData[:], dst[9:17])
 	id.SequenceID = binary.BigEndian.Uint32(dst[17:])
 
-	return
+	return id, err
 }
 
 func splitPrefixID(input []byte) (environment, resource string, id []byte) {
@@ -74,7 +74,7 @@ func splitPrefixID(input []byte) (environment, resource string, id []byte) {
 	lastIdx := bytes.LastIndexByte(input, '_')
 	if lastIdx < 0 {
 		id = input
-		return
+		return environment, resource, id
 	}
 
 	firstIdx := bytes.IndexByte(input[:lastIdx], '_')
@@ -82,13 +82,13 @@ func splitPrefixID(input []byte) (environment, resource string, id []byte) {
 		environment = string(input[:firstIdx])
 		resource = string(input[firstIdx+1 : lastIdx])
 		id = input[lastIdx+1:]
-		return
+		return environment, resource, id
 	}
 
 	resource = string(input[:lastIdx])
 	id = input[lastIdx+1:]
 
-	return
+	return environment, resource, id
 }
 
 // IsZero returns true if id has not yet been initialized.
@@ -143,7 +143,7 @@ func (id ID) prefixLen() (n int) {
 		}
 	}
 
-	return
+	return n
 }
 
 // MarshalJSON implements a custom JSON string marshaler.
@@ -161,16 +161,16 @@ func (id *ID) UnmarshalJSON(b []byte) (err error) {
 	var str string
 	err = json.Unmarshal(b, &str)
 	if err != nil {
-		return
+		return err
 	}
 
 	n, err := Parse(str)
 	if err != nil {
-		return
+		return err
 	}
 
 	*id = n
-	return
+	return err
 }
 
 // MarshalBSONValue implements bson.ValueMarshaler
@@ -183,16 +183,16 @@ func (id ID) MarshalBSONValue() (byte, []byte, error) {
 func (id *ID) UnmarshalBSONValue(t byte, raw []byte) (err error) {
 	var str string
 	if err = bson.UnmarshalValue(bson.Type(t), raw, &str); err != nil {
-		return
+		return err
 	}
 
 	n, err := Parse(str)
 	if err != nil {
-		return
+		return err
 	}
 
 	*id = n
-	return
+	return err
 }
 
 // Bytes stringifies and returns ID as a byte slice.

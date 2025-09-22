@@ -40,7 +40,7 @@ func (c *KeyedCache[TKey, TVal]) Get(key TKey) (item CachedItem[TVal], ok bool) 
 	defer c.lock.RUnlock()
 
 	item, ok = c.items[key]
-	return
+	return item, ok
 }
 
 func (c *KeyedCache[TKey, TVal]) GetMany(keys []TKey) map[TKey]CachedItem[TVal] {

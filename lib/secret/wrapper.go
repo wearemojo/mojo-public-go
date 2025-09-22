@@ -11,7 +11,7 @@ type Wrapper struct {
 func NewWrapper(ctx context.Context, secretID string) (w *Wrapper, err error) {
 	w = &Wrapper{secretID: secretID}
 	_, err = w.Get(ctx)
-	return
+	return w, err
 }
 
 func (w *Wrapper) Get(ctx context.Context) (string, error) {

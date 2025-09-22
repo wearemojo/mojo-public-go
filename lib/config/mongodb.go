@@ -32,7 +32,7 @@ func (m MongoDB) Options(ctx context.Context) (opts *options.ClientOptions, dbNa
 
 	err = opts.Validate()
 	if err != nil {
-		return
+		return opts, dbName, err
 	}
 
 	// all Go services use majority reads/writes, and this is unlikely to change
@@ -42,7 +42,7 @@ func (m MongoDB) Options(ctx context.Context) (opts *options.ClientOptions, dbNa
 
 	cs, err := connstring.Parse(m.URI)
 	if err != nil {
-		return
+		return opts, dbName, err
 	}
 
 	dbName = cs.Database
@@ -50,7 +50,7 @@ func (m MongoDB) Options(ctx context.Context) (opts *options.ClientOptions, dbNa
 		err = merr.New(ctx, "mongo_db_name_missing", nil)
 	}
 
-	return
+	return opts, dbName, err
 }
 
 // Connect returns a connected mongo.Database instance.

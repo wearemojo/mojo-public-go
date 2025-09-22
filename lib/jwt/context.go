@@ -21,10 +21,10 @@ func ContextWithVerifier(ctx context.Context, val Verifier) context.Context {
 
 func ContextSigner(ctx context.Context) (val Signer) {
 	val, _ = ctx.Value(contextKeySigner).(Signer)
-	return
+	return val
 }
 
 func ContextVerifier(ctx context.Context) (val Verifier) {
 	val, _ = ctx.Value(contextKeyVerifier).(Verifier)
-	return
+	return val
 }

@@ -19,7 +19,7 @@ type HMAC struct {
 func New(ctx context.Context, secretID string) (hmac *HMAC, err error) {
 	hmac = &HMAC{secretID: secretID}
 	_, err = hmac.getSecret(ctx)
-	return
+	return hmac, err
 }
 
 func (h HMAC) getSecret(ctx context.Context) ([]byte, error) {

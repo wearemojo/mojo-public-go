@@ -10,14 +10,14 @@ import (
 func Connect(ctx context.Context, opts *options.ClientOptions, dbName string) (db *Database, err error) {
 	client, err := mongo.Connect(opts)
 	if err != nil {
-		return
+		return db, err
 	}
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		return
+		return db, err
 	}
 
 	db = &Database{client.Database(dbName)}
-	return
+	return db, err
 }

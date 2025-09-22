@@ -46,6 +46,9 @@ linters:
         ruleguard:
           failOn: all
           rules: ${base-path}/rules.go
+    godoclint:
+      disable:
+        - start-with-name # disagree
     govet:
       disable:
         - fieldalignment # impractical

@@ -594,13 +594,13 @@ var expRequestPath = regexp.MustCompile(`^/(preview|latest|20\d{2}-\d{2}-\d{2})/
 func requestPath(path string) (method, version string, ok bool) {
 	match := expRequestPath.FindStringSubmatch(path)
 	if len(match) != 3 {
-		return
+		return method, version, ok
 	}
 
 	version = match[1]
 	method = match[2]
 	ok = true
-	return
+	return method, version, ok
 }
 
 func (s *Server) writeError(ctx context.Context, w http.ResponseWriter, err error) {

@@ -47,7 +47,7 @@ func TestWrap(t *testing.T) {
 			"fn_output_params_invalid",
 		},
 		{
-			"LongOutput", func(ctx context.Context) (foo, bar string, err error) { return },
+			"LongOutput", func(ctx context.Context) (foo, bar string, err error) { return foo, bar, err },
 			"fn_output_params_invalid",
 		},
 		{
@@ -67,7 +67,7 @@ func TestWrap(t *testing.T) {
 			"fn_second_input_not_struct_pointer",
 		},
 		{
-			"OutputNotPointer", func(ctx context.Context) (out testOutput, err error) { return },
+			"OutputNotPointer", func(ctx context.Context) (out testOutput, err error) { return out, err },
 			"response_type_invalid",
 		},
 	}

@@ -24,12 +24,12 @@ func (r roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	g.Go(func(ctx context.Context) (err error) {
 		serverKey, err = secret.Get(ctx, r.ServerKeySecretID)
-		return
+		return err
 	})
 
 	g.Go(func(ctx context.Context) (err error) {
 		vapidPublicKey, err = secret.Get(ctx, r.VAPIDPublicKeySecretID)
-		return
+		return err
 	})
 
 	if err := g.Wait(); err != nil {

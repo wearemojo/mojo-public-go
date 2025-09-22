@@ -15,10 +15,10 @@ func GroupMapAndWait[TIn, TOut any](group *Group, inputs []TIn, fn func(ctx cont
 	for idx, input := range inputs {
 		group.Go(func(ctx context.Context) (err error) {
 			res[idx], err = fn(ctx, input)
-			return
+			return err
 		})
 	}
 
 	err = group.Wait()
-	return
+	return res, err
 }

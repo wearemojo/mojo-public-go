@@ -18,7 +18,7 @@ const contextKeyProvider contextKey = "provider"
 
 func getProvider(ctx context.Context) (val Provider) {
 	val, _ = ctx.Value(contextKeyProvider).(Provider)
-	return
+	return val
 }
 
 func ContextWithProvider(ctx context.Context, val Provider) context.Context {

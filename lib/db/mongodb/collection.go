@@ -17,7 +17,7 @@ func (c Collection) SetupIndexes(models []mongo.IndexModel) (err error) {
 	defer cancel()
 
 	_, err = c.Indexes().CreateMany(ctx, models)
-	return
+	return err
 }
 
 func (c Collection) FindAll(ctx context.Context, filter, results any, opts ...options.Lister[options.FindOptions]) (err error) {
@@ -25,5 +25,5 @@ func (c Collection) FindAll(ctx context.Context, filter, results any, opts ...op
 	if err == nil {
 		err = cur.All(ctx, results)
 	}
-	return
+	return err
 }
