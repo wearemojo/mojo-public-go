@@ -18,7 +18,6 @@ require (
 	github.com/matryer/is v1.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/quasilyte/go-ruleguard/dsl v0.3.23
-	github.com/redis/go-redis/v9 v9.14.0
 	github.com/samber/lo v1.51.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stripe/stripe-go/v78 v78.12.0
@@ -42,8 +41,6 @@ require (
 	cloud.google.com/go/compute/metadata v0.8.4 // indirect
 	cloud.google.com/go/iam v1.5.2 // indirect
 	cloud.google.com/go/longrunning v0.6.7 // indirect
-	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
