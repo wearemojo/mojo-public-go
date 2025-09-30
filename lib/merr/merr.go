@@ -2,10 +2,12 @@ package merr
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/kr/pretty"
 	"github.com/wearemojo/mojo-public-go/lib/stacktrace"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -136,4 +138,30 @@ func (e E) Unwrap() []error {
 
 func (e E) GetStack() []stacktrace.Frame {
 	return e.Stack
+}
+
+// MarshalJSON ensures that all reasons are JSON serializable.
+func (e E) MarshalJSON() ([]byte, error) {
+	// Alias to avoid infinite recursion
+	type Alias E
+	aux := struct {
+		*Alias
+
+		Reasons []any `json:"reasons"`
+	}{
+		Alias: (*Alias)(&e),
+	}
+
+	aux.Reasons = make([]any, len(e.Reasons))
+	for idx, reason := range e.Reasons {
+		marshaledReason, err := json.Marshal(reason)
+		if err != nil {
+			// If the reason cannot be marshaled, fall back to its string representation
+			aux.Reasons[idx] = pretty.Sprint(reason)
+		} else {
+			aux.Reasons[idx] = json.RawMessage(marshaledReason)
+		}
+	}
+
+	return json.Marshal(aux)
 }

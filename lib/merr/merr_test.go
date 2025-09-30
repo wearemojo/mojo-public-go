@@ -1,12 +1,15 @@
 package merr
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"strings"
 	"testing"
 
 	"github.com/matryer/is"
 	"github.com/wearemojo/mojo-public-go/lib/gerrors"
+	"github.com/wearemojo/mojo-public-go/lib/gjson"
 	"github.com/wearemojo/mojo-public-go/lib/stacktrace"
 )
 
@@ -188,4 +191,38 @@ func TestEAs(t *testing.T) {
 
 	_, ok := gerrors.As[E](err)
 	is.True(ok)
+}
+
+type unmarshallableError struct {
+	GoUnmarshalYourself func(ctx context.Context) error
+}
+
+func (ue unmarshallableError) Error() string {
+	return "literally unmarshallable"
+}
+
+func TestReasonsMarshallingEnforcing(t *testing.T) {
+	is := is.New(t)
+
+	ctx := t.Context()
+
+	reason := unmarshallableError{
+		GoUnmarshalYourself: func(context.Context) error {
+			//nolint:err113,forbidigo // testing be crazy
+			return errors.New("good luck seeing me in the logs")
+		},
+	}
+
+	errFoo := New(ctx, "foo", nil, reason)
+
+	output, err := json.Marshal(errFoo)
+	is.NoErr(err)
+
+	mapped, err := gjson.Unmarshal[map[string]any](output)
+	is.NoErr(err)
+
+	reasons, ok := mapped["reasons"].([]any)
+	is.True(ok)
+	is.Equal(len(reasons), 1)
+	is.Equal(reasons[0], "merr.unmarshallableError{GoUnmarshalYourself:func(context.Context) error {...}}")
 }
