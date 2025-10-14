@@ -125,15 +125,13 @@ func Wrap(fn any) (*WrappedFunc, error) {
 	var hasResponseOutput bool
 
 	if inputCount == 2 {
-		secondInput := fnType.In(1)
-		if secondInput.Kind() != reflect.Ptr {
-			return nil, merr.New(ctx, "fn_second_input_not_pointer", merr.M{"type": secondInput.Kind()})
+		typ := fnType.In(1)
+		if typ.Kind() != reflect.Pointer || typ.Elem().Kind() != reflect.Struct {
+			// only *SomeStruct is allowed
+			return nil, merr.New(ctx, "request_type_invalid", merr.M{"type": typ.Kind()})
 		}
 
-		reqType = secondInput.Elem()
-		if reqType.Kind() != reflect.Struct {
-			return nil, merr.New(ctx, "fn_second_input_not_struct_pointer", merr.M{"type": reqType.Kind()})
-		}
+		reqType = typ.Elem()
 	}
 
 	if outputCount == 2 {
@@ -206,32 +204,12 @@ func Wrap(fn any) (*WrappedFunc, error) {
 }
 
 func checkResponseType(ctx context.Context, typ reflect.Type) error {
-	//nolint:exhaustive // we only need to validate these types
-	switch typ.Kind() {
-	case reflect.Ptr:
-		elem := typ.Elem()
-
-		if elem.Kind() != reflect.Struct && elem.Kind() != reflect.String {
-			err := checkResponseType(ctx, elem)
-			if err != nil {
-				return err
-			}
-		}
-
+	switch {
+	case
+		typ.Kind() == reflect.Pointer && typ.Elem().Kind() == reflect.Struct, // *SomeStruct
+		typ.Kind() == reflect.Slice && typ.Elem().Kind() == reflect.Struct,   // []SomeStruct
+		typ.Kind() == reflect.Slice && typ.Elem().Kind() == reflect.String:   // []string
 		return nil
-
-	case reflect.Slice:
-		elem := typ.Elem()
-
-		if elem.Kind() != reflect.String {
-			err := checkResponseType(ctx, elem)
-			if err != nil {
-				return err
-			}
-		}
-
-		return nil
-
 	default:
 		return merr.New(ctx, "response_type_invalid", merr.M{"type": typ.Kind()})
 	}

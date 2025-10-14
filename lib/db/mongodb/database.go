@@ -41,7 +41,7 @@ func (db Database) SetupSchemas(ctx context.Context, schemaFS fs.FS, collectionN
 			return fmt.Sprintf("%s.json", colName) == schemaFileName
 		})
 		if !ok {
-			return merr.New(ctx, "schema_defined_but_not_used", merr.M{"schema": schemaFileName}, nil)
+			return merr.New(ctx, "schema_defined_but_not_used", merr.M{"schema": schemaFileName})
 		}
 
 		file, err := schemaFS.Open(schemaFileName)
@@ -79,7 +79,7 @@ func (db Database) SetupSchemas(ctx context.Context, schemaFS fs.FS, collectionN
 
 	for _, colName := range collectionNames {
 		if _, ok := usedCollectionNames[colName]; !ok {
-			return merr.New(ctx, "collection_defined_but_no_matching_schema_defined", merr.M{"collection": colName}, nil)
+			return merr.New(ctx, "collection_defined_but_no_matching_schema_defined", merr.M{"collection": colName})
 		}
 	}
 

@@ -60,14 +60,19 @@ func TestWrap(t *testing.T) {
 		},
 		{
 			"InputNotPointer", func(ctx context.Context, in testInput) error { return nil },
-			"fn_second_input_not_pointer",
+			"request_type_invalid",
 		},
 		{
 			"InputNotStruct", func(ctx context.Context, in *string) error { return nil },
-			"fn_second_input_not_struct_pointer",
+			"request_type_invalid",
 		},
 		{
 			"OutputNotPointer", func(ctx context.Context) (out testOutput, err error) { return out, err },
+			"response_type_invalid",
+		},
+		{
+			//nolint:gocritic // needed for testing
+			"OutputNotPointer", func(ctx context.Context) (out []*testOutput, err error) { return out, err },
 			"response_type_invalid",
 		},
 	}

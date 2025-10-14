@@ -30,7 +30,7 @@ func NewClient(timeout time.Duration, transport http.RoundTripper) *http.Client 
 // cookies, by ensuring they can only be sent to the original host (or
 // subdomains). If Go has seen fit to remove the auth data, we will consider the
 // new request to be materially different, and stop following redirects.
-func CheckRedirect(req *http.Request, via []*http.Request) error {
+func CheckRedirect(req *http.Request, via []*http.Request) error { //nolint:gocritic // Required by Go stdlib
 	if len(via) >= 10 {
 		//nolint:forbidigo,err113 // ripped directly from stdlib
 		return errors.New("stopped after 10 redirects")
