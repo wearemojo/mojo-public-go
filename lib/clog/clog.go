@@ -101,7 +101,7 @@ func (f *fallbackFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	// fall back to pretty printing the entry data
 	entry = entry.Dup()
-	entry.Data = logrus.Fields{"_fallback_data": pretty.Sprint(entry.Data)}
+	entry.Data = logrus.Fields{"_fallback_data": pretty.Sprint(entry.Data), "_format_error": pretty.Sprint(err)}
 	output, err = f.baseFormatter.Format(entry)
 	if err == nil {
 		return output, nil
