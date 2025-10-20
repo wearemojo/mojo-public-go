@@ -5,7 +5,7 @@ go 1.25
 require (
 	cloud.google.com/go v0.123.0
 	cloud.google.com/go/kms v1.23.2
-	cloud.google.com/go/secretmanager v1.15.1
+	cloud.google.com/go/secretmanager v1.16.0
 	github.com/blang/semver/v4 v4.0.0
 	github.com/chebyrash/promise v0.0.0-20230709133807-42ec49ba1459
 	github.com/deckarep/golang-set/v2 v2.8.0
