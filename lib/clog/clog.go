@@ -199,7 +199,7 @@ func SetError(ctx context.Context, err error) {
 	ctxLogger.SetError(err)
 }
 
-// ConfigureTimeoutsAsErrors changes to default behaviour of logging timeouts as info, to log them as errors
+// ConfigureTimeoutsAsErrors changes to default behavior of logging timeouts as info, to log them as errors
 func ConfigureTimeoutsAsErrors(ctx context.Context) {
 	mustGetContextLogger(ctx).timeoutsAsErrors = true
 }
