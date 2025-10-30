@@ -1,6 +1,8 @@
 package slicefn
 
 import (
+	"slices"
+
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
@@ -79,13 +81,7 @@ func ReduceE[T1, T2 any](slice []T1, fn func(acc T2, item T1) (T2, error), initi
 }
 
 func Some[T any](slice []T, fn func(T) bool) bool {
-	for _, v := range slice {
-		if fn(v) {
-			return true
-		}
-	}
-
-	return false
+	return slices.ContainsFunc(slice, fn)
 }
 
 func SomeE[T any](slice []T, fn func(T) (bool, error)) (bool, error) {

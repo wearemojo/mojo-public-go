@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"reflect"
 	"regexp"
@@ -74,8 +75,8 @@ type WrappedFunc struct {
 }
 
 var (
-	errorType   = reflect.TypeOf((*error)(nil)).Elem()
-	contextType = reflect.TypeOf((*context.Context)(nil)).Elem()
+	errorType   = reflect.TypeFor[error]()
+	contextType = reflect.TypeFor[context.Context]()
 )
 
 // Wrap reflects a HandlerFunc from any function matching the
@@ -424,9 +425,7 @@ func (s *Server) buildRoutes() {
 	// then setting on the version any explicitly defined method
 	for _, version := range knownVersions {
 		if previousVersion != "" {
-			for mn, fn := range resolvedMethods[previousVersion] {
-				resolvedMethods[version][mn] = fn
-			}
+			maps.Copy(resolvedMethods[version], resolvedMethods[previousVersion])
 		}
 
 		for mn, fn := range s.registeredVersionMethods[version] {

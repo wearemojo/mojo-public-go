@@ -12,18 +12,14 @@ type SettledGroup struct {
 }
 
 func (g *SettledGroup) Go(fn func() (err error)) {
-	g.wg.Add(1)
-
-	go func() {
-		defer g.wg.Done()
-
+	g.wg.Go(func() {
 		if err := fn(); err != nil {
 			g.errsMu.Lock()
 			defer g.errsMu.Unlock()
 
 			g.errs = append(g.errs, err)
 		}
-	}()
+	})
 }
 
 func (g *SettledGroup) Wait() []error {

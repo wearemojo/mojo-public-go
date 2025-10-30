@@ -5,7 +5,7 @@ import (
 )
 
 func BenchmarkGenerate(b *testing.B) {
-	for range b.N {
+	for b.Loop() {
 		Generate(b.Context(), "user")
 	}
 }

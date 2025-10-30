@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net"
 	"net/http"
 	"net/url"
@@ -116,9 +117,7 @@ func (c *Client) do(
 		req.URL.RawQuery = params.Encode()
 	}
 
-	for key, value := range headers {
-		req.Header[key] = value
-	}
+	maps.Copy(req.Header, headers)
 
 	for _, modifier := range requestModifiers {
 		modifier(req)

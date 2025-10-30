@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/kr/pretty"
@@ -105,17 +106,18 @@ func (e E) String() string {
 //
 // No compatibility guarantees are made with its output - it may change at any time
 func (e E) Error() string {
-	str := string(e.Code)
+	var str strings.Builder
+	str.WriteString(string(e.Code))
 
 	if len(e.Meta) > 0 {
-		str += fmt.Sprintf(" (%v)", e.Meta)
+		str.WriteString(fmt.Sprintf(" (%v)", e.Meta))
 	}
 
 	for _, reason := range e.Reasons {
-		str += fmt.Sprintf("\n- %v", reason)
+		str.WriteString(fmt.Sprintf("\n- %v", reason))
 	}
 
-	return str
+	return str.String()
 }
 
 // Is enables the use of `errors.Is`

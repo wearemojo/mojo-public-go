@@ -1,6 +1,7 @@
 package discourse
 
 import (
+	"maps"
 	"net/http"
 )
 
@@ -15,9 +16,7 @@ func (r roundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 		req.Header = http.Header{}
 	}
 
-	for k, v := range r.header {
-		req.Header[k] = v
-	}
+	maps.Copy(req.Header, r.header)
 
 	return http.DefaultTransport.RoundTrip(req)
 }

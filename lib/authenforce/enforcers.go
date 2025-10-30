@@ -56,11 +56,7 @@ func (e Enforcers) Run(ctx context.Context, authState any, req []byte) error {
 	var wg sync.WaitGroup
 
 	for _, enforcer := range e {
-		wg.Add(1)
-
-		go func() {
-			defer wg.Done()
-
+		wg.Go(func() {
 			handled, err := enforcer(ctx, authState, req)
 
 			outcomeMutex.Lock()
@@ -70,7 +66,7 @@ func (e Enforcers) Run(ctx context.Context, authState any, req []byte) error {
 				handled: handled,
 				err:     err,
 			})
-		}()
+		})
 	}
 
 	wg.Wait()

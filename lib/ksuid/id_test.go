@@ -110,7 +110,7 @@ func TestParse(t *testing.T) {
 }
 
 func BenchmarkParse(b *testing.B) {
-	for range b.N {
+	for b.Loop() {
 		_, _ = Parse("user_000000BPG6Lks9tQoAiJYrBRSXPX6")
 	}
 }
