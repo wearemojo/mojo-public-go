@@ -79,12 +79,45 @@ func (e E) Merr() E {
 	return e
 }
 
-func (e E) Fields() map[string]any {
-	return map[string]any{
-		"code":    e.Code,
-		"meta":    e.Meta,
-		"stack":   e.Stack,
-		"reasons": e.Reasons,
+type Fields struct {
+	Code    Code               `json:"code"`
+	Meta    M                  `json:"meta"`
+	Stack   []stacktrace.Frame `json:"stack"`
+	Reasons []error            `json:"reasons"`
+}
+
+// MarshalJSON ensures that all reasons are JSON serializable.
+func (f Fields) MarshalJSON() ([]byte, error) {
+	// Alias to avoid infinite recursion
+	type Alias Fields
+	aux := struct {
+		*Alias
+
+		Reasons []any `json:"reasons"`
+	}{
+		Alias: (*Alias)(&f),
+	}
+
+	aux.Reasons = make([]any, len(f.Reasons))
+	for idx, reason := range f.Reasons {
+		marshaledReason, err := json.Marshal(reason)
+		if err != nil {
+			// If the reason cannot be marshaled, fall back to its string representation
+			aux.Reasons[idx] = pretty.Sprint(reason)
+		} else {
+			aux.Reasons[idx] = json.RawMessage(marshaledReason)
+		}
+	}
+
+	return json.Marshal(aux)
+}
+
+func (e E) Fields() Fields {
+	return Fields{
+		Code:    e.Code,
+		Meta:    e.Meta,
+		Stack:   e.Stack,
+		Reasons: e.Reasons,
 	}
 }
 
@@ -140,30 +173,4 @@ func (e E) Unwrap() []error {
 
 func (e E) GetStack() []stacktrace.Frame {
 	return e.Stack
-}
-
-// MarshalJSON ensures that all reasons are JSON serializable.
-func (e E) MarshalJSON() ([]byte, error) {
-	// Alias to avoid infinite recursion
-	type Alias E
-	aux := struct {
-		*Alias
-
-		Reasons []any `json:"reasons"`
-	}{
-		Alias: (*Alias)(&e),
-	}
-
-	aux.Reasons = make([]any, len(e.Reasons))
-	for idx, reason := range e.Reasons {
-		marshaledReason, err := json.Marshal(reason)
-		if err != nil {
-			// If the reason cannot be marshaled, fall back to its string representation
-			aux.Reasons[idx] = pretty.Sprint(reason)
-		} else {
-			aux.Reasons[idx] = json.RawMessage(marshaledReason)
-		}
-	}
-
-	return json.Marshal(aux)
 }

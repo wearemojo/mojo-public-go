@@ -215,7 +215,7 @@ func TestReasonsMarshallingEnforcing(t *testing.T) {
 
 	errFoo := New(ctx, "foo", nil, reason)
 
-	output, err := json.Marshal(errFoo)
+	output, err := json.Marshal(errFoo.Fields())
 	is.NoErr(err)
 
 	mapped, err := gjson.Unmarshal[map[string]any](output)

@@ -74,17 +74,23 @@ func log(ctx context.Context, level logrus.Level, err merr.Merrer) {
 
 	// if we're doing unstructured/text logging, try to improve readability
 	if _, ok := logger.Logger.Formatter.(*logrus.TextFormatter); ok {
+		newFields := logrus.Fields{
+			"code":    merrFields.Code,
+			"meta":    merrFields.Meta,
+			"stack":   merrFields.Stack,
+			"reasons": merrFields.Reasons,
+		}
 		if level <= logrus.InfoLevel {
-			delete(merrFields, "stack")
+			delete(newFields, "stack")
 		}
-		if merrFields["meta"] == nil {
-			delete(merrFields, "meta")
+		if newFields["meta"] == nil {
+			delete(newFields, "meta")
 		}
-		if merrFields["reason"] == nil {
-			delete(merrFields, "reason")
+		if newFields["reasons"] == nil {
+			delete(newFields, "reasons")
 		}
 
-		fields = merrFields
+		fields = newFields
 	}
 
 	if merr.Stack != nil && level > logrus.InfoLevel {
