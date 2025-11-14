@@ -42,3 +42,10 @@ func slicePointers(m dsl.Matcher) {
 		Report(`use []T instead of []*T for slices of structs`).
 		Suggest(`[]$x`)
 }
+
+func ttlcacheNewKeyedAny(m dsl.Matcher) {
+	m.Import("github.com/wearemojo/mojo-public-go/lib/ttlcache")
+
+	m.Match(`ttlcache.NewKeyed[$T, any]($ttl)`).
+		Report(`use ttlcache.NewSingular instead`)
+}
