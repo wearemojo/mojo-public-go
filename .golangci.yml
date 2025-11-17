@@ -63,6 +63,11 @@ linters:
       case:
         rules:
           json: snake
+    unused:
+      field-writes-are-uses: false
+      exported-fields-are-used: false
+      local-variables-are-used: false
+      generated-is-used: false
     varnamelen:
       ignore-names:
         - T

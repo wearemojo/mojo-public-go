@@ -19,6 +19,7 @@ import (
 var _ jwtinterface.Verifier = (*Verifier)(nil)
 
 type cacheKey struct {
+	//nolint:unused // important for cache key
 	issuer, keyID string
 }
 
