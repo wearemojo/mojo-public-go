@@ -1,4 +1,3 @@
-//nolint:gosec // we're using fixed timestamps for tests
 package ksuid
 
 import (

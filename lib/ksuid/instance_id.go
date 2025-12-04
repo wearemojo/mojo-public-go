@@ -37,7 +37,6 @@ func NewHardwareID(ctx context.Context) (InstanceID, error) {
 		return InstanceID{}, err
 	}
 
-	//nolint:gosec // we're intentionally truncating to 16 bits
 	processID := uint16(os.Getpid() & 0xFFFF)
 
 	var bytes [8]byte

@@ -63,7 +63,6 @@ func (n *Node) Generate(ctx context.Context, resource string) (id ID) {
 
 	n.sequenceMu.Lock()
 
-	//nolint:gosec // this is a problem before 1970, but we live in the future
 	timestamp := uint64(time.Now().UTC().Unix())
 	if (timestamp - n.timestamp) >= 1 {
 		n.timestamp = timestamp
