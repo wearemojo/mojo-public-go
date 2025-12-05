@@ -18,3 +18,11 @@ func MustUnmarshal[T any](data []byte) T {
 	}
 	return res
 }
+
+func Remarshal[T any](in T) (res T, err error) {
+	bytes, err := json.Marshal(in)
+	if err != nil {
+		return res, err
+	}
+	return Unmarshal[T](bytes)
+}
