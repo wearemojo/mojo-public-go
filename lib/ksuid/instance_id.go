@@ -37,6 +37,7 @@ func NewHardwareID(ctx context.Context) (InstanceID, error) {
 		return InstanceID{}, err
 	}
 
+	//nolint:gosec // G115: expected & done explicitly
 	processID := uint16(os.Getpid() & 0xFFFF)
 
 	var bytes [8]byte

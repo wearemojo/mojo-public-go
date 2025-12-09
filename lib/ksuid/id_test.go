@@ -54,7 +54,8 @@ func TestParse(t *testing.T) {
 			"Bare", []byte("000000BPG6Lks9tQoAiJYrBRSXPX6"),
 			ID{
 				Environment: Production,
-				Timestamp:   uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
+				//nolint:gosec // G115: not an issue for this date
+				Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 				InstanceID: InstanceID{
 					SchemeData: 'H',
 					BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
@@ -68,7 +69,8 @@ func TestParse(t *testing.T) {
 			ID{
 				Environment: Production,
 				Resource:    "user",
-				Timestamp:   uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
+				//nolint:gosec // G115: not an issue for this date
+				Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 				InstanceID: InstanceID{
 					SchemeData: 'H',
 					BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
@@ -82,7 +84,8 @@ func TestParse(t *testing.T) {
 			ID{
 				Environment: "test",
 				Resource:    "user",
-				Timestamp:   uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
+				//nolint:gosec // G115: not an issue for this date
+				Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 				InstanceID: InstanceID{
 					SchemeData: 'H',
 					BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
@@ -127,7 +130,8 @@ func TestID(t *testing.T) {
 				"Bytes", []byte("000000BPG6Lks9tQoAiJYrBRSXPX6"),
 				ID{
 					Environment: Production,
-					Timestamp:   uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
+					//nolint:gosec // G115: not an issue for this date
+					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
 						SchemeData: 'H',
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
@@ -140,7 +144,8 @@ func TestID(t *testing.T) {
 				"String", "000000BPG6Lks9tQoAiJYrBRSXPX6",
 				ID{
 					Environment: Production,
-					Timestamp:   uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
+					//nolint:gosec // G115: not an issue for this date
+					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
 						SchemeData: 'H',
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
@@ -185,7 +190,8 @@ func TestID(t *testing.T) {
 				"Bare", []byte(`"000000BPG6Lks9tQoAiJYrBRSXPX6"`),
 				ID{
 					Environment: Production,
-					Timestamp:   uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
+					//nolint:gosec // G115: not an issue for this date
+					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
 						SchemeData: 'H',
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
@@ -199,7 +205,8 @@ func TestID(t *testing.T) {
 				ID{
 					Resource:    "user",
 					Environment: Production,
-					Timestamp:   uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
+					//nolint:gosec // G115: not an issue for this date
+					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
 						SchemeData: 'H',
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
@@ -213,7 +220,8 @@ func TestID(t *testing.T) {
 				ID{
 					Resource:    "user",
 					Environment: "test",
-					Timestamp:   uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
+					//nolint:gosec // G115: not an issue for this date
+					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
 						SchemeData: 'H',
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
@@ -250,6 +258,7 @@ func TestID(t *testing.T) {
 		}{
 			{
 				"Bare", ID{
+					//nolint:gosec // G115: not an issue for this date
 					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
 						SchemeData: 'H',
@@ -261,7 +270,8 @@ func TestID(t *testing.T) {
 			{
 				"BareEnvironment", ID{
 					Environment: "test",
-					Timestamp:   uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
+					//nolint:gosec // G115: not an issue for this date
+					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
 						SchemeData: 'H',
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
@@ -271,7 +281,8 @@ func TestID(t *testing.T) {
 			},
 			{
 				"Resource", ID{
-					Resource:  "user",
+					Resource: "user",
+					//nolint:gosec // G115: not an issue for this date
 					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
 						SchemeData: 'H',
@@ -284,7 +295,8 @@ func TestID(t *testing.T) {
 				"ResourceProduction", ID{
 					Environment: Production,
 					Resource:    "user",
-					Timestamp:   uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
+					//nolint:gosec // G115: not an issue for this date
+					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
 						SchemeData: 'H',
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
@@ -296,7 +308,8 @@ func TestID(t *testing.T) {
 				"ResourceEnvironment", ID{
 					Resource:    "user",
 					Environment: "test",
-					Timestamp:   uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
+					//nolint:gosec // G115: not an issue for this date
+					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
 						SchemeData: 'H',
 						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
