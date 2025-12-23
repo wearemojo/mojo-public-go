@@ -49,3 +49,11 @@ func ttlcacheNewKeyedAny(m dsl.Matcher) {
 	m.Match(`ttlcache.NewKeyed[$T, any]($ttl)`).
 		Report(`use ttlcache.NewSingular instead`)
 }
+
+func forbidOmitEmpty(m dsl.Matcher) {
+	m.Match(`struct { $*fields }`).
+		Where(
+			m["fields"].Text.Matches(`,omitempty`),
+		).
+		Report(`avoid using ,omitempty in struct field tags`)
+}

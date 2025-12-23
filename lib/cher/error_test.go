@@ -81,7 +81,7 @@ func TestCoerce(t *testing.T) {
 		{"E", E{Code: "foo"}, E{Code: "foo"}},
 		{"String", "foo", E{Code: "foo"}},
 		{"JSON", []byte(`{"code":"foo"}`), E{Code: "foo"}},
-		{"BadJSON", []byte(`{"code":0}`), E{Code: CoercionError, Meta: M{"message": "json: cannot unmarshal number into Go struct field E.code of type string"}}},
+		{"BadJSON", []byte(`{"code":0}`), E{Code: CoercionError, Meta: M{"message": "json: cannot unmarshal number into Go struct field alias.code of type string"}}},
 		{"Error", errors.New("foo"), E{Code: Unknown, Meta: M{"message": "foo"}}}, //nolint:forbidigo // required for test
 		{"Unknown", nil, E{Code: CoercionError}},
 	}

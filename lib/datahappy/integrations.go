@@ -1,3 +1,4 @@
+//nolint:gocritic // datahappy requires fields to be omitted
 package datahappy
 
 type Integrations struct {

@@ -16,6 +16,7 @@ const (
 	RequestTypeDelete RequestType = "delete"
 )
 
+//nolint:gocritic // datahappy requires fields to be omitted
 type TrackRequest struct {
 	ProjectID    string         `json:"projectId"`
 	Type         RequestType    `json:"type"`

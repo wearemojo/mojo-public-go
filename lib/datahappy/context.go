@@ -1,4 +1,4 @@
-//nolint:tagliatelle // datahappy uses camel case
+//nolint:tagliatelle,gocritic // required for the datahappy API
 package datahappy
 
 import (

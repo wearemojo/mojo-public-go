@@ -8,6 +8,7 @@ import (
 	"slices"
 
 	"github.com/pkg/errors"
+	"github.com/wearemojo/mojo-public-go/lib/gjson"
 	"github.com/wearemojo/mojo-public-go/lib/stacktrace"
 )
 
@@ -32,11 +33,44 @@ const (
 )
 
 // E implements the official CHER structure
+//
+//nolint:gocritic // Helps keep error data more clear/readable
 type E struct {
-	Code    string             `json:"code"`
-	Meta    M                  `json:"meta,omitempty"`
-	stack   []stacktrace.Frame `json:"-"`
-	Reasons []E                `json:"reasons,omitempty"`
+	Code    string             `bson:"code"    json:"code"`
+	Meta    M                  `bson:"meta"    json:"meta,omitempty"`
+	stack   []stacktrace.Frame `bson:"-"       json:"-"`
+	Reasons []E                `bson:"reasons" json:"reasons,omitempty"`
+
+	// Extra captures any extra/unexpected additional fields found during JSON
+	// unmarshaling, to avoid loss of data when inspecting logs. It should never
+	// be used intentionally.
+	//
+	//nolint:tagliatelle // Want to clearly separate this field
+	Extra map[string]any `bson:"-" json:"_extra,omitempty"`
+}
+
+func (e *E) UnmarshalJSON(data []byte) error {
+	type alias E
+	base, err := gjson.Unmarshal[alias](data)
+	if err != nil {
+		return err
+	}
+
+	extra, err := gjson.Unmarshal[map[string]any](data)
+	if err != nil {
+		return err
+	}
+
+	delete(extra, "code")
+	delete(extra, "meta")
+	delete(extra, "reasons")
+
+	if len(extra) > 0 {
+		base.Extra = extra
+	}
+
+	*e = E(base)
+	return nil
 }
 
 // New returns a new E structure with code, meta, and optional reasons.

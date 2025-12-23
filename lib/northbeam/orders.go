@@ -21,6 +21,7 @@ func (d *Decimal) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
+//nolint:gocritic // northbeam require fields to be omitted
 type Order struct {
 	OrderID                 string           `json:"order_id"`
 	CustomerID              string           `json:"customer_id"`
@@ -42,6 +43,7 @@ type Order struct {
 	ShippingCost            Decimal          `json:"shipping_cost"`
 }
 
+//nolint:gocritic // northbeam require fields to be omitted
 type Product struct {
 	ID          string  `json:"id"`
 	Name        string  `json:"name"`
@@ -51,6 +53,7 @@ type Product struct {
 	VariantName *string `json:"variant_name,omitempty"`
 }
 
+//nolint:gocritic // northbeam require fields to be omitted
 type Refund struct {
 	ProductID    string  `json:"product_id"`
 	Quantity     Decimal `json:"quantity"`
@@ -60,6 +63,7 @@ type Refund struct {
 	VariantID    *string `json:"variant_id,omitempty"`
 }
 
+//nolint:gocritic // northbeam require fields to be omitted
 type ShippingAddress struct {
 	Address1    string  `json:"address1"`
 	Address2    *string `json:"address2,omitempty"`
