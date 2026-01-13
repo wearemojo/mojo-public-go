@@ -84,6 +84,13 @@ func (c *KeyedCache[TKey, TVal]) SetMany(items map[TKey]TVal) {
 	}
 }
 
+func (c *KeyedCache[TKey, TVal]) Clear() {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	c.items = map[TKey]CachedItem[TVal]{}
+}
+
 func (c *KeyedCache[TKey, TVal]) GetOrDo(key TKey, fn func() TVal) TVal {
 	value, _ := c.GetOrDoE(key, func() (TVal, error) {
 		return fn(), nil

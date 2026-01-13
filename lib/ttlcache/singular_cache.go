@@ -29,6 +29,10 @@ func (c *SingularCache[T]) Set(value T) {
 	c.cache.Set(singularCacheKey, value)
 }
 
+func (c *SingularCache[T]) Clear() {
+	c.cache.Clear()
+}
+
 func (c *SingularCache[T]) GetOrDo(fn func() T) T {
 	return c.cache.GetOrDo(singularCacheKey, fn)
 }
