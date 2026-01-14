@@ -21,7 +21,7 @@ const (
 	RouteNotFound     = "route_not_found"
 	MethodNotAllowed  = "method_not_allowed"
 	Unknown           = "unknown"
-	NoLongerSupported = "no_longer_supported"
+	EndpointWithdrawn = "endpoint_withdrawn"
 	TooManyRequests   = "too_many_requests"
 	ContextCanceled   = "context_canceled"
 	EOF               = "eof"
@@ -118,7 +118,7 @@ func (e E) StatusCode() int {
 	case MethodNotAllowed:
 		return http.StatusMethodNotAllowed
 
-	case NoLongerSupported:
+	case EndpointWithdrawn:
 		return http.StatusGone
 
 	case TooManyRequests:

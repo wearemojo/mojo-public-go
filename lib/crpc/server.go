@@ -460,11 +460,11 @@ func (s *Server) buildRoutes() {
 	s.resolvedMethods = resolvedMethods
 }
 
-// NoLongerSupported is a HandlerFunc which always returns the error
-// `no_longer_supported` to the requester to indicate methods which have
+// EndpointWithdrawn is a HandlerFunc which always returns the error
+// `endpoint_withdrawn` to the requester to indicate methods which have
 // been withdrawn.
-func NoLongerSupported(_ http.ResponseWriter, _ *Request) error {
-	return cher.New(cher.NoLongerSupported, nil)
+func EndpointWithdrawn(_ http.ResponseWriter, _ *Request) error {
+	return cher.New(cher.EndpointWithdrawn, nil)
 }
 
 // Serve executes an RPC request.
