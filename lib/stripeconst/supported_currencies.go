@@ -20,3 +20,19 @@ var SupportedCurrenciesPaypal = []string{
 	"SGD",
 	"USD",
 }
+
+// SupportedCurrenciesKlarna is a list of currencies supported for presentment
+// when using Klarna as a payment method.
+//
+// https://stripe.com/docs/payments/klarna
+var SupportedCurrenciesKlarna = []string{
+	"UR",
+	"DKK",
+	"GBP",
+	"NOK",
+	"SEK",
+	"CZK",
+	"RON",
+	"PLN",
+	"CHF",
+}
