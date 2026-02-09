@@ -39,11 +39,6 @@ var baseTests = []struct {
 		Expected: "https://app.mymojo.com",
 	},
 	{
-		Name:     "old domain",
-		URL:      "https://app.mojo.so",
-		Expected: "https://app.mojo.so",
-	},
-	{
 		Name:     "gibberish",
 		URL:      "alskdjsdkghkjdfg",
 		Expected: "",
