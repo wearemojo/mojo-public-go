@@ -143,11 +143,11 @@ func (e E) Error() string {
 	str.WriteString(string(e.Code))
 
 	if len(e.Meta) > 0 {
-		str.WriteString(fmt.Sprintf(" (%v)", e.Meta))
+		fmt.Fprintf(&str, " (%v)", e.Meta)
 	}
 
 	for _, reason := range e.Reasons {
-		str.WriteString(fmt.Sprintf("\n- %v", reason))
+		fmt.Fprintf(&str, "\n- %v", reason)
 	}
 
 	return str.String()

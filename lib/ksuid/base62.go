@@ -78,8 +78,11 @@ func fastDecodeBase62(dst []byte, src []byte) error {
 		}
 
 		dst[numDst-4] = byte(remainder >> 24)
+		//nolint:gosec // G115 : integer overflow not a security concern
 		dst[numDst-3] = byte(remainder >> 16)
+		//nolint:gosec // G115 : integer overflow not a security concern
 		dst[numDst-2] = byte(remainder >> 8)
+		//nolint:gosec // G115 : integer overflow not a security concern
 		dst[numDst-1] = byte(remainder)
 		numDst -= 4
 		baseParts = quotient

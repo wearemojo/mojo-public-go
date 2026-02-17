@@ -11,6 +11,7 @@ import (
 func TestMongoDBOptions(t *testing.T) {
 	is := is.New(t)
 
+	//nolint:gosec // G101 - not a real password
 	m := &MongoDB{
 		URI: "mongodb://foo:bar@127.0.0.1/demo?authSource=admin",
 	}

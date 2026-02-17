@@ -29,7 +29,8 @@ type TrackRequest struct {
 	Integrations *Integrations  `json:"integrations,omitempty"`
 	Timestamp    *time.Time     `json:"timestamp,omitempty"`
 	Channel      string         `json:"channel,omitempty"`
-	AuthToken    string         `json:"authToken"`
+	//nolint:gosec // not a security concern
+	AuthToken string `json:"authToken"`
 }
 
 func (c *Client) Track(ctx context.Context, req *TrackRequest) error {
@@ -37,7 +38,7 @@ func (c *Client) Track(ctx context.Context, req *TrackRequest) error {
 	req = ptr.ShallowCopy(req)
 
 	if req.ProjectID == "" {
-		req.ProjectID = c.ProjectID
+		req.ProjectID = c.projectID
 	}
 
 	if req.Type == "" {
@@ -54,7 +55,7 @@ func (c *Client) Track(ctx context.Context, req *TrackRequest) error {
 	}
 
 	if req.AuthToken == "" {
-		req.AuthToken = c.AuthToken
+		req.AuthToken = c.authToken
 	}
 
 	return c.client.Do(ctx, "POST", "/v1/t", nil, req, nil)
