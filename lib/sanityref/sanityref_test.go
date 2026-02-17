@@ -3,11 +3,11 @@ package sanityref
 import (
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"slices"
 	"testing"
 
 	"github.com/matryer/is"
-	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/gjson"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
@@ -150,7 +150,7 @@ func TestResolveReferencesStrictMissingDocuments(t *testing.T) {
 	}, nil)
 	is.Equal(documentMap, nil)
 
-	err2, ok := gerrors.As[merr.E](err)
+	err2, ok := errors.AsType[merr.E](err)
 	is.True(ok)
 	is.Equal(err2.Code, ErrReferencedDocumentMissing)
 	is.Equal(err2.Meta, merr.M{"missing_ids": []string{"id2"}})
@@ -283,7 +283,7 @@ func TestResolveReferencesStrictMissingImagesReject(t *testing.T) {
 	})
 	is.Equal(documentMap, nil)
 
-	err2, ok := gerrors.As[merr.E](err)
+	err2, ok := errors.AsType[merr.E](err)
 	is.True(ok)
 	is.Equal(err2.Code, ErrReferencedDocumentMissing)
 	is.Equal(len(err2.Meta), 1)

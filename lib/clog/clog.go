@@ -2,13 +2,13 @@ package clog
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
 	"github.com/kr/pretty"
 	"github.com/sirupsen/logrus"
 	"github.com/wearemojo/mojo-public-go/lib/cher"
-	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/servicecontext"
 	"github.com/wearemojo/mojo-public-go/lib/version"
 )
@@ -211,7 +211,7 @@ func TimeoutsAsErrors(ctx context.Context) bool {
 
 // DetermineLevel returns a suggested logrus Level type for a given error
 func DetermineLevel(err error, timeoutsAsErrors bool) logrus.Level {
-	if cherError, ok := gerrors.As[cher.E](err); ok {
+	if cherError, ok := errors.AsType[cher.E](err); ok {
 		if cherError.StatusCode() >= 500 {
 			return logrus.ErrorLevel
 		}

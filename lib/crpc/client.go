@@ -2,11 +2,11 @@ package crpc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"path"
 
-	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/jsonclient"
 	"github.com/wearemojo/mojo-public-go/lib/servicecontext"
 	"github.com/wearemojo/mojo-public-go/lib/version"
@@ -46,7 +46,7 @@ func (c *Client) Do(ctx context.Context, method, version string, src, dst any, r
 		return nil
 	}
 
-	if err, ok := gerrors.As[jsonclient.ClientTransportError](err); ok {
+	if err, ok := errors.AsType[jsonclient.ClientTransportError](err); ok {
 		return ClientTransportError{method, version, err.ErrorString, err.Cause()}
 	}
 

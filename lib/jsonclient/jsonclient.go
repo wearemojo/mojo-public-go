@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/wearemojo/mojo-public-go/lib/cher"
-	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/version"
 )
 
@@ -131,7 +130,7 @@ func (c *Client) do(
 	//nolint:gosec // TODO: G705 - Looks like a false positive https://github.com/securego/gosec/pull/1522
 	res, err := c.Client.Do(req.WithContext(ctx))
 	if err != nil {
-		if netErr, ok := gerrors.As[net.Error](err); ok {
+		if netErr, ok := errors.AsType[net.Error](err); ok {
 			if netErr.Timeout() {
 				return cher.New(cher.RequestTimeout, cher.M{"method": method, "path": fullPath, "host": c.Host, "scheme": c.Scheme, "timeout_error": netErr.Error()})
 			}

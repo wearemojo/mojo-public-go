@@ -14,7 +14,6 @@ import (
 	"strings"
 
 	"github.com/wearemojo/mojo-public-go/lib/cher"
-	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog"
 	"github.com/xeipuuv/gojsonschema"
@@ -587,9 +586,9 @@ func (s *Server) writeError(ctx context.Context, w http.ResponseWriter, err erro
 
 	var body cher.E
 
-	if err, ok := gerrors.As[cher.E](err); ok {
+	if err, ok := errors.AsType[cher.E](err); ok {
 		body = err
-	} else if err, ok := gerrors.As[*json.SyntaxError](err); ok {
+	} else if err, ok := errors.AsType[*json.SyntaxError](err); ok {
 		body = cher.New(
 			"invalid_json",
 			cher.M{
@@ -597,7 +596,7 @@ func (s *Server) writeError(ctx context.Context, w http.ResponseWriter, err erro
 				"offset": err.Offset,
 			},
 		)
-	} else if err, ok := gerrors.As[*json.UnmarshalTypeError](err); ok {
+	} else if err, ok := errors.AsType[*json.UnmarshalTypeError](err); ok {
 		body = cher.New(
 			"invalid_json",
 			cher.M{

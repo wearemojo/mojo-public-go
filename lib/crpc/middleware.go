@@ -11,7 +11,6 @@ import (
 
 	"github.com/wearemojo/mojo-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/clog"
-	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog"
 	"github.com/wearemojo/mojo-public-go/lib/slicefn"
@@ -68,7 +67,7 @@ func Validate(schema *gojsonschema.Schema) MiddlewareFunc {
 
 			body, err := io.ReadAll(req.Body)
 			if err != nil {
-				if netErr, ok := gerrors.As[net.Error](err); ok {
+				if netErr, ok := errors.AsType[net.Error](err); ok {
 					mlog.Warn(ctx, merr.New(ctx, "request_body_read_network_error", nil, netErr))
 					return io.ErrUnexpectedEOF
 				}

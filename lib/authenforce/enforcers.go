@@ -2,10 +2,10 @@ package authenforce
 
 import (
 	"context"
+	"errors"
 	"sync"
 
 	"github.com/wearemojo/mojo-public-go/lib/cher"
-	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog"
 	"github.com/wearemojo/mojo-public-go/lib/slicefn"
@@ -103,7 +103,7 @@ func (e Enforcers) Run(ctx context.Context, authState any, req []byte) error {
 		return nil
 	}
 
-	if cerr, ok := gerrors.As[cher.E](outcome.err); ok {
+	if cerr, ok := errors.AsType[cher.E](outcome.err); ok {
 		return wrapAuthErrType(authState, cerr)
 	}
 

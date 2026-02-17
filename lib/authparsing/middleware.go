@@ -8,7 +8,6 @@ import (
 
 	"github.com/wearemojo/mojo-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/clog"
-	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog"
 )
@@ -19,7 +18,7 @@ func jsonError(ctx context.Context, res http.ResponseWriter, err error) {
 	enc := json.NewEncoder(res)
 	var encErr error
 
-	if err, ok := gerrors.As[cher.E](err); ok {
+	if err, ok := errors.AsType[cher.E](err); ok {
 		res.WriteHeader(err.StatusCode())
 		encErr = enc.Encode(err)
 	} else {
@@ -44,7 +43,7 @@ func Middleware(parser Parser) func(http.Handler) http.Handler {
 				clog.SetError(ctx, err)
 				jsonError(ctx, res, err)
 
-				if cerr, ok := gerrors.As[cher.E](err); ok && cerr.Code == cher.Unauthorized && len(cerr.Reasons) == 1 {
+				if cerr, ok := errors.AsType[cher.E](err); ok && cerr.Code == cher.Unauthorized && len(cerr.Reasons) == 1 {
 					err = cerr.Reasons[0]
 				}
 				mlog.Info(ctx, merr.New(ctx, "auth_check_failed", nil, err))

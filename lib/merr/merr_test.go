@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/matryer/is"
-	"github.com/wearemojo/mojo-public-go/lib/gerrors"
 	"github.com/wearemojo/mojo-public-go/lib/gjson"
 	"github.com/wearemojo/mojo-public-go/lib/stacktrace"
 )
@@ -44,7 +43,7 @@ func TestWrap(t *testing.T) {
 	err1 := errors.New("underlying error") //nolint:err113,forbidigo // needed for testing
 	err2 := New(ctx, "foo", nil, err1)
 
-	err, ok := gerrors.As[E](err2)
+	err, ok := errors.AsType[E](err2)
 
 	is.True(ok)
 	is.Equal(err.Code, Code("foo"))
@@ -61,7 +60,7 @@ func TestWrapMeta(t *testing.T) {
 	err1 := errors.New("underlying error") //nolint:err113,forbidigo // needed for testing
 	err2 := New(ctx, "foo", M{"a": "b"}, err1)
 
-	err, ok := gerrors.As[E](err2)
+	err, ok := errors.AsType[E](err2)
 
 	is.True(ok)
 	is.Equal(err.Code, Code("foo"))
@@ -189,7 +188,7 @@ func TestEAs(t *testing.T) {
 	var errFoo E
 	is.True(errors.As(err, &errFoo))
 
-	_, ok := gerrors.As[E](err)
+	_, ok := errors.AsType[E](err)
 	is.True(ok)
 }
 
