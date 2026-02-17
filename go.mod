@@ -1,6 +1,6 @@
 module github.com/wearemojo/mojo-public-go
 
-go 1.25
+go 1.26
 
 require (
 	cloud.google.com/go v0.123.0
