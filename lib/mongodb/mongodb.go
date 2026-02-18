@@ -61,8 +61,7 @@ func extractCollectionNames(dbStruct any) []string {
 	numFields := val.NumField()
 	collectionNames := make([]string, 0, numFields)
 
-	for idx := range numFields {
-		field := val.Field(idx)
+	for field := range val.Fields() {
 		if !field.IsExported() {
 			continue
 		}
