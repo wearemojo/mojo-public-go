@@ -73,7 +73,7 @@ func PluginDCDataExplorerQueryResultUnmarshal[T any](ctx context.Context, res *P
 }
 
 func (c *IdentifiedClient) PluginDCDataExplorerRunQuery(ctx context.Context, queryID int, options *PluginDCDataExplorerRunQueryOptions) (res *PluginDCDataExplorerQueryResult, err error) {
-	path := fmt.Sprintf("/admin/plugins/explorer/queries/%d/run", queryID)
+	path := fmt.Sprintf("/admin/plugins/discourse-user-data-explorer/queries/%d/run", queryID)
 	body := map[string]any{}
 	if options != nil {
 		body["explain"] = strconv.FormatBool(options.Explain)
