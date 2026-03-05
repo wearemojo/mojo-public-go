@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/matryer/is"
@@ -47,11 +48,11 @@ func TestResolveReferencesNormal(t *testing.T) {
 
 	copiedTestInput := inefficientlyDeepCopy(testInput)
 
-	documentMap, missingDocumentIDs, err := ResolveReferences(ctx, copiedTestInput)
+	documentMap, missingRefs, err := ResolveReferences(ctx, copiedTestInput)
 	is.NoErr(err)
 	is.Equal(documentMap, testOutput)
-	is.True(missingDocumentIDs != nil)
-	is.Equal(missingDocumentIDs.ToSlice(), []string{})
+	is.True(missingRefs != nil)
+	is.Equal(missingRefs, []missingRef{})
 
 	// ensures no infinite recursion
 	_, err = json.Marshal(documentMap)
@@ -71,7 +72,7 @@ func TestResolveReferencesInfiniteRecursion(t *testing.T) {
 	ctx := t.Context()
 	is := is.New(t)
 
-	documentMap, missingDocumentIDs, err := ResolveReferences(ctx, []Document{
+	documentMap, missingRefs, err := ResolveReferences(ctx, []Document{
 		{
 			"_id": "id1",
 			"ref": map[string]any{
@@ -102,8 +103,8 @@ func TestResolveReferencesInfiniteRecursion(t *testing.T) {
 	is.True(documentMap["id3"] != nil)
 	is.Equal(documentMap["id3"]["_id"], "id3")
 	is.Equal(documentMap["id3"]["ref"], documentMap["id3"])
-	is.True(missingDocumentIDs != nil)
-	is.Equal(missingDocumentIDs.ToSlice(), []string{})
+	is.True(missingRefs != nil)
+	is.Equal(missingRefs, []missingRef{})
 
 	_, err = json.Marshal(documentMap)
 	is.Equal(err.Error(), "json: unsupported value: encountered a cycle via map[string]interface {}")
@@ -113,7 +114,7 @@ func TestResolveReferencesMissingDocuments(t *testing.T) {
 	ctx := t.Context()
 	is := is.New(t)
 
-	documentMap, missingDocumentIDs, err := ResolveReferences(ctx, []Document{
+	documentMap, missingRefs, err := ResolveReferences(ctx, []Document{
 		{
 			"_id": "id1",
 			"ref": map[string]any{
@@ -132,8 +133,8 @@ func TestResolveReferencesMissingDocuments(t *testing.T) {
 		},
 	})
 
-	is.True(missingDocumentIDs != nil)
-	is.Equal(missingDocumentIDs.ToSlice(), []string{"id2"})
+	is.True(missingRefs != nil)
+	is.Equal(missingRefs, []missingRef{{ID: "id2", JSONPath: "$[0].ref"}})
 }
 
 func TestResolveReferencesStrictMissingDocuments(t *testing.T) {
@@ -153,14 +154,14 @@ func TestResolveReferencesStrictMissingDocuments(t *testing.T) {
 	err2, ok := errors.AsType[merr.E](err)
 	is.True(ok)
 	is.Equal(err2.Code, ErrReferencedDocumentMissing)
-	is.Equal(err2.Meta, merr.M{"missing_ids": []string{"id2"}})
+	is.Equal(err2.Meta, merr.M{"missing_refs": []missingRef{{ID: "id2", JSONPath: "$[0].ref"}}})
 }
 
 func TestResolveReferencesMissingImages(t *testing.T) {
 	ctx := t.Context()
 	is := is.New(t)
 
-	documentMap, missingDocumentIDs, err := ResolveReferences(ctx, []Document{
+	documentMap, missingRefs, err := ResolveReferences(ctx, []Document{
 		{
 			"_id": "id1",
 			"image": map[string]any{
@@ -200,9 +201,8 @@ func TestResolveReferencesMissingImages(t *testing.T) {
 		},
 	})
 
-	missingDocumentIDsSlice := missingDocumentIDs.ToSlice()
-	slices.Sort(missingDocumentIDsSlice)
-	is.Equal(missingDocumentIDsSlice, []string{"image-id2", "image-id4"})
+	slices.SortFunc(missingRefs, func(a, b missingRef) int { return strings.Compare(a.ID, b.ID) })
+	is.Equal(missingRefs, []missingRef{{ID: "image-id2", JSONPath: "$[0].image"}, {ID: "image-id4", JSONPath: "$[1].image"}})
 
 	// ensures no infinite recursion
 	_, err = json.Marshal(documentMap)
@@ -288,11 +288,14 @@ func TestResolveReferencesStrictMissingImagesReject(t *testing.T) {
 	is.Equal(err2.Code, ErrReferencedDocumentMissing)
 	is.Equal(len(err2.Meta), 1)
 
-	missingIDs, ok := err2.Meta["missing_ids"].([]string)
+	missingRefs, ok := err2.Meta["missing_refs"].([]missingRef)
 	is.True(ok)
 
-	missingIDs = slices.Clone(missingIDs)
-	slices.Sort(missingIDs)
+	missingRefs = slices.Clone(missingRefs)
+	slices.SortFunc(missingRefs, func(a, b missingRef) int { return strings.Compare(a.ID, b.ID) })
 
-	is.Equal(missingIDs, []string{"image-id2", "image-id4"})
+	is.Equal(missingRefs, []missingRef{
+		{ID: "image-id2", JSONPath: "$[0].image"},
+		{ID: "image-id4", JSONPath: "$[1].image"},
+	})
 }

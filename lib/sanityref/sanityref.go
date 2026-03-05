@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"reflect"
+	"regexp"
 	"strings"
 
-	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/samber/lo"
 	"github.com/wearemojo/mojo-public-go/lib/gjson"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
@@ -38,6 +38,11 @@ type StrictOptions struct {
 	RejectMissingImages bool
 }
 
+type missingRef struct {
+	ID       string `json:"id"`
+	JSONPath string `json:"json_path"`
+}
+
 // ResolveReferencesStrict is a strict version of ResolveReferences, which will
 // return ErrReferencedDocumentMissing if any referenced Document is missing
 func ResolveReferencesStrict(ctx context.Context, documents []Document, opts *StrictOptions) (map[string]Document, error) {
@@ -45,18 +50,17 @@ func ResolveReferencesStrict(ctx context.Context, documents []Document, opts *St
 		opts = &StrictOptions{}
 	}
 
-	documentMap, missingDocumentIDs, err := ResolveReferences(ctx, documents)
+	documentMap, missingRefs, err := ResolveReferences(ctx, documents)
 	if err != nil {
 		return nil, err
 	}
 
-	missingIDs := missingDocumentIDs.ToSlice()
 	if !opts.RejectMissingImages {
-		missingIDs = slicefn.Filter(missingIDs, func(id string) bool { return !strings.HasPrefix(id, "image-") })
+		missingRefs = slicefn.Filter(missingRefs, func(ref missingRef) bool { return !strings.HasPrefix(ref.ID, "image-") })
 	}
-	if len(missingIDs) > 0 {
+	if len(missingRefs) > 0 {
 		return nil, merr.New(ctx, ErrReferencedDocumentMissing, merr.M{
-			"missing_ids": missingIDs,
+			"missing_refs": missingRefs,
 		})
 	}
 
@@ -64,11 +68,11 @@ func ResolveReferencesStrict(ctx context.Context, documents []Document, opts *St
 }
 
 // ResolveReferences recursively resolves all references in the provided
-// documents, returning a map of all documents by their ID, and a set of IDs of
-// any referenced documents that are missing
+// documents, returning a map of all documents by their ID, and info on any
+// referenced documents that are missing
 func ResolveReferences(ctx context.Context, documents []Document) (
 	documentMap map[string]Document,
-	missingDocumentIDs mapset.Set[string],
+	missingRefs []missingRef,
 	err error,
 ) {
 	// prevents mutation of the original input
@@ -96,12 +100,12 @@ func ResolveReferences(ctx context.Context, documents []Document) (
 	}
 
 	documentsAny := lo.Map(documents, func(doc Document, _ int) any { return doc })
-	missingDocumentIDs = mapset.NewThreadUnsafeSet[string]()
-	if _, err := recursivelyResolve(ctx, documentsAny, documentMap, missingDocumentIDs); err != nil {
+	missingRefs = []missingRef{}
+	if _, err := recursivelyResolve(ctx, documentsAny, documentMap, &missingRefs, "$"); err != nil {
 		return nil, nil, err
 	}
 
-	return documentMap, missingDocumentIDs, nil
+	return documentMap, missingRefs, nil
 }
 
 // Mutates `data` in-place, replacing any `_ref` fields with the actual
@@ -117,7 +121,8 @@ func recursivelyResolve(
 	ctx context.Context,
 	data any,
 	documentMap map[string]Document,
-	missingDocumentIDs mapset.Set[string],
+	missingRefs *[]missingRef,
+	existingPath string,
 ) (replacementValue any, err error) {
 	// This function must always mutate and update things in-place, never return
 	// new slices/maps. When we point to a document, we need to be referring to
@@ -133,12 +138,13 @@ func recursivelyResolve(
 		//
 		// so now try to replace it with the actual document
 		if refField, ok := data["_ref"]; ok {
-			return handleRefField(ctx, data, refField, documentMap, missingDocumentIDs)
+			return handleRefField(ctx, data, refField, documentMap, missingRefs, existingPath)
 		}
 
 		// not a reference, so just keep walking the map
 		for key, value := range data {
-			if replacementValue, err := recursivelyResolve(ctx, value, documentMap, missingDocumentIDs); err != nil {
+			newPath := existingPath + encodeJSONPathComponent(key)
+			if replacementValue, err := recursivelyResolve(ctx, value, documentMap, missingRefs, newPath); err != nil {
 				return nil, err
 			} else {
 				data[key] = replacementValue
@@ -150,7 +156,8 @@ func recursivelyResolve(
 	case []any:
 		// slices can't be references themselves, so just walk the slice
 		for idx, value := range data {
-			if replacementValue, err := recursivelyResolve(ctx, value, documentMap, missingDocumentIDs); err != nil {
+			newPath := existingPath + encodeJSONPathComponent(idx)
+			if replacementValue, err := recursivelyResolve(ctx, value, documentMap, missingRefs, newPath); err != nil {
 				return nil, err
 			} else {
 				data[idx] = replacementValue
@@ -184,7 +191,8 @@ func handleRefField(
 	data map[string]any,
 	refField any,
 	documentMap map[string]Document,
-	missingDocumentIDs mapset.Set[string],
+	missingRefs *[]missingRef,
+	path string,
 ) (replacementValue any, err error) {
 	ref, ok := refField.(string)
 	if !ok {
@@ -198,7 +206,10 @@ func handleRefField(
 		return otherDoc, nil
 	}
 
-	missingDocumentIDs.Add(ref)
+	*missingRefs = append(*missingRefs, missingRef{
+		ID:       ref,
+		JSONPath: path,
+	})
 
 	// in theory we could keep resolving within the map, but we never expect
 	// to have a `_ref` that isn't an actual reference, so we don't want to
@@ -246,4 +257,19 @@ func inefficientlyDeepCopy[T any](v T) T {
 	}
 
 	return gjson.MustUnmarshal[T](data)
+}
+
+var safeJSONPathFieldRegex = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
+
+func encodeJSONPathComponent(key any) string {
+	if keyStr, ok := key.(string); ok && safeJSONPathFieldRegex.MatchString(keyStr) {
+		return "." + keyStr
+	}
+
+	escapedKey, err := json.Marshal(key)
+	if err != nil {
+		panic(err)
+	}
+
+	return "[" + string(escapedKey) + "]"
 }
