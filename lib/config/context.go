@@ -9,6 +9,7 @@ import (
 
 func ContextWithCancelOnSignal(ctx context.Context) context.Context {
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 

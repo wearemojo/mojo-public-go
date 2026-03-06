@@ -127,7 +127,6 @@ func (c *Client) do(
 		return ClientRequestError{"could not marshal", err}
 	}
 
-	//nolint:gosec // TODO: G705 - Looks like a false positive https://github.com/securego/gosec/pull/1522
 	res, err := c.Client.Do(req.WithContext(ctx))
 	if err != nil {
 		if netErr, ok := errors.AsType[net.Error](err); ok {

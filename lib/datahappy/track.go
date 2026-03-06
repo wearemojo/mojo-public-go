@@ -29,7 +29,7 @@ type TrackRequest struct {
 	Integrations *Integrations  `json:"integrations,omitempty"`
 	Timestamp    *time.Time     `json:"timestamp,omitempty"`
 	Channel      string         `json:"channel,omitempty"`
-	//nolint:gosec // not a security concern
+
 	AuthToken string `json:"authToken"`
 }
 

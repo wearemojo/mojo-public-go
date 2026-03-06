@@ -69,6 +69,7 @@ func fastDecodeBase62(dst []byte, src []byte) error {
 			remainder = value % dstBase
 
 			if len(quotient) != 0 || digit != 0 {
+				//nolint:gosec // G115 : integer overflow not a security concern
 				quotient = append(quotient, byte(digit))
 			}
 		}

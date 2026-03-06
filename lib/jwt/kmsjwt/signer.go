@@ -205,6 +205,7 @@ func reencodeSignature(sig []byte, method *jwt.SigningMethodECDSA) ([]byte, erro
 	}
 
 	rBytes := parsed.R.Bytes()
+	//nolint:prealloc // ignore for now
 	rBytesPadded := make([]byte, keyBytes)
 	copy(rBytesPadded[keyBytes-len(rBytes):], rBytes)
 
