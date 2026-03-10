@@ -19,7 +19,7 @@ type PluginDCDataExplorerRunQueryOptions struct {
 	Params   map[string]any
 	Explain  bool
 	Download bool
-	LimitAll bool
+	Limit    int
 }
 
 type PluginDCDataExplorerQueryResult struct {
@@ -85,8 +85,8 @@ func (c *IdentifiedClient) PluginDCDataExplorerRunQuery(ctx context.Context, que
 			}
 			body["params"] = string(data)
 		}
-		if options.LimitAll {
-			body["limit"] = "ALL"
+		if options.Limit > 0 {
+			body["limit"] = options.Limit
 		}
 	}
 	return res, c.client.Do(ctx, "POST", path, nil, body, &res)
