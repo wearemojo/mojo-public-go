@@ -15,15 +15,15 @@ type Actorer interface {
 type Type string
 
 var (
-	TypeUnknown            Type = "unknown"
-	TypeInternal           Type = "internal"
-	TypeService            Type = "service" // Mojo service
-	TypeUser               Type = "user"    // Mojo user
-	TypeSession            Type = "session"
-	TypeExternalCloudAuth  Type = "external_cloud_auth" // non-Mojo system
-	TypeExternalUser       Type = "external_user"       // non-Mojo user
-	TypeExternalLanggraph  Type = "external_langgraph"
-	TypeExternalRevenuecat Type = "external_revenuecat"
+	TypeUnknown                Type = "unknown"
+	TypeInternal               Type = "internal"
+	TypeService                Type = "service" // Mojo service
+	TypeUser                   Type = "user"    // Mojo user
+	TypeSession                Type = "session"
+	TypeExternalCloudAuth      Type = "external_cloud_auth" // non-Mojo system
+	TypeExternalUser           Type = "external_user"       // non-Mojo user
+	TypeExternalRevenuecat     Type = "external_revenuecat"
+	TypeExternalMDIntegrations Type = "external_mdintegrations"
 )
 
 type Actor struct {
@@ -108,18 +108,16 @@ func NewExternalUser(typ, id, reference string) Actor {
 	}
 }
 
-func NewExternalLanggraph(userID ksuid.ID) Actor {
-	return Actor{
-		Type: TypeExternalLanggraph,
-		Params: map[string]any{
-			"user_id": userID.String(),
-		},
-	}
-}
-
 func NewExternalRevenuecat() Actor {
 	return Actor{
 		Type:   TypeExternalRevenuecat,
+		Params: map[string]any{},
+	}
+}
+
+func NewExternalMDIntegrations() Actor {
+	return Actor{
+		Type:   TypeExternalMDIntegrations,
 		Params: map[string]any{},
 	}
 }
