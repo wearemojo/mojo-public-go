@@ -45,11 +45,17 @@ type Topic struct {
 	Visible           bool         `json:"visible"`
 	Closed            bool         `json:"closed"`
 	Archived          bool         `json:"archived"`
-	Tags              []string     `json:"tags"`
+	Tags              []TopicTag   `json:"tags"`
 	CategoryID        int          `json:"category_id"`
 	PinnedGlobally    bool         `json:"pinned_globally"`
 	FeaturedLink      *string      `json:"featured_link"`
 	Details           TopicDetails `json:"details"`
+}
+
+type TopicTag struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+	Slug string `json:"slug"`
 }
 
 type TopicDetails struct {
