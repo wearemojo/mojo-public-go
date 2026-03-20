@@ -3,13 +3,10 @@ package revenuecat
 import (
 	"context"
 	"fmt"
-	"maps"
 	"net/url"
-	"slices"
 	"time"
 
 	"github.com/igrmk/decimal"
-	"github.com/samber/lo"
 	"github.com/wearemojo/mojo-public-go/lib/httpclient"
 	"github.com/wearemojo/mojo-public-go/lib/jsonclient"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
@@ -121,16 +118,4 @@ func (c *Client) GetOrCreateSubscriberInfo(ctx context.Context, appUserID string
 	escapedAppUserID := url.PathEscape(appUserID)
 	path := fmt.Sprintf("/subscribers/%s", escapedAppUserID)
 	return res, c.client.Do(ctx, "GET", path, nil, nil, &res)
-}
-
-func (s *Subscriber) ActiveSubscriptions() map[string]Subscription {
-	now := time.Now()
-	return lo.PickBy(s.Subscriptions, func(key string, value Subscription) bool {
-		return value.ExpiresDate.After(now)
-	})
-}
-
-func (s *Subscriber) ActiveCount() int {
-	nonSub := lo.Flatten(slices.Collect(maps.Values(s.NonSubscriptions)))
-	return len(nonSub) + len(s.ActiveSubscriptions())
 }
