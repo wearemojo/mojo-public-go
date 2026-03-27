@@ -206,9 +206,10 @@ func Wrap(fn any) (*WrappedFunc, error) {
 func checkResponseType(ctx context.Context, typ reflect.Type) error {
 	switch {
 	case
-		typ.Kind() == reflect.Pointer && typ.Elem().Kind() == reflect.Struct, // *SomeStruct
-		typ.Kind() == reflect.Slice && typ.Elem().Kind() == reflect.Struct,   // []SomeStruct
-		typ.Kind() == reflect.Slice && typ.Elem().Kind() == reflect.String:   // []string
+		typ.Kind() == reflect.Pointer && typ.Elem().Kind() == reflect.Struct,                                         // *SomeStruct
+		typ.Kind() == reflect.Slice && typ.Elem().Kind() == reflect.Struct,                                           // []SomeStruct
+		typ.Kind() == reflect.Slice && typ.Elem().Kind() == reflect.String,                                           // []string
+		typ.Kind() == reflect.Slice && typ.Elem().Kind() == reflect.Map && typ.Elem().Key().Kind() == reflect.String: // []map[string]any
 		return nil
 	default:
 		return merr.New(ctx, "response_type_invalid", merr.M{"type": typ.Kind()})
