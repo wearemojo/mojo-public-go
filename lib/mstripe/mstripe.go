@@ -6,7 +6,7 @@ import (
 
 	stripeV78 "github.com/stripe/stripe-go/v78"
 	clientV78 "github.com/stripe/stripe-go/v78/client"
-	"github.com/stripe/stripe-go/v84"
+	"github.com/stripe/stripe-go/v85"
 	"github.com/wearemojo/mojo-public-go/lib/httpclient"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
 )
