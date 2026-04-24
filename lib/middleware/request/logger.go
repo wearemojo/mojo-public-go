@@ -82,7 +82,9 @@ func Logger(log *logrus.Entry) func(http.Handler) http.Handler {
 
 			err := getError(clog.Get(ctx))
 			if err == nil {
-				mlog.Info(ctx, merr.New(ctx, "request_completed", nil))
+				requestCompletedMerr := merr.New(ctx, "request_completed", nil)
+				requestCompletedMerr.Stack = nil // don't need stack for successful requests
+				mlog.Info(ctx, requestCompletedMerr)
 				return
 			}
 			var fn func(context.Context, merr.Merrer)
