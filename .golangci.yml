@@ -4,54 +4,54 @@ run:
 linters:
   default: all
   disable:
-    - cyclop # alternative: gocognit - could add if we start unit testing heavily
-    - depguard # impractical
-    - exhaustruct  # disagree - also not the intended use
-    - funlen # alternative: gocognit
-    - gochecknoglobals # impractical
-    - godot # disagree
-    - godox # disagree
-    - inamedparam # disagree
-    - ireturn # disagree
-    - lll # impractical
-    - mnd # disagree
-    - nlreturn # disagree
-    - nonamedreturns # disagree
-    - paralleltest # impractical
-    - perfsprint # disagree: code readability matters more
-    - protogetter # disagree
-    - recvcheck # disagree
-    - revive # disagree
-    - testpackage # disagree
-    - wrapcheck # disagree
-    - wsl # disagree
-    - wsl_v5 # disagree (as this is the replacement for wsl)
-    - funcorder # disagree -- locality of code matters more than exported/unexported
-    - noinlineerr # disagree -- inline errors are fine
+  - cyclop # alternative: gocognit - could add if we start unit testing heavily
+  - depguard # impractical
+  - exhaustruct # disagree - also not the intended use
+  - funlen # alternative: gocognit
+  - gochecknoglobals # impractical
+  - godot # disagree
+  - godox # disagree
+  - inamedparam # disagree
+  - ireturn # disagree
+  - lll # impractical
+  - mnd # disagree
+  - nlreturn # disagree
+  - nonamedreturns # disagree
+  - paralleltest # impractical
+  - perfsprint # disagree: code readability matters more
+  - protogetter # disagree
+  - recvcheck # disagree
+  - revive # disagree
+  - testpackage # disagree
+  - wrapcheck # disagree
+  - wsl # disagree
+  - wsl_v5 # disagree (as this is the replacement for wsl)
+  - funcorder # disagree -- locality of code matters more than exported/unexported
+  - noinlineerr # disagree -- inline errors are fine
   settings:
     forbidigo:
       forbid:
-        - pattern: domain\.Identifier\.Value # use domain.Identifier.GetValue()
-        - pattern: errors\.New # use merr
-        - pattern: fmt\.Error.* # use mlog
-        - pattern: fmt\.Print.* # nolint for structured stdout logging, otherwise use mlog
-        - pattern: ioutil\.* # replaced by io
-        - pattern: pretty\.Print.* # shouldn't be committed
-        - pattern: reflect\.DeepEqual # use go-cmp
+      - pattern: domain\.Identifier\.Value # use domain.Identifier.GetValue()
+      - pattern: errors\.New # use merr
+      - pattern: fmt\.Error.* # use mlog
+      - pattern: fmt\.Print.* # nolint for structured stdout logging, otherwise use mlog
+      - pattern: ioutil\.* # replaced by io
+      - pattern: pretty\.Print.* # shouldn't be committed
+      - pattern: reflect\.DeepEqual # use go-cmp
       analyze-types: true
     gocritic:
       enabled-checks:
-        - ruleguard
+      - ruleguard
       settings:
         ruleguard:
           failOn: all
           rules: ${base-path}/rules.go
     godoclint:
       disable:
-        - start-with-name # disagree
+      - start-with-name # disagree
     govet:
       disable:
-        - fieldalignment # impractical
+      - fieldalignment # impractical
       enable-all: true
     grouper:
       import-require-grouping: true
@@ -70,60 +70,60 @@ linters:
       generated-is-used: false
     varnamelen:
       ignore-names:
-        - T
-        - db
-        - fn
-        - id
-        - ok
+      - T
+      - db
+      - fn
+      - id
+      - ok
       ignore-decls:
-        - fs *flag.FlagSet
-        - g *errgroup.Group
-        - g errgroup.SettledGroup
-        - is *is.I
-        - m dsl.Matcher
-        - r *http.Request
-        - sb strings.Builder
-        - w http.ResponseWriter
-        - wg sync.WaitGroup
+      - fs *flag.FlagSet
+      - g *errgroup.Group
+      - g errgroup.SettledGroup
+      - is *is.I
+      - m dsl.Matcher
+      - r *http.Request
+      - sb strings.Builder
+      - w http.ResponseWriter
+      - wg sync.WaitGroup
   exclusions:
     generated: lax
     presets:
-      - comments
-      - common-false-positives
-      - legacy
-      - std-error-handling
+    - comments
+    - common-false-positives
+    - legacy
+    - std-error-handling
     rules:
-      - linters:
-          - contextcheck
-        source: ctx, opts, func\(ctx mongo\.SessionContext\)
-      - linters:
-          - gomoddirectives
-        text: 'local replacement are not allowed: github.com/wearemojo/mojo-public-go'
-      - linters:
-          - govet
-        text: 'composites: `go.mongodb.org/mongo-driver/v2/bson.E` composite literal uses unkeyed fields'
-      - linters:
-          - govet
-        text: 'composites: go.mongodb.org/mongo-driver/v2/bson.E struct literal uses unkeyed fields'
-      - linters:
-          - gocognit
-          - nestif
-        path: lib/crpc # TODO: resolve these
+    - linters:
+      - contextcheck
+      source: ctx, opts, func\(ctx mongo\.SessionContext\)
+    - linters:
+      - gomoddirectives
+      text: 'local replacement are not allowed: github.com/wearemojo/mojo-public-go'
+    - linters:
+      - govet
+      text: 'composites: `go.mongodb.org/mongo-driver/v2/bson.E` composite literal uses unkeyed fields'
+    - linters:
+      - govet
+      text: 'composites: go.mongodb.org/mongo-driver/v2/bson.E struct literal uses unkeyed fields'
+    - linters:
+      - gocognit
+      - nestif
+      path: lib/crpc # TODO: resolve these
     paths:
-      - third_party$
-      - builtin$
-      - examples$
+    - third_party$
+    - builtin$
+    - examples$
 severity:
   default: error
 formatters:
   enable:
-    - gci
-    - gofmt
-    - gofumpt
-    - goimports
+  - gci
+  - gofmt
+  - gofumpt
+  - goimports
   exclusions:
     generated: lax
     paths:
-      - third_party$
-      - builtin$
-      - examples$
+    - third_party$
+    - builtin$
+    - examples$
