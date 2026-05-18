@@ -98,16 +98,18 @@ const (
 
 // Possible values for store:
 // - app_store: The product was purchased through Apple App Store.
+// - external: The product was purchased through an external payment provider, tracked through RevenueCat (e.g. Flex HSA/FSA).
 // - play_store: The product was purchased through the Google Play Store.
-// - stripe: The product was purchased through Stripe.
 // - promotional: The product was granted via RevenueCat.
+// - stripe: The product was purchased through Stripe.
 type StoreType string
 
 const (
 	StoreTypeAppStore    StoreType = "app_store"
+	StoreTypeExternal    StoreType = "external"
 	StoreTypePlayStore   StoreType = "play_store"
-	StoreTypeStripe      StoreType = "stripe"
 	StoreTypePromotional StoreType = "promotional"
+	StoreTypeStripe      StoreType = "stripe"
 )
 
 // https://www.revenuecat.com/reference/subscribers
