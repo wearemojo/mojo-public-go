@@ -47,10 +47,7 @@ type CheckoutSessionParams struct {
 }
 
 type SubscriptionData struct {
-	TrialEnd          *time.Time `json:"trial_end,omitempty"`
-	CancelAt          *time.Time `json:"cancel_at,omitempty"`
-	CancelAtPeriodEnd *bool      `json:"cancel_at_period_end,omitempty"`
-	TrialPeriodDays   *int       `json:"trial_period_days,omitempty"`
+	TrialPeriodDays *int `json:"trial_period_days,omitempty"`
 }
 
 type Defaults struct {
