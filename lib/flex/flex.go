@@ -104,8 +104,21 @@ func (c *Client) GetCheckoutSession(ctx context.Context, sessionID string) (*Che
 
 type Subscription struct {
 	SubscriptionID string             `json:"subscription_id"`
+	Status         SubscriptionStatus `json:"status"`
 	Items          []SubscriptionItem `json:"items"`
 }
+
+type SubscriptionStatus string
+
+const (
+	SubscriptionStatusActive            SubscriptionStatus = "active"
+	SubscriptionStatusCanceled          SubscriptionStatus = "canceled"
+	SubscriptionStatusIncomplete        SubscriptionStatus = "incomplete"
+	SubscriptionStatusIncompleteExpired SubscriptionStatus = "incomplete_expired"
+	SubscriptionStatusPastDue           SubscriptionStatus = "past_due"
+	SubscriptionStatusTrialing          SubscriptionStatus = "trialing"
+	SubscriptionStatusUnpaid            SubscriptionStatus = "unpaid"
+)
 
 type SubscriptionItem struct {
 	Price *Price `json:"price"`
@@ -124,6 +137,22 @@ func (c *Client) GetSubscription(ctx context.Context, subscriptionID string) (*S
 	params := url.Values{"expand[]": []string{"items.price"}}
 	var res subscriptionResponse
 	if err := c.client.Do(ctx, "GET", fmt.Sprintf("/v1/subscriptions/%s", subscriptionID), params, nil, &res); err != nil {
+		return nil, err
+	}
+	return res.Subscription, nil
+}
+
+type CancelSubscriptionRequest struct {
+	Subscription CancelSubscriptionParams `json:"subscription"`
+}
+
+type CancelSubscriptionParams struct {
+	CancelAtPeriodEnd bool `json:"cancel_at_period_end"`
+}
+
+func (c *Client) CancelSubscription(ctx context.Context, subscriptionID string, req *CancelSubscriptionRequest) (*Subscription, error) {
+	var res subscriptionResponse
+	if err := c.client.Do(ctx, "DELETE", fmt.Sprintf("/v1/subscriptions/%s", subscriptionID), nil, req, &res); err != nil {
 		return nil, err
 	}
 	return res.Subscription, nil
