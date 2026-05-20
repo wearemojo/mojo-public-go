@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"errors"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,24 +26,34 @@ type Server struct {
 	Graceful int `json:"graceful"`
 }
 
-// ListenAndServe configures a HTTP server and begins listening for clients.
-func (cfg *Server) ListenAndServe(srv *http.Server) error {
-	// only set listen address if none is already configured
-	if srv.Addr == "" {
-		srv.Addr = cfg.Addr
+// Listen configures a HTTP server and binds a listener without serving it yet.
+func (cfg *Server) Listen(ctx context.Context, srv *http.Server) (net.Listener, error) {
+	addr := ":http"
+	if srv.Addr != "" {
+		addr = srv.Addr
+	} else if cfg.Addr != "" {
+		addr = cfg.Addr
 	}
 
-	if cfg.Graceful == 0 {
-		cfg.Graceful = DefaultGraceful
+	var lc net.ListenConfig
+	return lc.Listen(ctx, "tcp", addr)
+}
+
+// Serve begins serving an already-bound listener and handles graceful shutdown.
+func (cfg *Server) Serve(ctx context.Context, srv *http.Server, listener net.Listener) error {
+	graceful := DefaultGraceful
+	if cfg.Graceful != 0 {
+		graceful = cfg.Graceful
 	}
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	defer signal.Stop(stop)
 
 	errs := make(chan error, 1)
 
 	go func() {
-		err := srv.ListenAndServe()
+		err := srv.Serve(listener)
 		if !errors.Is(err, http.ErrServerClosed) {
 			errs <- err
 		}
@@ -53,13 +64,23 @@ func (cfg *Server) ListenAndServe(srv *http.Server) error {
 		return err
 
 	case <-stop:
-		if cfg.Graceful > 0 {
-			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.Graceful)*time.Second)
+		if graceful > 0 {
+			tsCtx, cancel := context.WithTimeout(ctx, time.Duration(graceful)*time.Second)
 			defer cancel()
 
-			return srv.Shutdown(ctx)
+			return srv.Shutdown(tsCtx)
 		}
 
-		return nil
+		return srv.Close()
 	}
+}
+
+// ListenAndServe configures a HTTP server and begins listening for clients.
+func (cfg *Server) ListenAndServe(ctx context.Context, srv *http.Server) error {
+	listener, err := cfg.Listen(ctx, srv)
+	if err != nil {
+		return err
+	}
+
+	return cfg.Serve(ctx, srv, listener)
 }

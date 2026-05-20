@@ -80,7 +80,6 @@ func (c Config) Configure(ctx context.Context) *logrus.Entry {
 
 	if c.Debug {
 		log.Logger.Level = logrus.DebugLevel
-		log.Debug("debug logging enabled")
 	} else {
 		log.Logger.Level = logrus.InfoLevel
 	}

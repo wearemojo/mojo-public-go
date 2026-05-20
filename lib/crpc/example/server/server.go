@@ -73,7 +73,7 @@ func main() {
 
 	log.WithField("addr", cfg.Server.Addr).Info("listening")
 
-	if err := cfg.Server.ListenAndServe(httpServer); err != nil {
+	if err := cfg.Server.ListenAndServe(context.Background(), httpServer); err != nil {
 		log.WithError(err).Fatal("listen failed")
 	}
 }
