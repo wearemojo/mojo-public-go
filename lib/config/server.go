@@ -9,6 +9,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/wearemojo/mojo-public-go/lib/merr"
 )
 
 // DefaultGraceful is the graceful shutdown timeout applied when no
@@ -39,13 +41,9 @@ func (cfg *Server) Listen(ctx context.Context, srv *http.Server) (net.Listener, 
 	return lc.Listen(ctx, "tcp", addr)
 }
 
-// Serve begins serving an already-bound listener and handles graceful shutdown.
-func (cfg *Server) Serve(ctx context.Context, srv *http.Server, listener net.Listener) error {
-	graceful := DefaultGraceful
-	if cfg.Graceful != 0 {
-		graceful = cfg.Graceful
-	}
-
+// Serve begins serving an already-bound listener, runs afterStart once the
+// server is accepting requests, and handles graceful shutdown.
+func (cfg *Server) Serve(ctx context.Context, srv *http.Server, listener net.Listener, afterStart func(context.Context) error) error {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer signal.Stop(stop)
@@ -62,25 +60,49 @@ func (cfg *Server) Serve(ctx context.Context, srv *http.Server, listener net.Lis
 	select {
 	case err := <-errs:
 		return err
+	default:
+	}
+
+	if afterStart != nil {
+		if err := afterStart(ctx); err != nil {
+			if shutdownErr := cfg.shutdown(ctx, srv); shutdownErr != nil {
+				return merr.New(ctx, "shutdown_failed_following_after_start_error", nil, shutdownErr, err)
+			}
+			return err
+		}
+	}
+
+	select {
+	case err := <-errs:
+		return err
 
 	case <-stop:
-		if graceful > 0 {
-			tsCtx, cancel := context.WithTimeout(ctx, time.Duration(graceful)*time.Second)
-			defer cancel()
-
-			return srv.Shutdown(tsCtx)
-		}
-
-		return srv.Close()
+		return cfg.shutdown(ctx, srv)
 	}
 }
 
+func (cfg *Server) shutdown(ctx context.Context, srv *http.Server) error {
+	graceful := DefaultGraceful
+	if cfg.Graceful != 0 {
+		graceful = cfg.Graceful
+	}
+
+	if graceful > 0 {
+		tsCtx, cancel := context.WithTimeout(ctx, time.Duration(graceful)*time.Second)
+		defer cancel()
+
+		return srv.Shutdown(tsCtx)
+	}
+
+	return srv.Close()
+}
+
 // ListenAndServe configures a HTTP server and begins listening for clients.
-func (cfg *Server) ListenAndServe(ctx context.Context, srv *http.Server) error {
+func (cfg *Server) ListenAndServe(ctx context.Context, srv *http.Server, afterStart func(context.Context) error) error {
 	listener, err := cfg.Listen(ctx, srv)
 	if err != nil {
 		return err
 	}
 
-	return cfg.Serve(ctx, srv, listener)
+	return cfg.Serve(ctx, srv, listener, afterStart)
 }

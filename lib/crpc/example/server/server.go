@@ -71,9 +71,11 @@ func main() {
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
-	log.WithField("addr", cfg.Server.Addr).Info("listening")
-
-	if err := cfg.Server.ListenAndServe(context.Background(), httpServer); err != nil {
+	err := cfg.Server.ListenAndServe(context.Background(), httpServer, func(ctx context.Context) error {
+		log.WithField("addr", cfg.Server.Addr).Info("listening")
+		return nil
+	})
+	if err != nil {
 		log.WithError(err).Fatal("listen failed")
 	}
 }
