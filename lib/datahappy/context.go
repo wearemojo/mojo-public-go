@@ -10,10 +10,10 @@ import (
 type Context struct {
 	Library *Library `json:"library,omitempty"`
 	// Campaign   *Campaign `json:"campaign,omitempty"`
-	// Device     *Device   `json:"device,omitempty"`
-	App    *App   `json:"app,omitempty"`
-	IP     string `json:"ip,omitempty"`
-	Locale string `json:"locale,omitempty"`
+	Device *Device `json:"device,omitempty"`
+	App    *App    `json:"app,omitempty"`
+	IP     string  `json:"ip,omitempty"`
+	Locale string  `json:"locale,omitempty"`
 	// Location   *Location `json:"location,omitempty"`
 	// Network    *Network  `json:"network,omitempty"`
 	// OS         *OS       `json:"os,omitempty"`
@@ -36,6 +36,15 @@ type App struct {
 	Name    string `json:"name,omitempty"`
 	Version string `json:"version,omitempty"`
 	Build   string `json:"build,omitempty"`
+}
+
+// Device follows the Segment-style spec. `advertisingId` is the mobile
+// advertising ID (IDFA on iOS, GAID on Android) and is forwarded to Meta CAPI
+// as `madid`.
+type Device struct {
+	Type              string `json:"type,omitempty"`
+	AdvertisingID     string `json:"advertisingId,omitempty"`
+	AdTrackingEnabled *bool  `json:"adTrackingEnabled,omitempty"`
 }
 
 type Page struct {
