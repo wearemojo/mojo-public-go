@@ -149,8 +149,13 @@ func Wrap(fn any) (*WrappedFunc, error) {
 
 		if reqType == nil {
 			if req.Body != nil {
-				i, err := req.Body.Read(make([]byte, 1))
-				if i != 0 || !errors.Is(err, io.EOF) {
+				// TODO: Remove this dumb check once minimum app version is higher than 1.196.0.
+				// if the body is only one character and it's the null character, treat it as an empty body instead of invalid JSON
+				buf := make([]byte, 1)
+				i, err := req.Body.Read(buf)
+				if i != 0 && err == nil && buf[0] == '\000' {
+					// do nothing, treat as empty body
+				} else if i != 0 || !errors.Is(err, io.EOF) {
 					return cher.New(cher.BadRequest, nil, cher.New("unexpected_request_body", nil))
 				}
 			}
