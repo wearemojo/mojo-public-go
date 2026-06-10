@@ -47,22 +47,14 @@ func TestParse(t *testing.T) {
 		ID    ID
 		Error error
 	}{
-		{"Short", []byte(""), ID{}, &ParseError{"ksuid too short"}},
-		{"Long", []byte("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"), ID{}, &ParseError{"ksuid too long"}},
-		{"InvalidBase62", []byte("AAAAAAAAAAAAAAAAAAAAAAAAA//AA"), ID{}, &ParseError{"invalid base62: output buffer too short"}},
+		{"Empty", []byte(""), ID{}, &ParseError{"ksuid missing resource"}},
+		{"Short", []byte("resource_"), ID{}, &ParseError{"ksuid too short"}},
+		{"Long", []byte("resource_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"), ID{}, &ParseError{"ksuid too long"}},
+		{"InvalidBase62", []byte("resource_AAAAAAAAAAAAAAAAAAAAAAAAA//AA"), ID{}, &ParseError{"invalid base62: output buffer too short"}},
 		{
 			"Bare", []byte("000000BPG6Lks9tQoAiJYrBRSXPX6"),
-			ID{
-				Environment: Production,
-				//nolint:gosec // G115: not an issue for this date
-				Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
-				InstanceID: InstanceID{
-					SchemeData: 'H',
-					BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
-				},
-				SequenceID: 0,
-			},
-			nil,
+			ID{},
+			&ParseError{"ksuid missing resource"},
 		},
 		{
 			"Resource", []byte("user_000000BPG6Lks9tQoAiJYrBRSXPX6"),
@@ -127,9 +119,10 @@ func TestID(t *testing.T) {
 			Error error
 		}{
 			{
-				"Bytes", []byte("000000BPG6Lks9tQoAiJYrBRSXPX6"),
+				"Bytes", []byte("res_000000BPG6Lks9tQoAiJYrBRSXPX6"),
 				ID{
 					Environment: Production,
+					Resource:    "res",
 					//nolint:gosec // G115: not an issue for this date
 					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
@@ -141,9 +134,10 @@ func TestID(t *testing.T) {
 				nil,
 			},
 			{
-				"String", "000000BPG6Lks9tQoAiJYrBRSXPX6",
+				"String", "res_000000BPG6Lks9tQoAiJYrBRSXPX6",
 				ID{
 					Environment: Production,
+					Resource:    "res",
 					//nolint:gosec // G115: not an issue for this date
 					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
 					InstanceID: InstanceID{
@@ -183,23 +177,11 @@ func TestID(t *testing.T) {
 			ID    ID
 			Error error
 		}{
-			{"Short", []byte(`""`), ID{}, &ParseError{"ksuid too short"}},
-			{"Long", []byte(`"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`), ID{}, &ParseError{"ksuid too long"}},
-			{"InvalidBase62", []byte(`"AAAAAAAAAAAAAAAAAAAAAAAAA//AA"`), ID{}, &ParseError{"invalid base62: output buffer too short"}},
-			{
-				"Bare", []byte(`"000000BPG6Lks9tQoAiJYrBRSXPX6"`),
-				ID{
-					Environment: Production,
-					//nolint:gosec // G115: not an issue for this date
-					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
-					InstanceID: InstanceID{
-						SchemeData: 'H',
-						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
-					},
-					SequenceID: 0,
-				},
-				nil,
-			},
+			{"Empty", []byte(`""`), ID{}, &ParseError{"ksuid missing resource"}},
+			{"Short", []byte(`"res_"`), ID{}, &ParseError{"ksuid too short"}},
+			{"Long", []byte(`"res_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"`), ID{}, &ParseError{"ksuid too long"}},
+			{"InvalidBase62", []byte(`"res_AAAAAAAAAAAAAAAAAAAAAAAAA//AA"`), ID{}, &ParseError{"invalid base62: output buffer too short"}},
+			{"Bare", []byte(`"000000BPG6Lks9tQoAiJYrBRSXPX6"`), ID{}, &ParseError{"ksuid missing resource"}},
 			{
 				"Resource", []byte(`"user_000000BPG6Lks9tQoAiJYrBRSXPX6"`),
 				ID{
@@ -256,29 +238,6 @@ func TestID(t *testing.T) {
 			Bytes []byte
 			JSON  []byte
 		}{
-			{
-				"Bare", ID{
-					//nolint:gosec // G115: not an issue for this date
-					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
-					InstanceID: InstanceID{
-						SchemeData: 'H',
-						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
-					},
-					SequenceID: 0,
-				}, []byte("000000BPG6Lks9tQoAiJYrBRSXPX6"), []byte(`"000000BPG6Lks9tQoAiJYrBRSXPX6"`),
-			},
-			{
-				"BareEnvironment", ID{
-					Environment: "test",
-					//nolint:gosec // G115: not an issue for this date
-					Timestamp: uint64(time.Date(2018, 4, 5, 16, 53, 42, 0, time.UTC).Unix()),
-					InstanceID: InstanceID{
-						SchemeData: 'H',
-						BytesData:  [8]byte{0x8c, 0x85, 0x90, 0x5f, 0x44, 0xca, 0x80, 0xd9},
-					},
-					SequenceID: 0,
-				}, []byte("000000BPG6Lks9tQoAiJYrBRSXPX6"), []byte(`"000000BPG6Lks9tQoAiJYrBRSXPX6"`),
-			},
 			{
 				"Resource", ID{
 					Resource: "user",

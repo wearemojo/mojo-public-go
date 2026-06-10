@@ -44,6 +44,10 @@ func Parse(str string) (id ID, err error) {
 		id.Environment = Production
 	}
 
+	if id.Resource == "" {
+		return id, &ParseError{"ksuid missing resource"}
+	}
+
 	if len(src) < encodedLen {
 		err = &ParseError{"ksuid too short"}
 		return id, err
@@ -135,12 +139,10 @@ func (id ID) Value() (driver.Value, error) {
 }
 
 func (id ID) prefixLen() (n int) {
-	if id.Resource != "" {
-		n += len(id.Resource) + 1
+	n += len(id.Resource) + 1
 
-		if id.Environment != "" && id.Environment != Production {
-			n += len(id.Environment) + 1
-		}
+	if id.Environment != "" && id.Environment != Production {
+		n += len(id.Environment) + 1
 	}
 
 	return n
@@ -197,20 +199,22 @@ func (id *ID) UnmarshalBSONValue(t byte, raw []byte) (err error) {
 
 // Bytes stringifies and returns ID as a byte slice.
 func (id ID) Bytes() []byte {
+	if id.Resource == "" {
+		panic("ksuid missing resource")
+	}
+
 	prefixLen := id.prefixLen()
 	dst := make([]byte, prefixLen+encodedLen)
 
-	if id.Resource != "" {
-		offset := 0
-		if id.Environment != "" && id.Environment != Production {
-			copy(dst, id.Environment)
-			dst[len(id.Environment)] = '_'
-			offset = len(id.Environment) + 1
-		}
-
-		copy(dst[offset:], id.Resource)
-		dst[offset+len(id.Resource)] = '_'
+	offset := 0
+	if id.Environment != "" && id.Environment != Production {
+		copy(dst, id.Environment)
+		dst[len(id.Environment)] = '_'
+		offset = len(id.Environment) + 1
 	}
+
+	copy(dst[offset:], id.Resource)
+	dst[offset+len(id.Resource)] = '_'
 
 	iid := id.InstanceID.Bytes()
 
