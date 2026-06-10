@@ -65,7 +65,7 @@ func (cfg *Server) Serve(ctx context.Context, srv *http.Server, listener net.Lis
 
 	if afterStart != nil {
 		if err := afterStart(ctx); err != nil {
-			if shutdownErr := cfg.shutdown(ctx, srv); shutdownErr != nil {
+			if shutdownErr := cfg.shutdown(context.WithoutCancel(ctx), srv); shutdownErr != nil {
 				return merr.New(ctx, "shutdown_failed_following_after_start_error", nil, shutdownErr, err)
 			}
 			return err
@@ -76,8 +76,11 @@ func (cfg *Server) Serve(ctx context.Context, srv *http.Server, listener net.Lis
 	case err := <-errs:
 		return err
 
+	case <-ctx.Done():
+		return cfg.shutdown(context.WithoutCancel(ctx), srv)
+
 	case <-stop:
-		return cfg.shutdown(ctx, srv)
+		return cfg.shutdown(context.WithoutCancel(ctx), srv)
 	}
 }
 
