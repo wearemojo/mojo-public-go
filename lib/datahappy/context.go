@@ -16,7 +16,7 @@ type Context struct {
 	Locale string  `json:"locale,omitempty"`
 	// Location   *Location `json:"location,omitempty"`
 	// Network    *Network  `json:"network,omitempty"`
-	// OS         *OS       `json:"os,omitempty"`
+	OS   *OS   `json:"os,omitempty"`
 	Page *Page `json:"page,omitempty"`
 	// Referrer   *Referrer `json:"referrer,omitempty"`
 	// Screen     *Screen   `json:"screen,omitempty"`
@@ -45,6 +45,10 @@ type Device struct {
 	Type              string `json:"type,omitempty"`
 	AdvertisingID     string `json:"advertisingId,omitempty"`
 	AdTrackingEnabled *bool  `json:"adTrackingEnabled,omitempty"`
+}
+
+type OS struct {
+	Version string `json:"version,omitempty"`
 }
 
 type Page struct {
