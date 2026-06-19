@@ -80,12 +80,13 @@ func (c *Client) DoWithHeaders(ctx context.Context, method, path string, headers
 func (c *Client) DoWithHandler(
 	ctx context.Context,
 	method, path string,
+	headers http.Header,
 	params url.Values,
 	src any,
 	responseHandler ResponseBodyHandler,
 	requestModifiers ...func(r *http.Request),
 ) error {
-	return c.do(ctx, method, path, nil, params, src, responseHandler, requestModifiers...)
+	return c.do(ctx, method, path, headers, params, src, responseHandler, requestModifiers...)
 }
 
 func (c *Client) do(
