@@ -21,7 +21,7 @@ type Fields map[string]any
 const loggerKey contextKey = "clog"
 
 const (
-	// ServiceKey is the log entry key for the name of the crpc service
+	// ServiceKey is the log entry key for the name of the mrpc service
 	ServiceKey = "_service"
 
 	// VersionKey is the log entry key for the current version of the codebase

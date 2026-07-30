@@ -1,4 +1,4 @@
-package crpc
+package mrpc
 
 import (
 	"context"
@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	userAgentTemplate            = "crpc/%s (+https://github.com/wearemojo/mojo-public-go/tree/main/lib/crpc)"
-	userAgentTemplateWithService = "crpc/%s (+https://github.com/wearemojo/mojo-public-go/tree/main/lib/crpc) [%s/%s]"
+	userAgentTemplate            = "mrpc/%s (+https://github.com/wearemojo/mojo-public-go/tree/main/lib/mrpc)"
+	userAgentTemplateWithService = "mrpc/%s (+https://github.com/wearemojo/mojo-public-go/tree/main/lib/mrpc) [%s/%s]"
 )
 
-// Client represents a crpc client. It builds on top of jsonclient, so error
+// Client represents an mrpc client. It builds on top of jsonclient, so error
 // variables/structs and the authenticated round tripper live there.
 type Client struct {
 	client *jsonclient.Client

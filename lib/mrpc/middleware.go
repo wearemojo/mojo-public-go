@@ -1,4 +1,4 @@
-package crpc
+package mrpc
 
 import (
 	"bytes"
@@ -9,25 +9,28 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/wearemojo/mojo-public-go/lib/authenforce"
+	"github.com/wearemojo/mojo-public-go/lib/authparsing"
+	"github.com/wearemojo/mojo-public-go/lib/bodycontext"
 	"github.com/wearemojo/mojo-public-go/lib/cher"
 	"github.com/wearemojo/mojo-public-go/lib/clog"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/mlog"
-	"github.com/wearemojo/mojo-public-go/lib/slicefn"
 	"github.com/xeipuuv/gojsonschema"
 )
 
 // Logger inherits the context logger and reports RPC request success/failure.
-func Logger() MiddlewareFunc {
+func Logger() Middleware {
 	return func(next HandlerFunc) HandlerFunc {
-		return func(res http.ResponseWriter, req *Request) error {
+		return func(res http.ResponseWriter, req *http.Request) error {
 			ctx := req.Context()
 
-			// Add fields to the request context scoped logger, if one exists
-			clog.SetFields(ctx, clog.Fields{
-				"rpc_version": req.Version,
-				"rpc_method":  req.Method,
-			})
+			if info := getInfo(ctx); info != nil {
+				clog.SetFields(ctx, clog.Fields{
+					"rpc_version": info.Version,
+					"rpc_method":  info.Method,
+				})
+			}
 
 			tStart := time.Now()
 			err := next(res, req)
@@ -59,10 +62,10 @@ func Logger() MiddlewareFunc {
 	}
 }
 
-// Validate buffers the JSON body and applies a JSON Schema validation.
-func Validate(schema *gojsonschema.Schema) MiddlewareFunc {
+// validate buffers the JSON body and applies a JSON Schema validation.
+func validate(schema *gojsonschema.Schema) Middleware {
 	return func(next HandlerFunc) HandlerFunc {
-		return func(res http.ResponseWriter, req *Request) error {
+		return func(res http.ResponseWriter, req *http.Request) error {
 			ctx := req.Context()
 
 			body, err := io.ReadAll(req.Body)
@@ -84,30 +87,32 @@ func Validate(schema *gojsonschema.Schema) MiddlewareFunc {
 				return merr.New(ctx, "request_body_validation_failed", nil, err)
 			}
 
-			err = CoerceJSONSchemaError(result)
-			if err != nil {
+			if err := CoerceJSONSchemaError(result); err != nil {
 				return err
 			}
 
 			req.Body = io.NopCloser(bytes.NewReader(body))
+
 			return next(res, req)
 		}
 	}
 }
 
-func CoerceJSONSchemaError(result *gojsonschema.Result) error {
-	if result.Valid() {
-		return nil
-	}
+// enforcerMiddleware runs a set of authorization enforcers against the parsed
+// auth state and request body from the context.
+func enforcerMiddleware(enforcers authenforce.Enforcers) Middleware {
+	return func(next HandlerFunc) HandlerFunc {
+		return func(res http.ResponseWriter, req *http.Request) error {
+			ctx := req.Context()
 
-	return cher.New(cher.BadRequest, nil, slicefn.Map(result.Errors(), func(err gojsonschema.ResultError) cher.E {
-		return cher.E{
-			Code: "schema_failure",
-			Meta: cher.M{
-				"field":   err.Field(),
-				"type":    err.Type(),
-				"message": err.Description(),
-			},
+			authState := authparsing.GetAuthState(ctx)
+			body := bodycontext.GetContext(ctx)
+
+			if err := enforcers.Run(ctx, authState, body); err != nil {
+				return err
+			}
+
+			return next(res, req)
 		}
-	})...)
+	}
 }
