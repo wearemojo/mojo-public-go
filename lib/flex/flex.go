@@ -122,8 +122,9 @@ type SubscriptionItem struct {
 }
 
 type Price struct {
-	ID        string     `json:"id"`
-	Recurring *Recurring `json:"recurring"`
+	ID         string     `json:"id"`
+	UnitAmount int64      `json:"unit_amount"`
+	Recurring  *Recurring `json:"recurring"`
 }
 
 type subscriptionResponse struct {
