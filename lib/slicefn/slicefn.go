@@ -141,8 +141,8 @@ func FindIndexE[T any](slice []T, fn func(T) (bool, error)) (int, error) {
 }
 
 func FindLastIndex[T any](slice []T, fn func(T) bool) int {
-	for i := len(slice) - 1; i >= 0; i-- {
-		if fn(slice[i]) {
+	for i, s := range slices.Backward(slice) {
+		if fn(s) {
 			return i
 		}
 	}
@@ -151,8 +151,8 @@ func FindLastIndex[T any](slice []T, fn func(T) bool) int {
 }
 
 func FindLastIndexE[T any](slice []T, fn func(T) (bool, error)) (int, error) {
-	for i := len(slice) - 1; i >= 0; i-- {
-		if ok, err := fn(slice[i]); err != nil {
+	for i, s := range slices.Backward(slice) {
+		if ok, err := fn(s); err != nil {
 			return -1, err
 		} else if ok {
 			return i, nil

@@ -7,10 +7,12 @@ linters:
   - cyclop # alternative: gocognit - could add if we start unit testing heavily
   - depguard # impractical
   - exhaustruct # disagree - also not the intended use
+  - exhaustruct_v5 # disagree (as this is the replacement for exhaustruct)
   - funlen # alternative: gocognit
   - gochecknoglobals # impractical
   - godot # disagree
   - godox # disagree
+  - gomodguard # deprecated -- replaced by gomodguard_v2
   - inamedparam # disagree
   - ireturn # disagree
   - lll # impractical
@@ -39,6 +41,10 @@ linters:
       - pattern: pretty\.Print.* # shouldn't be committed
       - pattern: reflect\.DeepEqual # use go-cmp
       analyze-types: true
+    goconst:
+      exclude-types: # disagree: composite literal elements are usually data tables or field names, not constants
+      - Call # default value, must be repeated when setting this option
+      - CompositeLit
     gocritic:
       enabled-checks:
       - ruleguard
