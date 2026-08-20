@@ -160,8 +160,9 @@ func TestWireContract(t *testing.T) {
 			wire: "{\"code\":\"bad_request\",\"reasons\":[{\"code\":\"unexpected_request_body\"}]}\n",
 		},
 		{
-			name: "null byte tolerated", method: "POST", path: "/2020-01-01/ping", body: "\x00",
-			status: 204, ct: jsonCT, wire: "",
+			name: "null byte now rejected", method: "POST", path: "/2020-01-01/ping", body: "\x00",
+			status: 400, ct: jsonCT,
+			wire: "{\"code\":\"bad_request\",\"reasons\":[{\"code\":\"unexpected_request_body\"}]}\n",
 		},
 		{
 			name: "unknown method", method: "POST", path: "/2020-01-01/nope", body: `{}`,

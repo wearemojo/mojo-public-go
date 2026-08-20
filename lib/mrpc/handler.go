@@ -106,23 +106,16 @@ func decodeRequest[Req any](r *http.Request) (*Req, error) {
 	return req, nil
 }
 
-// rejectRequestBody enforces that a no-input handler received no request
-// body, tolerating a single null byte sent by legacy clients.
+// rejectRequestBody enforces that a no-input handler received no request body.
 func rejectRequestBody(r *http.Request) error {
 	if r.Body == nil {
 		return nil
 	}
 
-	// TODO: Remove this tolerance once the minimum app version is higher than
-	// 1.196.0. If the body is only one character and it's the null character,
-	// treat it as an empty body instead of unexpected input.
 	buf := make([]byte, 1)
 	i, err := r.Body.Read(buf)
 
-	switch {
-	case i != 0 && err == nil && buf[0] == '\000':
-		// fine to continue: legacy empty body
-	case i != 0 || !errors.Is(err, io.EOF):
+	if i != 0 || !errors.Is(err, io.EOF) {
 		return cher.New(cher.BadRequest, nil, cher.New("unexpected_request_body", nil))
 	}
 
