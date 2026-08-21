@@ -68,12 +68,13 @@ type Subscription struct {
 }
 
 type NonSubscription struct {
-	DisplayName  string    `json:"display_name"`
-	ID           string    `json:"id"`
-	IsSandbox    bool      `json:"is_sandbox"`
-	Price        Price     `json:"price"`
-	PurchaseDate time.Time `json:"purchase_date"`
-	Store        StoreType `json:"store"`
+	DisplayName        string    `json:"display_name"`
+	ID                 string    `json:"id"`
+	IsSandbox          bool      `json:"is_sandbox"`
+	Price              Price     `json:"price"`
+	PurchaseDate       time.Time `json:"purchase_date"`
+	Store              StoreType `json:"store"`
+	StoreTransactionID string    `json:"store_transaction_id"`
 }
 
 type Price struct {
@@ -88,12 +89,20 @@ const (
 	OwnershipTypeFamilyShared OwnershipType = "FAMILY_SHARED"
 )
 
+// Possible values for period_type:
+// - trial: free trial
+// - intro: introductory pricing
+// - normal: standard subscription
+// - promotional: RevenueCat promotional grant
+// - prepaid: Google Play prepaid base plan
 type PeriodType string
 
 const (
-	PeriodTypeTrial  PeriodType = "trial"
-	PeriodTypeIntro  PeriodType = "intro"
-	PeriodTypeNormal PeriodType = "normal"
+	PeriodTypeTrial       PeriodType = "trial"
+	PeriodTypeIntro       PeriodType = "intro"
+	PeriodTypeNormal      PeriodType = "normal"
+	PeriodTypePromotional PeriodType = "promotional"
+	PeriodTypePrepaid     PeriodType = "prepaid"
 )
 
 // Possible values for store:
