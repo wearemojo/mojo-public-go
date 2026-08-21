@@ -57,15 +57,15 @@ func buildServer() http.Handler {
 
 	noAuth := authenforce.Enforcers{authenforce.UnsafeNoAuthentication}
 
-	mrpc.Register(rpc, "greet", "2020-01-01", greetSchema, noAuth, greet)
-	mrpc.RegisterNoReq(rpc, "list_names", "2020-01-01", noAuth, listNames)
-	mrpc.RegisterNoRes(rpc, "touch", "2020-01-01", greetSchema, noAuth, touch)
-	mrpc.RegisterNoReqRes(rpc, "ping", "2020-01-01", noAuth, ping)
+	rpc.Register("greet", "2020-01-01", greetSchema, noAuth, greet)
+	rpc.RegisterNoReq("list_names", "2020-01-01", noAuth, listNames)
+	rpc.RegisterNoRes("touch", "2020-01-01", greetSchema, noAuth, touch)
+	rpc.RegisterNoReqRes("ping", "2020-01-01", noAuth, ping)
 
 	// 2021-06-01 serves everything 2020-01-01 did, but touch is dropped
-	mrpc.Register(rpc, "greet", "2021-06-01", greetSchema, noAuth, greet)
-	mrpc.RegisterNoReq(rpc, "list_names", "2021-06-01", noAuth, listNames)
-	mrpc.RegisterNoReqRes(rpc, "ping", "2021-06-01", noAuth, ping)
+	rpc.Register("greet", "2021-06-01", greetSchema, noAuth, greet)
+	rpc.RegisterNoReq("list_names", "2021-06-01", noAuth, listNames)
+	rpc.RegisterNoReqRes("ping", "2021-06-01", noAuth, ping)
 
 	return rpc
 }

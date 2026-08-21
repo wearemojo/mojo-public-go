@@ -16,24 +16,24 @@ import (
 
 // Register registers a handler taking a request body and returning a response
 // body, at a single version.
-func Register[Req, Resp any](s *Server, method, version string, schema gojsonschema.JSONLoader, en authenforce.Enforcers, fn func(ctx context.Context, req *Req) (Resp, error)) {
+func (s *Server) Register[Req, Resp any](method, version string, schema gojsonschema.JSONLoader, en authenforce.Enforcers, fn func(ctx context.Context, req *Req) (Resp, error)) {
 	s.register(method, version, schema, en, adaptReqRes(fn))
 }
 
 // RegisterNoRes registers a handler taking a request body and returning
 // no response body (204 No Content), at a single version.
-func RegisterNoRes[Req any](s *Server, method, version string, schema gojsonschema.JSONLoader, en authenforce.Enforcers, fn func(ctx context.Context, req *Req) error) {
+func (s *Server) RegisterNoRes[Req any](method, version string, schema gojsonschema.JSONLoader, en authenforce.Enforcers, fn func(ctx context.Context, req *Req) error) {
 	s.register(method, version, schema, en, adaptReq(fn))
 }
 
 // RegisterNoReq registers a handler taking no request body and returning
 // a response body, at a single version.
-func RegisterNoReq[Resp any](s *Server, method, version string, en authenforce.Enforcers, fn func(ctx context.Context) (Resp, error)) {
+func (s *Server) RegisterNoReq[Resp any](method, version string, en authenforce.Enforcers, fn func(ctx context.Context) (Resp, error)) {
 	s.register(method, version, nil, en, adaptRes(fn))
 }
 
 // RegisterNoReqRes registers a handler taking no request body and
 // returning no response body (204 No Content), at a single version.
-func RegisterNoReqRes(s *Server, method, version string, en authenforce.Enforcers, fn func(ctx context.Context) error) {
+func (s *Server) RegisterNoReqRes(method, version string, en authenforce.Enforcers, fn func(ctx context.Context) error) {
 	s.register(method, version, nil, en, adaptBare(fn))
 }
