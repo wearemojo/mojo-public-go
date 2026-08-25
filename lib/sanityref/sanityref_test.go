@@ -2,7 +2,7 @@ package sanityref
 
 import (
 	_ "embed"
-	"encoding/json"
+	"encoding/json/v2"
 	"errors"
 	"slices"
 	"strings"
@@ -107,7 +107,8 @@ func TestResolveReferencesInfiniteRecursion(t *testing.T) {
 	is.Equal(missingRefs, []missingRef{})
 
 	_, err = json.Marshal(documentMap)
-	is.Equal(err.Error(), "json: unsupported value: encountered a cycle via map[string]interface {}")
+	// the exact wording of the json/v2 error varies between Go releases
+	is.True(strings.Contains(err.Error(), "encountered a cycle"))
 }
 
 func TestResolveReferencesMissingDocuments(t *testing.T) {
