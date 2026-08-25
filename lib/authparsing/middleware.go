@@ -2,8 +2,7 @@ package authparsing
 
 import (
 	"context"
-	"encoding/json/jsontext"
-	"encoding/json/v2"
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -13,23 +12,18 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/mlog"
 )
 
-// json/v2 marshals maps in a non-deterministic order by default, whereas v1
-// sorted the keys - error metadata is a map, and a stable wire format keeps
-// responses diffable and cacheable
-var deterministic = json.Deterministic(true)
-
 func jsonError(ctx context.Context, res http.ResponseWriter, err error) {
 	res.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-	enc := jsontext.NewEncoder(res)
+	enc := json.NewEncoder(res)
 	var encErr error
 
 	if err, ok := errors.AsType[cher.E](err); ok {
 		res.WriteHeader(err.StatusCode())
-		encErr = json.MarshalEncode(enc, err, deterministic)
+		encErr = enc.Encode(err)
 	} else {
 		res.WriteHeader(http.StatusInternalServerError)
-		encErr = json.MarshalEncode(enc, cher.New(cher.Unknown, cher.M{"error": err}), deterministic)
+		encErr = enc.Encode(cher.New(cher.Unknown, cher.M{"error": err}))
 	}
 
 	if encErr != nil {

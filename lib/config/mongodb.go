@@ -15,8 +15,8 @@ import (
 // MongoDB configures a connection to a Mongo database.
 type MongoDB struct {
 	URI             string         `json:"uri"`
-	ConnectTimeout  time.Duration  `json:"connect_timeout,format:nano"`
-	MaxConnIdleTime *time.Duration `json:"max_conn_idle_time,format:nano"`
+	ConnectTimeout  time.Duration  `json:"connect_timeout"`
+	MaxConnIdleTime *time.Duration `json:"max_conn_idle_time"`
 	MaxConnecting   *uint64        `json:"max_connecting"`
 	MaxPoolSize     *uint64        `json:"max_pool_size"`
 	MinPoolSize     *uint64        `json:"min_pool_size"`

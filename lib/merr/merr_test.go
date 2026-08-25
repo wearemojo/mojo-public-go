@@ -2,7 +2,7 @@ package merr
 
 import (
 	"context"
-	"encoding/json/v2"
+	"encoding/json"
 	"errors"
 	"strings"
 	"testing"

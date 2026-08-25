@@ -2,8 +2,7 @@ package mrpc
 
 import (
 	"context"
-	"encoding/json/jsontext"
-	"encoding/json/v2"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -86,11 +85,6 @@ func adaptBare(fn func(ctx context.Context) error) HandlerFunc {
 	}
 }
 
-// json/v2 marshals maps in a non-deterministic order by default, whereas v1
-// sorted the keys - responses carry maps (error metadata, free-form fields),
-// and a stable wire format keeps them diffable and cacheable
-var deterministic = json.Deterministic(true)
-
 func decodeRequest[Req any](r *http.Request) (*Req, error) {
 	if r.Body == nil {
 		return nil, cher.New(cher.BadRequest, nil, cher.New("missing_request_body", nil))
@@ -98,7 +92,7 @@ func decodeRequest[Req any](r *http.Request) (*Req, error) {
 
 	req := new(Req)
 
-	err := json.UnmarshalDecode(jsontext.NewDecoder(r.Body), req)
+	err := json.NewDecoder(r.Body).Decode(req)
 	if errors.Is(err, io.EOF) {
 		return nil, cher.New(cher.BadRequest, nil, cher.New("missing_request_body", nil))
 	} else if err != nil {
@@ -129,10 +123,10 @@ func rejectRequestBody(r *http.Request) error {
 }
 
 func encodeResponse[Resp any](w http.ResponseWriter, res Resp) error {
-	// jsontext does not escape HTML by default
-	enc := jsontext.NewEncoder(w)
+	enc := json.NewEncoder(w)
+	enc.SetEscapeHTML(false)
 
-	if err := json.MarshalEncode(enc, res, deterministic); err != nil {
+	if err := enc.Encode(res); err != nil {
 		if strings.Contains(err.Error(), "broken pipe") {
 			return nil
 		}

@@ -1,7 +1,7 @@
 package gjson
 
 import (
-	"encoding/json/v2"
+	"encoding/json"
 )
 
 // Unmarshal parses JSON-encoded data and returns a value of the type T.

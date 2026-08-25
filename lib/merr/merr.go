@@ -2,8 +2,7 @@ package merr
 
 import (
 	"context"
-	"encoding/json/jsontext"
-	"encoding/json/v2"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -88,7 +87,7 @@ type Fields struct {
 }
 
 // MarshalJSON ensures that all reasons are JSON serializable.
-func (f Fields) MarshalJSONTo(enc *jsontext.Encoder) error {
+func (f Fields) MarshalJSON() ([]byte, error) {
 	// Alias to avoid infinite recursion
 	type Alias Fields
 	aux := struct {
@@ -101,16 +100,16 @@ func (f Fields) MarshalJSONTo(enc *jsontext.Encoder) error {
 
 	aux.Reasons = make([]any, len(f.Reasons))
 	for idx, reason := range f.Reasons {
-		marshaledReason, err := json.Marshal(reason, enc.Options())
+		marshaledReason, err := json.Marshal(reason)
 		if err != nil {
 			// If the reason cannot be marshaled, fall back to its string representation
 			aux.Reasons[idx] = pretty.Sprint(reason)
 		} else {
-			aux.Reasons[idx] = jsontext.Value(marshaledReason)
+			aux.Reasons[idx] = json.RawMessage(marshaledReason)
 		}
 	}
 
-	return json.MarshalEncode(enc, aux)
+	return json.Marshal(aux)
 }
 
 func (e E) Fields() Fields {

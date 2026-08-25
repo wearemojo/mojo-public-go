@@ -2,7 +2,7 @@ package sanityref
 
 import (
 	"context"
-	"encoding/json/v2"
+	"encoding/json"
 	"reflect"
 	"regexp"
 	"strings"
@@ -166,13 +166,13 @@ func recursivelyResolve(
 
 		return data, nil
 
-	case bool, float64, string, nil:
+	case bool, float64, string, nil, json.Number:
 		// expected primitive JSON types - also can't be refs, so leave as-is
 		return data, nil
 
 	default:
 		// we should now have covered all types documented at:
-		// https://pkg.go.dev/encoding/json/v2#Unmarshal
+		// https://pkg.go.dev/encoding/json#Unmarshal
 		//
 		// so if we get here, that indicates the json package has changed (not
 		// likely!), or someone's unmarshaled into specific non-`any` types,
@@ -243,7 +243,7 @@ func handleUnexpectedType(ctx context.Context, data any) error {
 
 	default:
 		return merr.New(ctx, ErrInvalidJSONType, merr.M{
-			"expected": "[]any, map[string]any, bool, float64, string, nil",
+			"expected": "[]any, map[string]any, bool, float64, string, nil, json.Number",
 			"actual":   typ.String(),
 			"tip":      "ensure you're unmarshaling into `any`-oriented types, not custom structs",
 		})

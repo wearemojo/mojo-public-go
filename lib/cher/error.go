@@ -2,7 +2,7 @@ package cher
 
 import (
 	"database/sql/driver"
-	"encoding/json/v2"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"slices"

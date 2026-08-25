@@ -1,7 +1,6 @@
 package ksuid
 
 import (
-	"encoding/json/v2"
 	"testing"
 	"time"
 
@@ -290,9 +289,9 @@ func TestID(t *testing.T) {
 				is.NoErr(err)
 				is.Equal(test.Bytes, value)
 
-				marshaled, err := json.Marshal(test.ID)
+				json, err := test.ID.MarshalJSON()
 				is.NoErr(err)
-				is.Equal(test.JSON, marshaled)
+				is.Equal(test.JSON, json)
 			})
 		}
 	})

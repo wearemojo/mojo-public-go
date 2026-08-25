@@ -68,7 +68,7 @@ type PriceData struct {
 
 type Recurring struct {
 	Interval      string `json:"interval"`
-	IntervalCount int    `json:"interval_count,omitzero"`
+	IntervalCount int    `json:"interval_count,omitempty"`
 }
 
 type CheckoutSession struct {

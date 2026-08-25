@@ -2,7 +2,7 @@ package discourse
 
 import (
 	"context"
-	"encoding/json/v2"
+	"encoding/json"
 	"fmt"
 	"strconv"
 

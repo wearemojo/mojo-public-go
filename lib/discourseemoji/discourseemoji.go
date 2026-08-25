@@ -3,7 +3,7 @@ package discourseemoji
 import (
 	_ "embed"
 	"encoding/hex"
-	"encoding/json/v2"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"

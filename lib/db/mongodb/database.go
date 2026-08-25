@@ -2,7 +2,7 @@ package mongodb
 
 import (
 	"context"
-	"encoding/json/v2"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/fs"
