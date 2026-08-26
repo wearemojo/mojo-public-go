@@ -3,6 +3,7 @@ package cher
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/matryer/is"
@@ -77,22 +78,33 @@ func TestCoerce(t *testing.T) {
 		Name   string
 		Src    any
 		Result E
+
+		// the wording of a json/v2 error varies between Go releases, so where
+		// the message comes from the json package, only a stable fragment of it
+		// is checked and the meta is dropped before comparing
+		MessageContains string
 	}{
-		{"E", E{Code: "foo"}, E{Code: "foo"}},
-		{"String", "foo", E{Code: "foo"}},
-		{"JSON", []byte(`{"code":"foo"}`), E{Code: "foo"}},
-		{"BadJSON", []byte(`{"code":0}`), E{Code: CoercionError, Meta: M{"message": "json: cannot unmarshal number into Go struct field alias.code of type string"}}},
-		{"Error", errors.New("foo"), E{Code: Unknown, Meta: M{"message": "foo"}}}, //nolint:forbidigo // required for test
-		{"Unknown", nil, E{Code: CoercionError}},
+		{"E", E{Code: "foo"}, E{Code: "foo"}, ""},
+		{"String", "foo", E{Code: "foo"}, ""},
+		{"JSON", []byte(`{"code":"foo"}`), E{Code: "foo"}, ""},
+		{"BadJSON", []byte(`{"code":0}`), E{Code: CoercionError}, `"/code"`},
+		{"Error", errors.New("foo"), E{Code: Unknown, Meta: M{"message": "foo"}}, ""}, //nolint:forbidigo // required for test
+		{"Unknown", nil, E{Code: CoercionError}, ""},
 	}
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 			is := is.New(t)
 
-			e := Coerce(test.Src)
+			coerced := Coerce(test.Src)
 
-			is.Equal(test.Result, e)
+			if test.MessageContains != "" {
+				message, _ := coerced.Meta["message"].(string)
+				is.True(strings.Contains(message, test.MessageContains))
+				coerced.Meta = nil
+			}
+
+			is.Equal(test.Result, coerced)
 		})
 	}
 }

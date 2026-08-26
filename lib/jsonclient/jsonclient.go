@@ -3,7 +3,8 @@ package jsonclient
 import (
 	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"errors"
 	"fmt"
 	"io"
@@ -215,7 +216,7 @@ func defaultJSONHandler(dst any, method, path string) ResponseBodyHandler {
 		if res.StatusCode == http.StatusNoContent || res.Body == nil {
 			return ErrNoResponse
 		}
-		err := json.NewDecoder(res.Body).Decode(dst)
+		err := json.UnmarshalDecode(jsontext.NewDecoder(res.Body), dst)
 		if errors.Is(err, io.EOF) {
 			return ErrNoResponse
 		} else if err != nil {

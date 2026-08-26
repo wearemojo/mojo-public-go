@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"database/sql/driver"
 	"encoding/binary"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 
 	"github.com/jamescun/basex"
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -148,14 +149,9 @@ func (id ID) prefixLen() (n int) {
 	return n
 }
 
-// MarshalJSON implements a custom JSON string marshaler.
-func (id ID) MarshalJSON() ([]byte, error) {
-	b := id.Bytes()
-	x := make([]byte, len(b)+2)
-	x[0] = '"'
-	copy(x[1:], b)
-	x[len(x)-1] = '"'
-	return x, nil
+// MarshalJSONTo implements a custom JSON string marshaler.
+func (id ID) MarshalJSONTo(enc *jsontext.Encoder) error {
+	return enc.WriteToken(jsontext.String(id.String()))
 }
 
 // UnmarshalJSON implements a custom JSON string unmarshaler.
