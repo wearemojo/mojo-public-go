@@ -87,7 +87,7 @@ type Fields struct {
 	Reasons []error            `json:"reasons"`
 }
 
-// MarshalJSON ensures that all reasons are JSON serializable.
+// MarshalJSONTo ensures that all reasons are JSON serializable.
 func (f Fields) MarshalJSONTo(enc *jsontext.Encoder) error {
 	// Alias to avoid infinite recursion
 	type Alias Fields
