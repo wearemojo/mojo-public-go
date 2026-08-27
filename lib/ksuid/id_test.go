@@ -2,6 +2,7 @@ package ksuid
 
 import (
 	"encoding/json/v2"
+	"errors"
 	"testing"
 	"time"
 
@@ -220,12 +221,15 @@ func TestID(t *testing.T) {
 				is := is.New(t)
 
 				id := ID{}
-				err := id.UnmarshalJSON(test.Source)
+				err := json.Unmarshal(test.Source, &id)
 				if test.Error == nil {
 					is.NoErr(err)
 					is.Equal(test.ID, id)
 				} else {
-					is.Equal(test.Error, err)
+					// json/v2 wraps an UnmarshalJSONFrom error in a SemanticError
+					parseErr, ok := errors.AsType[*ParseError](err)
+					is.True(ok)
+					is.Equal(test.Error, parseErr)
 				}
 			})
 		}

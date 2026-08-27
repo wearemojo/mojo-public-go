@@ -1,6 +1,7 @@
 package cher
 
 import (
+	"encoding/json/v2"
 	"fmt"
 	"net/http"
 	"strings"
@@ -107,6 +108,51 @@ func TestCoerce(t *testing.T) {
 			is.Equal(test.Result, coerced)
 		})
 	}
+}
+
+func TestExtraSurvivesRoundTrips(t *testing.T) {
+	is := is.New(t)
+
+	// an error carrying a field we do not know about, as it would arrive from
+	// another service
+	err := Coerce([]byte(`{"code":"bad_request","surprise":"x"}`))
+	is.Equal(M{"surprise": "x"}, M(err.Extra))
+
+	// repeated hops between services must not nest `_extra` inside itself
+	for range 3 {
+		data, marshalErr := json.Marshal(err)
+		is.NoErr(marshalErr)
+
+		err = Coerce(data)
+		is.Equal("bad_request", err.Code)
+		is.Equal(M{"surprise": "x"}, M(err.Extra))
+	}
+}
+
+func TestUnmarshalReplacesRatherThanMerges(t *testing.T) {
+	is := is.New(t)
+
+	// A reused value must not keep fields the incoming payload omitted
+	target := E{
+		Code:    "old_code",
+		Meta:    M{"old": true},
+		Reasons: []E{{Code: "old_reason"}},
+		Extra:   map[string]any{"old": true},
+	}
+
+	err := json.Unmarshal([]byte(`{"code":"new_code"}`), &target)
+	is.NoErr(err)
+
+	is.Equal(E{Code: "new_code"}, target)
+}
+
+func TestExtraMergesWithUnknownMembers(t *testing.T) {
+	is := is.New(t)
+
+	// both a carried `_extra` and a newly unknown member: neither is dropped
+	err := Coerce([]byte(`{"code":"bad_request","_extra":{"carried":1},"fresh":2}`))
+
+	is.Equal(M{"carried": float64(1), "fresh": float64(2)}, M(err.Extra))
 }
 
 //nolint:dupl // verbosity isn't an issue here

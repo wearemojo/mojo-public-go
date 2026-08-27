@@ -154,10 +154,10 @@ func (id ID) MarshalJSONTo(enc *jsontext.Encoder) error {
 	return enc.WriteToken(jsontext.String(id.String()))
 }
 
-// UnmarshalJSON implements a custom JSON string unmarshaler.
-func (id *ID) UnmarshalJSON(b []byte) (err error) {
+// UnmarshalJSONFrom implements a custom JSON string unmarshaler.
+func (id *ID) UnmarshalJSONFrom(dec *jsontext.Decoder) (err error) {
 	var str string
-	err = json.Unmarshal(b, &str)
+	err = json.UnmarshalDecode(dec, &str)
 	if err != nil {
 		return err
 	}

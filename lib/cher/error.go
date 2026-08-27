@@ -2,13 +2,14 @@ package cher
 
 import (
 	"database/sql/driver"
+	"encoding/json/jsontext"
 	"encoding/json/v2"
 	"fmt"
+	"maps"
 	"net/http"
 	"slices"
 
 	"github.com/pkg/errors"
-	"github.com/wearemojo/mojo-public-go/lib/gjson"
 	"github.com/wearemojo/mojo-public-go/lib/stacktrace"
 )
 
@@ -49,27 +50,40 @@ type E struct {
 	Extra map[string]any `bson:"-" json:"_extra,omitempty"`
 }
 
-func (e *E) UnmarshalJSON(data []byte) error {
+func (e *E) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
 	type alias E
-	base, err := gjson.Unmarshal[alias](data)
-	if err != nil {
+
+	// An embedded fallback receives exactly the members that match no named
+	// field, so the value does not need decoding a second time to subtract the
+	// known keys - and `_extra` is no longer swept up into itself, which used
+	// to nest it one level deeper on every hop between services.
+	var base alias
+	aux := struct {
+		*alias
+
+		//nolint:tagliatelle // An embedded fallback field cannot be named.
+		Unknown map[string]any `json:",embed"`
+	}{alias: &base}
+
+	if err := json.UnmarshalDecode(dec, &aux); err != nil {
 		return err
 	}
 
-	extra, err := gjson.Unmarshal[map[string]any](data)
-	if err != nil {
-		return err
+	if len(aux.Unknown) > 0 {
+		if base.Extra == nil {
+			base.Extra = aux.Unknown
+		} else {
+			// A member at the top level came from the producer of this payload,
+			// so on a name collision it wins over one carried in `_extra`.
+			maps.Copy(base.Extra, aux.Unknown)
+		}
 	}
 
-	delete(extra, "code")
-	delete(extra, "meta")
-	delete(extra, "reasons")
-
-	if len(extra) > 0 {
-		base.Extra = extra
-	}
-
+	// Decoding into a local and replacing wholesale preserves the previous
+	// behaviour: a reused E is not left holding fields the payload omitted, and
+	// any stale stack is cleared.
 	*e = E(base)
+
 	return nil
 }
 

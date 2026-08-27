@@ -24,12 +24,15 @@ func jsonError(ctx context.Context, res http.ResponseWriter, err error) {
 	enc := jsontext.NewEncoder(res)
 	var encErr error
 
-	if err, ok := errors.AsType[cher.E](err); ok {
-		res.WriteHeader(err.StatusCode())
-		encErr = json.MarshalEncode(enc, err, deterministic)
+	if cErr, ok := errors.AsType[cher.E](err); ok {
+		res.WriteHeader(cErr.StatusCode())
+		encErr = json.MarshalEncode(enc, cErr, deterministic)
 	} else {
+		// this branch is the unexpected-internal-error path, on an endpoint
+		// reachable unauthenticated, so the error is not echoed back - the
+		// caller has already recorded it via clog.SetError and mlog
 		res.WriteHeader(http.StatusInternalServerError)
-		encErr = json.MarshalEncode(enc, cher.New(cher.Unknown, cher.M{"error": err}), deterministic)
+		encErr = json.MarshalEncode(enc, cher.New(cher.Unknown, nil), deterministic)
 	}
 
 	if encErr != nil {
