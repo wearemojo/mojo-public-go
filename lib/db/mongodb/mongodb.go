@@ -15,6 +15,9 @@ func Connect(ctx context.Context, opts *options.ClientOptions, dbName string) (d
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
+		// Close the client so a caller retrying the connection does not leak
+		// the connection pool of the failed attempt.
+		_ = client.Disconnect(context.WithoutCancel(ctx))
 		return db, err
 	}
 

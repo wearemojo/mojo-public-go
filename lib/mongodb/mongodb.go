@@ -10,9 +10,16 @@ import (
 	"github.com/wearemojo/mojo-public-go/lib/config"
 	"github.com/wearemojo/mojo-public-go/lib/db/mongodb"
 	"github.com/wearemojo/mojo-public-go/lib/merr"
+	"github.com/wearemojo/mojo-public-go/lib/mlog"
 	"github.com/wearemojo/mojo-public-go/lib/secret"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/v2/mongo/otelmongo"
+)
+
+const (
+	connectTimeout    = 30 * time.Second
+	connectAttempts   = 3
+	connectRetryDelay = 5 * time.Second
 )
 
 type MongoDB struct {
@@ -34,7 +41,7 @@ func (m *MongoDB) Connect(ctx context.Context, dbStruct any, schemaFS fs.FS) (*m
 
 	// TODO: handle reconnection in some way?
 	// in case the credentials change since the initial connection
-	db, err := connect(ctx, uri)
+	db, err := connectWithRetries(ctx, uri)
 	if err != nil {
 		return nil, err
 	}
@@ -77,6 +84,38 @@ func extractCollectionNames(dbStruct any) []string {
 	return collectionNames
 }
 
+// connectWithRetries exists because services connect at instance startup,
+// where a failure crashes the whole instance. When many instances boot at
+// once (e.g. a deploy rolling every service), MongoDB can be slow to complete
+// handshakes, so a single attempt with a short timeout would fail deploys on
+// transient slowness. Cloud Run allows several minutes of startup time, so
+// retrying is strictly better than exiting on the first slow connection.
+func connectWithRetries(ctx context.Context, uri string) (*mongodb.Database, error) {
+	var db *mongodb.Database
+	var err error
+
+	for attempt := 1; attempt <= connectAttempts; attempt++ {
+		db, err = connect(ctx, uri)
+		if err == nil {
+			return db, nil
+		}
+
+		if attempt == connectAttempts {
+			break
+		}
+
+		mlog.Warn(ctx, merr.New(ctx, "mongo_connect_retrying", merr.M{"attempt": attempt}, err))
+
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(connectRetryDelay):
+		}
+	}
+
+	return nil, err
+}
+
 func connect(ctx context.Context, uri string) (*mongodb.Database, error) {
 	opts, dbName, err := config.MongoDB{URI: uri}.Options(ctx)
 	if err != nil {
@@ -85,7 +124,7 @@ func connect(ctx context.Context, uri string) (*mongodb.Database, error) {
 
 	opts.Monitor = otelmongo.NewMonitor()
 
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, connectTimeout)
 	defer cancel()
 
 	return mongodb.Connect(ctx, opts, dbName)
