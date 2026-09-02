@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	connectTimeout    = 30 * time.Second
+	connectTimeout    = 45 * time.Second
 	connectAttempts   = 3
 	connectRetryDelay = 5 * time.Second
 )
