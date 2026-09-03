@@ -183,38 +183,43 @@ func (s *Server) writeError(ctx context.Context, w http.ResponseWriter, err erro
 		return
 	}
 
-	var body cher.E
-
-	switch {
-	case errors.As(err, &body):
-		// body already populated by errors.As
-	default:
-		if syntaxErr, ok := errors.AsType[*jsontext.SyntacticError](err); ok {
-			body = cher.New("invalid_json", cher.M{
-				"error":  syntaxErr.Error(),
-				"offset": syntaxErr.ByteOffset,
-			})
-		} else if semanticErr, ok := errors.AsType[*json.SemanticError](err); ok {
-			// `name` is a JSON Pointer, where v1 used a dot-separated path
-			meta := cher.M{"name": string(semanticErr.JSONPointer)}
-
-			// both are documented as potentially unknown
-			if semanticErr.GoType != nil {
-				meta["expected"] = semanticErr.GoType.Kind().String()
-			}
-			if semanticErr.JSONKind != 0 {
-				meta["actual"] = semanticErr.JSONKind.String()
-			}
-
-			body = cher.New("invalid_json", meta)
-		} else {
-			body = cher.New(cher.Unknown, nil)
-		}
-	}
+	body := errorResponseBody(err)
 
 	w.WriteHeader(body.StatusCode())
 
 	if werr := json.MarshalEncode(jsontext.NewEncoder(w), body, deterministic); werr != nil {
 		mlog.Warn(ctx, merr.New(ctx, "mrpc_write_error_failed", nil, werr))
 	}
+}
+
+// errorResponseBody maps an error onto the cher.E sent to the client.
+func errorResponseBody(err error) cher.E {
+	if cErr, ok := errors.AsType[cher.E](err); ok {
+		return cErr
+	}
+
+	if syntaxErr, ok := errors.AsType[*jsontext.SyntacticError](err); ok {
+		return cher.New("invalid_json", cher.M{
+			"error":  syntaxErr.Error(),
+			"offset": syntaxErr.ByteOffset,
+		})
+	}
+
+	semanticErr, ok := errors.AsType[*json.SemanticError](err)
+	if !ok {
+		return cher.New(cher.Unknown, nil)
+	}
+
+	// `name` is a JSON Pointer, where v1 used a dot-separated path
+	meta := cher.M{"name": string(semanticErr.JSONPointer)}
+
+	// both are documented as potentially unknown
+	if semanticErr.GoType != nil {
+		meta["expected"] = semanticErr.GoType.Kind().String()
+	}
+	if semanticErr.JSONKind != 0 {
+		meta["actual"] = semanticErr.JSONKind.String()
+	}
+
+	return cher.New("invalid_json", meta)
 }

@@ -29,8 +29,8 @@ func TestCoerceThirdPartyTimeout(t *testing.T) {
 				timeout: true,
 			}),
 			expect: func(is *is.I, err error) {
-				var cErr E
-				is.True(errors.As(err, &cErr))
+				cErr, ok := errors.AsType[E](err)
+				is.True(ok)
 				is.Equal("third_party_timeout", cErr.Code)
 				is.Equal("foobar", cErr.Meta["error"])
 			},

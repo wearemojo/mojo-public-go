@@ -96,10 +96,10 @@ func (f Fields) MarshalJSONTo(enc *jsontext.Encoder) error {
 
 		Reasons []any `json:"reasons"`
 	}{
-		Alias: (*Alias)(&f),
+		Alias:   (*Alias)(&f),
+		Reasons: make([]any, len(f.Reasons)),
 	}
 
-	aux.Reasons = make([]any, len(f.Reasons))
 	for idx, reason := range f.Reasons {
 		marshaledReason, err := json.Marshal(reason, enc.Options())
 		if err != nil {

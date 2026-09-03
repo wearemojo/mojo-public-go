@@ -10,8 +10,7 @@ type timeoutError interface {
 }
 
 func CoerceThirdPartyTimeout(err error) error {
-	var netErr timeoutError
-	if errors.As(err, &netErr) && netErr.Timeout() {
+	if netErr, ok := errors.AsType[timeoutError](err); ok && netErr.Timeout() {
 		return New(ThirdPartyTimeout, M{
 			"error": netErr.Error(),
 		})
