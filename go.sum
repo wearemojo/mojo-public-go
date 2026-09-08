@@ -61,8 +61,8 @@ github.com/igrmk/decimal v0.0.0-20181101202222-f7eca216a71d h1:zh8ZZE5ldouo5pF5L
 github.com/igrmk/decimal v0.0.0-20181101202222-f7eca216a71d/go.mod h1:E54a6g6rI+A2N/KRDuz2nNTQ86tuoal6KuHKpzjId64=
 github.com/jamescun/basex v0.0.0-20180407124237-e1bcb39ab18e h1:hNqjOAKBqcxNss3cdPCnvrWlprJqMvXvfY0EMKqwZ4E=
 github.com/jamescun/basex v0.0.0-20180407124237-e1bcb39ab18e/go.mod h1:lnTW2aVT/MijZZXFVlMJOFaIk9ypxRMVOB9xtNJaHoQ=
-github.com/klauspost/compress v1.18.0 h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
-github.com/klauspost/compress v1.18.0/go.mod h1:2Pp+KzxcywXVXMr50+X0Q/Lsb43OQHYWRCY2AiWywWQ=
+github.com/klauspost/compress v1.19.2 h1:hMRETovs/pu/dVWN7zIT1PGG8t509MwT6bO7XSi26R8=
+github.com/klauspost/compress v1.19.2/go.mod h1:cwPg85FWrGar70rWktvGQj8/hthj3wpl0PGDogxkrSQ=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
@@ -121,8 +121,8 @@ github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78/go.mod h1:aL8wCCfTfS
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 go.mongodb.org/mongo-driver v1.17.7 h1:a9w+U3Vt67eYzcfq3k/OAv284/uUUkL0uP75VE5rCOU=
 go.mongodb.org/mongo-driver v1.17.7/go.mod h1:Hy04i7O2kC4RS06ZrhPRqj/u4DTYkFDAAccj+rVKqgQ=
-go.mongodb.org/mongo-driver/v2 v2.8.2 h1:b6o2m7zL8g2URuO8urBedAylxojybKXNZTxgkOcl+2w=
-go.mongodb.org/mongo-driver/v2 v2.8.2/go.mod h1:yOI9kBsufol30iFsl1slpdq1I0eHPzybRWdyYUs8K/0=
+go.mongodb.org/mongo-driver/v2 v2.9.0 h1:e2mQdOmbkiYz+dj3faM7lVDwl7WdnRD+g5VicafMhL0=
+go.mongodb.org/mongo-driver/v2 v2.9.0/go.mod h1:SHKN0IWkKmEVGHLjXnni6s4wPKX4v86FTgOeJJFuXcA=
 go.opentelemetry.io/auto/sdk v1.2.1 h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=
 go.opentelemetry.io/auto/sdk v1.2.1/go.mod h1:KRTj+aOaElaLi+wW1kO/DZRXwkF4C5xPbEe3ZiIhN7Y=
 go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/v2/mongo/otelmongo v0.0.0-20250523125547-fd213fcb7d02 h1:lLzkqnuiqVdtrWO/vFTD2iSmNhf7+ZJKtjaipjTzk4Q=
