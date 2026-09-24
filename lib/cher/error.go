@@ -61,7 +61,6 @@ func (e *E) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
 	aux := struct {
 		*alias
 
-		//nolint:tagliatelle // An embedded fallback field cannot be named.
 		Unknown map[string]any `json:",embed"`
 	}{alias: &base}
 

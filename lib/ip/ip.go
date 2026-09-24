@@ -13,10 +13,10 @@ func GetIP(addr string) string {
 		return addr
 	}
 
-	i := strings.LastIndexByte(addr, ':')
-	if i == -1 {
+	host, _, found := strings.CutLast(addr, ":")
+	if !found {
 		return addr
 	}
 
-	return addr[:i]
+	return host
 }
