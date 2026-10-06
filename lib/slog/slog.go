@@ -2,6 +2,7 @@ package slog
 
 import (
 	"fmt"
+	"maps"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -48,9 +49,15 @@ func SetCLogFieldsForGCP() func(next http.Handler) http.Handler {
 			t2 := time.Now()
 			duration := t2.Sub(t1)
 
-			httpRequest["status"] = resWrap.Status
-			httpRequest["responseSize"] = resWrap.Bytes
-			httpRequest["latency"] = fmt.Sprintf("%.9fs", duration.Seconds())
+			// Goroutines started by the request can still be logging the published map.
+			completed := maps.Clone(httpRequest)
+			completed["status"] = resWrap.Status
+			completed["responseSize"] = resWrap.Bytes
+			completed["latency"] = fmt.Sprintf("%.9fs", duration.Seconds())
+
+			clog.SetFields(ctx, clog.Fields{
+				"httpRequest": completed,
+			})
 		})
 	}
 }
