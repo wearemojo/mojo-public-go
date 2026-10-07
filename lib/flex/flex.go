@@ -74,6 +74,7 @@ type Recurring struct {
 type CheckoutSession struct {
 	CheckoutSessionID string  `json:"checkout_session_id"`
 	Customer          *string `json:"customer"`
+	ExpiresAt         int64   `json:"expires_at"`
 	RedirectURL       string  `json:"redirect_url"`
 	Status            string  `json:"status"`
 	Subscription      *string `json:"subscription"`
