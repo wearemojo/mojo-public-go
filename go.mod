@@ -22,7 +22,7 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/stripe/stripe-go/v85 v85.2.0
 	github.com/xeipuuv/gojsonschema v1.2.0
-	go.mongodb.org/mongo-driver/v2 v2.9.1
+	go.mongodb.org/mongo-driver/v2 v2.9.2
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/v2/mongo/otelmongo v0.0.0-20250523125547-fd213fcb7d02
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.72.0
 	go.opentelemetry.io/otel/trace v1.47.0
