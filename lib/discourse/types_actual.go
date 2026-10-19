@@ -21,6 +21,7 @@ type UserSingleSignOnRecord struct {
 
 type Category struct {
 	ID              int        `json:"id"`
+	TopicID         int        `json:"topic_id"`
 	Name            string     `json:"name"`
 	Slug            string     `json:"slug"`
 	ReadRestricted  bool       `json:"read_restricted"`
