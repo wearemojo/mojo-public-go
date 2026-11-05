@@ -36,14 +36,15 @@ type CreateCheckoutSessionRequest struct {
 }
 
 type CheckoutSessionParams struct {
-	CancelURL         string            `json:"cancel_url"`
-	ClientReferenceID string            `json:"client_reference_id,omitempty"`
-	Defaults          *Defaults         `json:"defaults,omitempty"`
-	LineItems         []LineItem        `json:"line_items"`
-	Metadata          map[string]string `json:"metadata,omitempty"`
-	Mode              string            `json:"mode"`
-	SubscriptionData  *SubscriptionData `json:"subscription_data,omitempty"`
-	SuccessURL        string            `json:"success_url"`
+	CancelURL                 string            `json:"cancel_url"`
+	ClientReferenceID         string            `json:"client_reference_id,omitempty"`
+	Defaults                  *Defaults         `json:"defaults,omitempty"`
+	LineItems                 []LineItem        `json:"line_items"`
+	Metadata                  map[string]string `json:"metadata,omitempty"`
+	Mode                      string            `json:"mode"`
+	ShippingAddressCollection bool              `json:"shipping_address_collection,omitempty"`
+	SubscriptionData          *SubscriptionData `json:"subscription_data,omitempty"`
+	SuccessURL                string            `json:"success_url"`
 }
 
 type SubscriptionData struct {
