@@ -3,9 +3,11 @@ package mongodb
 import (
 	"context"
 	"encoding/json/v2"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
+	"time"
 
 	"github.com/wearemojo/mojo-public-go/lib/merr"
 	"github.com/wearemojo/mojo-public-go/lib/slicefn"
@@ -98,4 +100,51 @@ func (db *Database) DoTxWithOptions(ctx context.Context, opts *options.SessionOp
 		})
 		return err
 	})
+}
+
+const transactionAbortTimeout = time.Second
+
+// DoTxWithCommitDeadline uses ctx for the commit because the driver's
+// WithTransaction helper detaches its deadline. fn may run twice after a
+// transient error. Cancellation after sending a commit can leave its outcome unknown.
+func (db *Database) DoTxWithCommitDeadline(ctx context.Context, fn func(ctx context.Context) error) error {
+	err := db.doTxWithCommitDeadline(ctx, fn)
+	if mongoErr, ok := errors.AsType[mongo.ServerError](err); ok && ctx.Err() == nil {
+		if mongoErr.HasErrorLabel("TransientTransactionError") && !mongoErr.HasErrorLabel("UnknownTransactionCommitResult") {
+			return db.doTxWithCommitDeadline(ctx, fn)
+		}
+	}
+	return err
+}
+
+func (db *Database) doTxWithCommitDeadline(ctx context.Context, fn func(ctx context.Context) error) error {
+	session, err := db.Client().StartSession()
+	if err != nil {
+		return err
+	}
+
+	committing := false
+	defer func() {
+		cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), transactionAbortTimeout)
+		defer cancel()
+		if committing {
+			// An in-flight commit may have succeeded. Avoid a server-side abort.
+			cancel()
+		}
+		session.EndSession(cleanupCtx)
+	}()
+
+	if err = session.StartTransaction(); err != nil {
+		return err
+	}
+	ctx = mongo.NewSessionContext(ctx, session)
+	if err = fn(ctx); err != nil {
+		return err
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
+	committing = true
+	return session.CommitTransaction(ctx)
 }

@@ -15,20 +15,21 @@ import (
 
 // errors that are expected to be common across services
 const (
-	BadRequest        = "bad_request"
-	Unauthorized      = "unauthorized"
-	AccessDenied      = "access_denied"
-	NotFound          = "not_found"
-	RouteNotFound     = "route_not_found"
-	MethodNotAllowed  = "method_not_allowed"
-	Unknown           = "unknown"
-	EndpointWithdrawn = "endpoint_withdrawn"
-	TooManyRequests   = "too_many_requests"
-	ContextCanceled   = "context_canceled"
-	EOF               = "eof"
-	UnexpectedEOF     = "unexpected_eof"
-	RequestTimeout    = "request_timeout"
-	ThirdPartyTimeout = "third_party_timeout"
+	BadRequest         = "bad_request"
+	Unauthorized       = "unauthorized"
+	AccessDenied       = "access_denied"
+	NotFound           = "not_found"
+	RouteNotFound      = "route_not_found"
+	MethodNotAllowed   = "method_not_allowed"
+	Unknown            = "unknown"
+	EndpointWithdrawn  = "endpoint_withdrawn"
+	TooManyRequests    = "too_many_requests"
+	ServiceUnavailable = "service_unavailable"
+	ContextCanceled    = "context_canceled"
+	EOF                = "eof"
+	UnexpectedEOF      = "unexpected_eof"
+	RequestTimeout     = "request_timeout"
+	ThirdPartyTimeout  = "third_party_timeout"
 
 	CoercionError = "unable_to_coerce_error"
 )
@@ -136,6 +137,9 @@ func (e E) StatusCode() int {
 
 	case TooManyRequests:
 		return http.StatusTooManyRequests
+
+	case ServiceUnavailable:
+		return http.StatusServiceUnavailable
 
 	case Unknown, CoercionError, RequestTimeout:
 		return http.StatusInternalServerError
